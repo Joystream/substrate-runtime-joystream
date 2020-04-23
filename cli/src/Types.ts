@@ -1,9 +1,10 @@
 import BN from 'bn.js';
 import { ElectionStage, Seat } from '@joystream/types';
-import { Option } from '@polkadot/types';
+import { Option, Vec } from '@polkadot/types';
 import { BlockNumber, Balance } from '@polkadot/types/interfaces';
 import { DerivedBalances } from '@polkadot/api-derive/types';
 import { KeyringPair } from '@polkadot/keyring/types';
+import { MemberId } from '@joystream/types/src/members';
 
 // KeyringPair type extended with mandatory "meta.name"
 // It's used for accounts/keys management within CLI.
@@ -56,6 +57,13 @@ export function createCouncilInfoObj(
         stage
     };
 }
+
+// Account memberships information retrieved from the api:
+// MembershipIds by root account and controller account (for given address/Account)
+export type AccountMemberships = {
+    rootIds: Vec<MemberId>,
+    controllerIds: Vec<MemberId>
+};
 
 // Object with "name" and "value" properties, used for rendering simple CLI tables like:
 // Total balance:   100 JOY

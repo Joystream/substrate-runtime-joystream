@@ -6,6 +6,8 @@ enum ExitCodes {
     InvalidFile = 402,
     NoAccountFound = 403,
     NoAccountSelected = 404,
+    NoMembershipFound = 405,
+    NoTermsFound = 406,
 
     UnexpectedException = 500,
     FsOperationFailed = 501,

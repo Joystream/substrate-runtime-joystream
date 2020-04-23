@@ -10,6 +10,7 @@ import { formatBalance } from '@polkadot/util';
 import { NamedKeyringPair } from '../Types';
 import { DerivedBalances } from '@polkadot/api-derive/types';
 import { toFixedLength } from '../helpers/display';
+import { Profile } from '@joystream/types/src/members';
 
 const ACCOUNTS_DIRNAME = '/accounts';
 
@@ -142,6 +143,16 @@ export default abstract class AccountsCommandBase extends ApiCommandBase {
         }
 
         return selectedAccount;
+    }
+
+    async getRequiredMembership(promptIfMissing: boolean = true): Promise<Profile> {
+        const selectedAccount = await this.getRequiredSelectedAccount(promptIfMissing);
+        const membership = await this.getApi().getCurrentMembershipByAddress(selectedAccount.address);
+        if (!membership) {
+            this.error('No memberships are available for this accout', { exit: ExitCodes.NoMembershipFound });
+        }
+
+        return membership;
     }
 
     async setSelectedAccount(account: NamedKeyringPair): Promise<void> {

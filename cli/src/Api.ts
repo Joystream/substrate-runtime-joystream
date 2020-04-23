@@ -6,9 +6,12 @@ import { formatBalance } from '@polkadot/util';
 import { Hash } from '@polkadot/types/interfaces';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { Codec } from '@polkadot/types/types';
-import { AccountSummary, CouncilInfoObj, CouncilInfoTuple, createCouncilInfoObj } from './Types';
+import { AccountSummary, CouncilInfoObj, CouncilInfoTuple, createCouncilInfoObj, AccountMemberships } from './Types';
 import { DerivedFees, DerivedBalances } from '@polkadot/api-derive/types';
 import { CLIError } from '@oclif/errors';
+import { Option, Vec } from '@polkadot/types';
+import { MemberId, PaidTermId, PaidMembershipTerms, Profile } from '@joystream/types/src/members';
+
 import ExitCodes from './ExitCodes';
 
 export const DEFAULT_API_URI = 'wss://rome-rpc-endpoint.joystream.org:9944/';
@@ -110,5 +113,59 @@ export default class Api {
             .transfer(recipientAddr, amount)
             .signAndSend(account);
         return txHash;
+    }
+
+    // Membership terms
+    async getActiveMembershipTermsIds(): Promise<Vec<PaidTermId>> {
+        return <Vec<PaidTermId>> await this._api.query.members.activePaidMembershipTerms();
+    }
+
+    async getMebershipTermsDetails(termsId: PaidTermId): Promise<PaidMembershipTerms | null> {
+        const res = <Option<PaidMembershipTerms>> (await this._api.query.members.paidMembershipTermsById(termsId));
+
+        return res.unwrapOr(null);
+    }
+
+    // It returns details of first terms from array of currently active terms ids
+    // (just like in Pioneer)
+    async getCurrentMembershipTerms(): Promise<PaidMembershipTerms | null> {
+        const activeTermsIds = await this.getActiveMembershipTermsIds();
+        if (!activeTermsIds.length) {
+            return null
+        }
+
+        return await this.getMebershipTermsDetails(activeTermsIds[0]);
+    }
+
+    // Account memberships
+    async getMembershipsByAddress(address: string): Promise<AccountMemberships> {
+        const results = await this.queryMultiOnce([
+            [ this._api.query.members.memberIdsByRootAccountId, address ],
+            [ this._api.query.members.memberIdsByControllerAccountId, address ]
+        ]);
+        return <AccountMemberships> {
+            rootIds: results[0],
+            controllerIds: results[1]
+        };
+    }
+
+    async getMembershipDetails(memberId: MemberId): Promise<Profile | null> {
+        // TODO: Cannot use Option<Profile> as it does not satisfy constraint "Codec"
+        const profile = <Option<any>> await this._api.query.members.memberProfile(memberId);
+
+        return <Profile | null> profile.unwrapOr(null);
+    }
+
+    // It returns details of first membership from array of combined root+controller address membership ids
+    // (just like in Pioneer)
+    async getCurrentMembershipByAddress(address: string): Promise<Profile | null> {
+        const memberships = await this.getMembershipsByAddress(address);
+        const combinedMemberships = memberships.rootIds.concat(memberships.controllerIds);
+        if (!combinedMemberships.length) {
+            return null;
+        }
+        const [ defaultMembershipId ] = combinedMemberships;
+
+        return await this.getMembershipDetails(defaultMembershipId);
     }
 }
