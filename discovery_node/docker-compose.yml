@@ -1,0 +1,71 @@
+version: "2.2"
+services:
+
+  # Elasticsearch cluster. localhost 9200 (ensure this is open on host) --> container 9200
+  # For simplicity, running only a single node here
+  elasticsearch:
+    container_name: elasticsearch
+    hostname: elasticsearch
+    image: "docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}"
+    environment:
+      - cluster.name=es-cluster
+      - node.name=es-node-1
+      - path.data=/usr/share/elasticsearch/data
+      - http.port=9200
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms${ES_JVM_HEAP} -Xmx${ES_JVM_HEAP}"
+    #mem_limit: ${ES_MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    #  ES data dir mount to local drive. Uncomment and provide an existing dir in .env 
+    #  for persisting the elastic search data after restarts    
+    #volumes:
+    #  - ${ES_MOUNT_DRIVE}:/usr/share/elasticsearch/data
+    ports:
+      - '9200:9200'
+    # Internal network for the containers
+    networks:
+      - 'elk_stack'
+    # Health check to confirm availability of ES. Other containers wait on this.
+    healthcheck:
+      test: ["CMD", "curl","-s" ,"-f", "-u", "elastic:${ES_PASSWORD}", "http://localhost:9200/_cat/health"]
+
+
+  # Kibana container. localhost 5601 (ensure this is open on host) --> container 5601
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    image: "docker.elastic.co/kibana/kibana:${ELASTIC_VERSION}"
+    environment:
+      - "ELASTICSEARCH_PASSWORD=${ES_PASSWORD}"
+      - server.port=127.0.0.1:5601
+      - elasticsearch.url="http://elasticsearch:9200"
+      - server.name="kibana"
+    ports:
+      - '5601:5601'
+    # Health check to confirm availability of Kibana
+    #healthcheck:
+    #      test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/login"]
+    #      retries: 6
+    # Internal network for the containers
+    networks:
+      - 'elk_stack'
+    # We don't start Kibana until the ES instance is ready
+    depends_on:
+      - 'elasticsearch'
+
+
+# network connectors used in the docker env
+networks:
+  elk_stack:
+      driver: bridge
+      ipam:
+        driver: default
+        config:
+        # default docker compose subnet(172.177.0.0/16), which may overlap with existing services on home network.
+        # use this configuration to update to a different subnet
+        - subnet: 192.168.1.0/24

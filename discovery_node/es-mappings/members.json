@@ -1,0 +1,27 @@
+{
+  "mappings": {
+      "properties": {
+        "profile": {
+          "properties": {
+            "handle":  { 
+              "type": "search_as_you_type",
+              "fields": {
+                "raw": { 
+                  "type":  "keyword" 
+                }
+              }  
+            }, 
+            "entry_method": { "type": "keyword" },
+            "avatar_uri":   { "type": "text"  },
+            "about": { "type": "text" },
+            "registered_at_block": { "type": "integer"},
+            "registered_at_time": { "type": "date"},
+            "suspended": { "type": "boolean"},
+            "subscription": { "type": "keyword"},
+            "root_account": { "type": "keyword"},
+            "controller_account": { "type": "keyword" }
+          }  
+        }
+      }  
+  }
+}

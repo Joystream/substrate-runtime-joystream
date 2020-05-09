@@ -22,3 +22,7 @@ yarn*
 
 # Visual Studio Code
 .vscode
+
+# node_modules
+**/node_modules
+**/discovery_node/**/lib

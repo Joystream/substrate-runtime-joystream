@@ -1,0 +1,14 @@
+joystream:
+    ws_provider: "ws://localhost:9944"
+    poll_interval: 10000
+
+logging:
+    config:
+        appenders:
+            out: 
+                type: "stdout"
+        categories:
+            default:
+                appenders:
+                    - out
+                level: "trace"
