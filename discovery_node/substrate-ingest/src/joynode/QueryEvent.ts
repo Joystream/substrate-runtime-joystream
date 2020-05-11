@@ -1,7 +1,21 @@
 import { EventRecord, Extrinsic } from '@polkadot/types/interfaces';
 
 interface EventParameters {
-    [key: string]: string;
+    [key: string]: any
+}
+
+interface ExtrinsicArgument {
+    type: string,
+    value: any
+}
+
+export interface QueryEventDTO {
+    parameters: EventParameters,
+    extrinsic: string,
+    extrinsic_args: ExtrinsicArgument[],
+    phase: string,
+    data: any,
+    topics: string[]
 }
 
 export default class QueryEvent {
@@ -30,9 +44,35 @@ export default class QueryEvent {
         let params: EventParameters = {};
 
         event.data.forEach((data, index) => {
-            params[event.typeDef[index].type] = data.toString();
+            params[event.typeDef[index].type] = data.toJSON()
         });
         return params;
+    }
+
+    public toDTO():QueryEventDTO {
+        const { event, phase } = this.event_record;
+        let extrinsic = this.extrinsic 
+            ? this.extrinsic.method.sectionName + '.' + this.extrinsic.method.methodName
+            : 'NONE';
+        let extrinsic_args: ExtrinsicArgument[]  = [];
+        if (this.extrinsic) {
+            extrinsic_args = this.extrinsic.args.map((a) => {
+                return {
+                    type: a.toRawType(),
+                    value: a.toJSON()
+                }
+            });
+        }
+        let topics = this.event_record.topics.map((h) => h.toString());
+
+        return {
+            parameters: this.event_params,
+            phase: phase.toString(),
+            extrinsic,
+            data: `${event.data.section}.${event.data.method}`,
+            extrinsic_args,
+            topics
+        }
     }
 
     log(indent: number, logger: (str: string) => void): void {

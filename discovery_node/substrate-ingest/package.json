@@ -5,10 +5,12 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc --build tsconfig.json",
-    "postinstall": "tsc --build tsconfig.json",
-    "lint": "eslint . --ext .ts"
+    "postinstall": "tsc --build tsconfig.json && cp config.yml ./lib",
+    "lint": "eslint . --ext .ts",
+    "start": "node ./lib/index.js -c config.yml"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.6.1",
     "@joystream/types": "^0.7.0",
     "@polkadot/api": "^0.96.1",
     "@types/js-yaml": "^3.12.3",

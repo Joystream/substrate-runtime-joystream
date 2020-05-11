@@ -26,3 +26,4 @@ yarn*
 # node_modules
 **/node_modules
 **/discovery_node/**/lib
+**/discovery_node/**/yarn.lock

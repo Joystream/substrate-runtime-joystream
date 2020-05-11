@@ -29,11 +29,13 @@ export default class Config {
         return this.getProp("log_level") || this._data.logging?.level || 'OFF'; 
     }
 
+    // TODO: make it type-safe
     public getProp(prop: string):string {
         // env variables take precedence
         return process.env[prop.toUpperCase()] || this._data.prop;
     }
 
+    // TODO: make it type safe
     public get(): any {
         return this._data;
     }
