@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Avatar component Should render correctly 1`] = `
+<Memo(Avatar)
+  img="https://s3.amazonaws.com/keybase_processed_uploads/9003a57620356bd89d62bd34c7c0c305_360_360.jpg"
+>
+  <div
+    css={
+      Object {
+        "map": undefined,
+        "name": "9ax11r",
+        "next": undefined,
+        "styles": "
+    background-image: url(https://s3.amazonaws.com/keybase_processed_uploads/9003a57620356bd89d62bd34c7c0c305_360_360.jpg);
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    min-width: 4.75rem;
+    min-height: 4.75rem;
+    max-width: 4.75rem;
+    max-height: 4.75rem;
+  ",
+        "toString": [Function],
+      }
+    }
+  />
+</Memo(Avatar)>
+`;

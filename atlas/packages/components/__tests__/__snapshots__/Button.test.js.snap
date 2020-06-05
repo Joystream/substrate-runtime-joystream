@@ -1,0 +1,70 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button component Should render custom button correctly 1`] = `
+<Memo(Button)
+  color="success"
+  size="large"
+>
+  <button
+    css={
+      Object {
+        "map": undefined,
+        "name": "nynpfd",
+        "next": undefined,
+        "styles": "
+    
+    padding: 1rem 0.5rem;
+
+    font-size: 2rem;
+
+    width: auto;
+  ;
+    border-radius: 0.25rem;
+    border-color: ;
+    border-style: solid;
+    border-width: 2px;
+    font-style: 'Lato','Helvetica Neue',Arial,Helvetica,sans-serif;
+    background-color: #56BA46;
+    color: #fff;
+  ",
+        "toString": [Function],
+      }
+    }
+  >
+    Hello Atlas
+  </button>
+</Memo(Button)>
+`;
+
+exports[`Button component Should render default button correctly 1`] = `
+<Memo(Button)>
+  <button
+    css={
+      Object {
+        "map": undefined,
+        "name": "1s1uxvy",
+        "next": undefined,
+        "styles": "
+    
+    padding: 0.75rem 0.5rem;
+
+    font-size: 1rem;
+
+    width: auto;
+  ;
+    border-radius: 0.25rem;
+    border-color: ;
+    border-style: solid;
+    border-width: 2px;
+    font-style: 'Lato','Helvetica Neue',Arial,Helvetica,sans-serif;
+    background-color: #2578C2;
+    color: #fff;
+  ",
+        "toString": [Function],
+      }
+    }
+  >
+    Click me!
+  </button>
+</Memo(Button)>
+`;

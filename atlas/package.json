@@ -1,0 +1,21 @@
+{
+  "name": "atlas",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "jest",
+    "tdd": "jest --watch"
+  },
+  "lint-staged": {
+    "*.{ts, tsx, js, jsx, json}": [
+      "prettier --no-semi --trailing-comma none --write"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "jest": "^26.0.1",
+    "lerna": "^3.20.2"
+  }
+}

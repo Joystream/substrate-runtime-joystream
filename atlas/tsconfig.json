@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.build.json",
+
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["*", "packages/*"]
+    },
+    "noImplicitAny": true,
+    "jsx": "react",
+    "esModuleInterop": true
+  }
+}

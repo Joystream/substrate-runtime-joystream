@@ -1,0 +1,130 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tag component Should render correctly 1`] = `
+<Memo(Tag)
+  color="#219653"
+  icon={
+    Object {
+      "icon": Array [
+        512,
+        512,
+        Array [],
+        "f00c",
+        "M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z",
+      ],
+      "iconName": "check",
+      "prefix": "fas",
+    }
+  }
+  text="test"
+>
+  <div
+    css={
+      Object {
+        "map": undefined,
+        "name": "1wt924n",
+        "next": undefined,
+        "styles": "
+      display: inline-block;
+      font-family: 'Lato','Helvetica Neue',Arial,Helvetica,sans-serif;
+      border: 1px solid #219653;
+      border-radius: 4px;
+      padding: 5px 10px;
+      color: #219653;
+      cursor: default;
+      vertical-align: middle;
+    ",
+        "toString": [Function],
+      }
+    }
+  >
+    <FontAwesomeIcon
+      border={false}
+      className=""
+      css={
+        Object {
+          "map": undefined,
+          "name": "1nzu8hs",
+          "next": undefined,
+          "styles": "
+      & > path:nth-of-type(1) {
+        color: inherit;
+        flex-shrink: 0;
+      }
+    ",
+          "toString": [Function],
+        }
+      }
+      fixedWidth={false}
+      flip={null}
+      icon={
+        Object {
+          "icon": Array [
+            512,
+            512,
+            Array [],
+            "f00c",
+            "M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z",
+          ],
+          "iconName": "check",
+          "prefix": "fas",
+        }
+      }
+      inverse={false}
+      listItem={false}
+      mask={null}
+      pull={null}
+      pulse={false}
+      rotation={null}
+      size={null}
+      spin={false}
+      swapOpacity={false}
+      symbol={false}
+      title=""
+      transform={null}
+    >
+      <svg
+        aria-hidden="true"
+        className="svg-inline--fa fa-check fa-w-16 "
+        css={
+          Object {
+            "map": undefined,
+            "name": "1nzu8hs",
+            "next": undefined,
+            "styles": "
+      & > path:nth-of-type(1) {
+        color: inherit;
+        flex-shrink: 0;
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        data-icon="check"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        style={Object {}}
+        viewBox="0 0 512 512"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"
+          fill="currentColor"
+          style={Object {}}
+        />
+      </svg>
+    </FontAwesomeIcon>
+    <span
+      style={
+        Object {
+          "margin": "0 10px 0 0",
+        }
+      }
+    />
+    <span>
+      test
+    </span>
+  </div>
+</Memo(Tag)>
+`;

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Banner component Should render correctly 1`] = `
+<Memo(Banner)
+  src="http://static.libsyn.com/p/assets/2/c/2/5/2c25acab892a768e/Twitter_Cover.png"
+>
+  <div
+    css={
+      Object {
+        "map": undefined,
+        "name": "p5v1zq",
+        "next": undefined,
+        "styles": "
+    background-image: url(http://static.libsyn.com/p/assets/2/c/2/5/2c25acab892a768e/Twitter_Cover.png);
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    min-height: 6.25rem;
+  ",
+        "toString": [Function],
+      }
+    }
+  />
+</Memo(Banner)>
+`;

@@ -1,0 +1,334 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DetailsTable component Should render correctly 1`] = `
+<Memo(DetailsTable)
+  details={
+    Object {
+      "attribution": "",
+      "category": "Science & Technology",
+      "explicit": "yes",
+      "first released": "2019-02-27",
+      "language": "English",
+      "license": "Original content",
+    }
+  }
+>
+  <table
+    css={
+      Object {
+        "map": undefined,
+        "name": "1eb017w",
+        "next": undefined,
+        "styles": "
+      text-align: left;
+      border-collapse: separate;
+      border-spacing: 0;
+      text-transform: capitalize;
+    ",
+        "toString": [Function],
+      }
+    }
+  >
+    <tbody>
+      <tr
+        css={
+          Object {
+            "map": undefined,
+            "name": "oc1vdi",
+            "next": undefined,
+            "styles": "
+      td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        key="explicit"
+      >
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "uva6ry",
+              "next": undefined,
+              "styles": "
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      width: 25%;
+      color: #999;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          explicit
+        </td>
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "naho03",
+              "next": undefined,
+              "styles": "
+      padding: 0.5rem 0.75rem;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          yes
+        </td>
+      </tr>
+      <tr
+        css={
+          Object {
+            "map": undefined,
+            "name": "oc1vdi",
+            "next": undefined,
+            "styles": "
+      td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        key="first released"
+      >
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "uva6ry",
+              "next": undefined,
+              "styles": "
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      width: 25%;
+      color: #999;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          first released
+        </td>
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "naho03",
+              "next": undefined,
+              "styles": "
+      padding: 0.5rem 0.75rem;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          2019-02-27
+        </td>
+      </tr>
+      <tr
+        css={
+          Object {
+            "map": undefined,
+            "name": "oc1vdi",
+            "next": undefined,
+            "styles": "
+      td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        key="language"
+      >
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "uva6ry",
+              "next": undefined,
+              "styles": "
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      width: 25%;
+      color: #999;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          language
+        </td>
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "naho03",
+              "next": undefined,
+              "styles": "
+      padding: 0.5rem 0.75rem;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          English
+        </td>
+      </tr>
+      <tr
+        css={
+          Object {
+            "map": undefined,
+            "name": "oc1vdi",
+            "next": undefined,
+            "styles": "
+      td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        key="category"
+      >
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "uva6ry",
+              "next": undefined,
+              "styles": "
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      width: 25%;
+      color: #999;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          category
+        </td>
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "naho03",
+              "next": undefined,
+              "styles": "
+      padding: 0.5rem 0.75rem;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          Science & Technology
+        </td>
+      </tr>
+      <tr
+        css={
+          Object {
+            "map": undefined,
+            "name": "oc1vdi",
+            "next": undefined,
+            "styles": "
+      td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        key="license"
+      >
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "uva6ry",
+              "next": undefined,
+              "styles": "
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      width: 25%;
+      color: #999;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          license
+        </td>
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "naho03",
+              "next": undefined,
+              "styles": "
+      padding: 0.5rem 0.75rem;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          Original content
+        </td>
+      </tr>
+      <tr
+        css={
+          Object {
+            "map": undefined,
+            "name": "oc1vdi",
+            "next": undefined,
+            "styles": "
+      td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+    ",
+            "toString": [Function],
+          }
+        }
+        key="attribution"
+      >
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "uva6ry",
+              "next": undefined,
+              "styles": "
+      font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      width: 25%;
+      color: #999;
+    ",
+              "toString": [Function],
+            }
+          }
+        >
+          attribution
+        </td>
+        <td
+          css={
+            Object {
+              "map": undefined,
+              "name": "naho03",
+              "next": undefined,
+              "styles": "
+      padding: 0.5rem 0.75rem;
+    ",
+              "toString": [Function],
+            }
+          }
+        />
+      </tr>
+    </tbody>
+  </table>
+</Memo(DetailsTable)>
+`;

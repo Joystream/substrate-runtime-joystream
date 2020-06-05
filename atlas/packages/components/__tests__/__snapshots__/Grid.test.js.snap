@@ -1,0 +1,300 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Grid component Should render correctly 1`] = `
+<Memo(Grid)
+  items={
+    Array [
+      <Item
+        text="test-0"
+      />,
+      <Item
+        text="test-1"
+      />,
+      <Item
+        text="test-2"
+      />,
+      <Item
+        text="test-3"
+      />,
+      <Item
+        text="test-4"
+      />,
+      <Item
+        text="test-5"
+      />,
+      <Item
+        text="test-6"
+      />,
+      <Item
+        text="test-7"
+      />,
+      <Item
+        text="test-8"
+      />,
+      <Item
+        text="test-9"
+      />,
+    ]
+  }
+  maxItemWidth="600"
+  minItemWidth="250"
+>
+  <div
+    className=""
+    css={
+      Object {
+        "map": undefined,
+        "name": "1sl9x6x",
+        "next": undefined,
+        "styles": "
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 600px));
+      gap: 30px;
+    ",
+        "toString": [Function],
+      }
+    }
+  >
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-0"
+    >
+      <Item
+        key="0"
+        text="test-0"
+      >
+        <div>
+          test-0
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-1"
+    >
+      <Item
+        key="1"
+        text="test-1"
+      >
+        <div>
+          test-1
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-2"
+    >
+      <Item
+        key="2"
+        text="test-2"
+      >
+        <div>
+          test-2
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-3"
+    >
+      <Item
+        key="3"
+        text="test-3"
+      >
+        <div>
+          test-3
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-4"
+    >
+      <Item
+        key="4"
+        text="test-4"
+      >
+        <div>
+          test-4
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-5"
+    >
+      <Item
+        key="5"
+        text="test-5"
+      >
+        <div>
+          test-5
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-6"
+    >
+      <Item
+        key="6"
+        text="test-6"
+      >
+        <div>
+          test-6
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-7"
+    >
+      <Item
+        key="7"
+        text="test-7"
+      >
+        <div>
+          test-7
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-8"
+    >
+      <Item
+        key="8"
+        text="test-8"
+      >
+        <div>
+          test-8
+        </div>
+      </Item>
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "wuoxs",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      cursor: pointer;
+    ",
+          "toString": [Function],
+        }
+      }
+      key="grid-item-9"
+    >
+      <Item
+        key="9"
+        text="test-9"
+      >
+        <div>
+          test-9
+        </div>
+      </Item>
+    </div>
+  </div>
+</Memo(Grid)>
+`;

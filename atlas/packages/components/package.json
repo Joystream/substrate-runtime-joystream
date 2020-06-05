@@ -1,0 +1,71 @@
+{
+	"name": "components",
+	"version": "1.0.0",
+	"description": "React Components for the Atlas Project",
+	"homepage": "https://github.com/Joystream/atlas#readme",
+	"license": "ISC",
+	"main": "dist/index.cjs.js",
+	"module": "dist/index.es.js",
+	"types": "dist/types",
+	"directories": {
+		"src": "src",
+		"test": "__tests__"
+	},
+	"files": [
+		"src"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Joystream/atlas.git"
+	},
+	"scripts": {
+		"start": "rollup -wc",
+		"index": "node scripts/build-index.js",
+		"build": "rollup -c",
+		"storybook": "start-storybook -p 6006",
+		"build-storybook": "build-storybook",
+		"now-build": "build-storybook",
+		"test": "echo \"Error: run tests from root\" && exit 1"
+	},
+	"bugs": {
+		"url": "https://github.com/Joystream/atlas/issues"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.8.7",
+		"@babel/preset-env": "^7.8.7",
+		"@babel/preset-react": "^7.8.3",
+		"@babel/preset-typescript": "^7.9.0",
+		"@emotion/babel-preset-css-prop": "^10.0.27",
+		"@emotion/core": "^10.0.28",
+		"@fortawesome/fontawesome-svg-core": "^1.2.28",
+		"@fortawesome/free-solid-svg-icons": "^5.13.0",
+		"@fortawesome/react-fontawesome": "^0.1.9",
+		"@rollup/plugin-commonjs": "^11.0.2",
+		"@rollup/plugin-node-resolve": "^7.1.1",
+		"@storybook/addon-actions": "^5.3.17",
+		"@storybook/addon-docs": "^5.3.17",
+		"@storybook/addon-knobs": "^5.3.17",
+		"@storybook/addon-links": "^5.3.17",
+		"@storybook/addon-storysource": "^5.3.17",
+		"@storybook/addons": "^5.3.17",
+		"@storybook/react": "^5.3.17",
+		"@svgr/rollup": "^5.4.0",
+		"@svgr/webpack": "^5.4.0",
+		"babel-jest": "^25.4.0",
+		"babel-loader": "^8.0.6",
+		"babel-plugin-transform-export-extensions": "^6.22.0",
+		"csstype": "^2.6.10",
+		"lint-staged": "^10.2.7",
+		"react": "^16.13.0",
+		"react-docgen-typescript-loader": "^3.7.1",
+		"react-dom": "^16.13.0",
+		"react-player": "^1.15.3",
+		"rollup": "^2.1.0",
+		"rollup-plugin-babel": "^4.4.0",
+		"rollup-plugin-typescript2": "^0.26.0",
+		"storybook-addon-jsx": "^7.1.15",
+		"ts-loader": "^6.2.1",
+		"typescript": "^3.8.3",
+		"video-react": "^0.14.1"
+	}
+}

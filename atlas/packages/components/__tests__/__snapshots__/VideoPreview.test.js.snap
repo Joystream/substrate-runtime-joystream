@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VideoPreview component Should render correctly 1`] = `
+<Memo(VideoPreview)
+  poster="https://ssl-static.libsyn.com/p/assets/a/4/8/f/a48f1a0697e958ce/Cover_2.png"
+  title="Test"
+>
+  <div
+    css={
+      Object {
+        "map": undefined,
+        "name": "0",
+        "next": undefined,
+        "styles": "",
+        "toString": [Function],
+      }
+    }
+  >
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "fqj6m7",
+          "next": undefined,
+          "styles": "
+      width: 100%;
+      background-color: black;
+    ",
+          "toString": [Function],
+        }
+      }
+    >
+      <img
+        css={
+          Object {
+            "map": undefined,
+            "name": "1lk1tws",
+            "next": undefined,
+            "styles": "
+      display: block;
+      width: 100%;
+      height: auto;
+    ",
+            "toString": [Function],
+          }
+        }
+        onClick={[Function]}
+        src="https://ssl-static.libsyn.com/p/assets/a/4/8/f/a48f1a0697e958ce/Cover_2.png"
+      />
+    </div>
+    <div
+      css={
+        Object {
+          "map": undefined,
+          "name": "1r27l9a",
+          "next": undefined,
+          "styles": "
+      display: grid;
+      grid-template: auto / auto;
+      margin: 10px 0 0;
+    ",
+          "toString": [Function],
+        }
+      }
+    >
+      <div
+        css={
+          Object {
+            "map": undefined,
+            "name": "opyjht",
+            "next": undefined,
+            "styles": "
+      grid-column: 1 / 1;
+    ",
+            "toString": [Function],
+          }
+        }
+      >
+        <h3
+          css={
+            Object {
+              "map": undefined,
+              "name": "1yuwxk0",
+              "next": undefined,
+              "styles": "
+      margin: 0;
+      font-weight: 700;
+      text-transform: capitalize;
+      color: #000;
+      font-size: 0.825rem;
+    ",
+              "toString": [Function],
+            }
+          }
+          onClick={[Function]}
+        >
+          Test
+        </h3>
+      </div>
+    </div>
+  </div>
+</Memo(VideoPreview)>
+`;
