@@ -1,0 +1,19 @@
+{
+	"name": "@joystream/js-examples",
+	"version": "0.0.0",
+	"description": "Joystream JavaScript utilities library example usages",
+	"main": "lib/index.js",
+	"license": "MIT",
+	"scripts": {
+	  "build": "yarn workspace @joystream/js build && tsc --build tsconfig.json",
+	  "run-example": "node run.js"
+	},
+	"dependencies": {
+	  "@joystream/js": "0.0.0",
+	  "@nicaea/types@npm:@joystream/types": "^0.12.0",
+	  "@constantinopole/types@npm:@joystream/types": "^0.10.0"
+	},
+	"devDependencies": {
+	  "typescript": "3.7.2"
+	}
+}

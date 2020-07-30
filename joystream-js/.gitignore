@@ -1,0 +1,3 @@
+lib
+examples/**/*.js
+examples/**/*.d.ts

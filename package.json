@@ -14,7 +14,9 @@
 		"cli",
 		"types",
 		"pioneer",
-		"pioneer/packages/*"
+		"pioneer/packages/*",
+		"joystream-js",
+		"joystream-js/examples"
 	],
 	"resolutions": {
 		"@polkadot/api": "^0.96.1",
