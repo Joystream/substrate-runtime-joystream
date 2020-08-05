@@ -2,8 +2,10 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import { DerivedBalances, DerivedStaking } from '@polkadot/api-derive/types';
-import { ValidatorPrefs0to145 } from '@polkadot/types/interfaces';
+import { createType } from '@polkadot/types';
+import { DerivedBalances, DerivedStaking, DerivedUnlocking, DerivedSessionInfo } from '@polkadot/api-derive/types';
+import { ValidatorPrefs0to145, BlockNumber, EraIndex, SessionIndex } from '@polkadot/types/interfaces';
+import { u64 } from '@polkadot/types/primitive';
 import { BareProps, I18nProps } from './types';
 
 import BN from 'bn.js';
@@ -45,6 +47,11 @@ interface Props extends BareProps, I18nProps {
   children?: React.ReactNode;
   extraInfo?: [string, string][];
   stakingInfo?: DerivedStaking;
+  bestBlock?: BlockNumber;
+  currentEra?: EraIndex;
+  sessionInfo?: DerivedSessionInfo;
+  epochIndex?: u64,
+  currentEraStartSessionIndex?: SessionIndex;
   withBalance?: boolean | BalanceActiveType;
   withExtended?: boolean | CryptoActiveType;
   withHexSessionId: string | null;
@@ -152,12 +159,55 @@ function renderExtended ({ balancesAll, t, address, withExtended }: Props): Reac
   );
 }
 
-function renderUnlocking ({ stakingInfo, t }: Props): React.ReactNode {
-  if (!stakingInfo || !stakingInfo.unlocking || !stakingInfo.unlocking.length) {
+// Remaining blocks calculation fix for the case of "incomplete" past eras etc.
+function calcUnlocking ({
+  stakingInfo,
+  currentEra,
+  bestBlock,
+  sessionInfo,
+  epochIndex,
+  currentEraStartSessionIndex,
+  t
+}: Props): DerivedUnlocking[] | null {
+  if (
+    !stakingInfo ||
+    !stakingInfo.unlocking ||
+    !stakingInfo.unlocking.length ||
+    !stakingInfo.stakingLedger ||
+    !currentEra ||
+    !bestBlock ||
+    !sessionInfo ||
+    !epochIndex ||
+    !currentEraStartSessionIndex
+  ) {
     return null;
   }
 
-  const total = stakingInfo.unlocking.reduce((total, { value }): BN => total.add(value), new BN(0));
+  const { sessionLength, sessionProgress, eraLength } = sessionInfo;
+  const currentEraProgress = epochIndex.sub(currentEraStartSessionIndex).mul(sessionLength).add(sessionProgress);
+
+  const unlocking: DerivedUnlocking[] = stakingInfo.stakingLedger.unlocking
+    .map(({ value, era }) => {
+      const remainingBlocks = era.toBn().sub(currentEra).mul(eraLength).sub(currentEraProgress);
+      return ({
+        remainingBlocks: createType("BlockNumber", remainingBlocks),
+        value: createType("Balance", value)
+      });
+    })
+    .filter(({ remainingBlocks }) => remainingBlocks.gtn(0));
+
+  return unlocking.length ? unlocking : null;
+}
+
+function renderUnlocking (props: Props): React.ReactNode {
+  const { t } = props;
+  const unlocking = calcUnlocking(props);
+
+  if (!unlocking) {
+    return null;
+  }
+
+  const total = unlocking.reduce((total, { value }): BN => total.add(value), new BN(0));
 
   if (total.eqn(0)) {
     return null;
@@ -172,7 +222,7 @@ function renderUnlocking ({ stakingInfo, t }: Props): React.ReactNode {
         data-for='unlocking-trigger'
       />
       <Tooltip
-        text={stakingInfo.unlocking.map(({ remainingBlocks, value }, index): React.ReactNode => (
+        text={unlocking.map(({ remainingBlocks, value }, index): React.ReactNode => (
           <div key={index}>
             {t('{{value}}, {{remaining}} blocks left', {
               replace: {
@@ -287,7 +337,7 @@ function renderBalances (props: Props): React.ReactNode {
           </div>
         </>
       )}
-      {balanceDisplay.unlocking && stakingInfo && stakingInfo.unlocking && (
+      {balanceDisplay.unlocking && stakingInfo && stakingInfo.unlocking && calcUnlocking(props) && (
         <>
           <Label label={t('unbonding')} />
           <div className='result'>
@@ -391,6 +441,26 @@ export default withMulti(
     ['derive.staking.info', {
       paramName: 'address',
       propName: 'stakingInfo',
+      skipIf: skipStakingIf
+    }],
+    ['derive.chain.bestNumber', {
+      propName: 'bestBlock',
+      skipIf: skipStakingIf
+    }],
+    ['query.staking.currentEra', {
+      propName: 'currentEra',
+      skipIf: skipStakingIf
+    }],
+    ['derive.session.info', {
+      propName: 'sessionInfo',
+      skipIf: skipStakingIf
+    }],
+    ['query.babe.epochIndex', {
+      propName: 'epochIndex',
+      skipIf: skipStakingIf
+    }],
+    ['query.staking.currentEraStartSessionIndex', {
+      propName: 'currentEraStartSessionIndex',
       skipIf: skipStakingIf
     }]
   )
