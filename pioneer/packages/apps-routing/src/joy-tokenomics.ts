@@ -10,6 +10,6 @@ export default function create (t: <T = string> (key: string, text: string, opti
     },
     text: t<string>('nav.tokenomics', 'Overview', { ns: 'apps-routing' }),
     icon: 'th',
-    name: 'tokenomics'
+    name: 'overview'
   };
 }

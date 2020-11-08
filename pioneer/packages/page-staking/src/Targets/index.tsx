@@ -59,6 +59,11 @@ function Targets ({ className = '', isInElection, ownStashes, targets: { calcWit
   const [withIdentity, setWithIdentity] = useState(false);
   const [{ sortBy, sortFromMax }, setSortBy] = useState<SortState>({ sortBy: 'rankOverall', sortFromMax: true });
 
+  console.log(selected);
+  console.log(sorted);
+  console.log(myNominees);
+  console.log(calcWith?.toNumber());
+
   useEffect((): void => {
     validators && setSorted(
       sort(sortBy, sortFromMax, validators)
@@ -177,9 +182,10 @@ function Targets ({ className = '', isInElection, ownStashes, targets: { calcWit
         totalStaked={totalStaked}
       />
       <Button.Group>
+        {/* !validators?.length || !ownNominators?.length */}
         <Button
           icon='check'
-          isDisabled={!validators?.length || !ownNominators?.length}
+          isDisabled={false}
           label={t<string>('Select best')}
           onClick={_selectProfitable}
         />

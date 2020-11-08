@@ -51,3 +51,36 @@ export type StatusServerData = {
   };
   price: string;
 };
+
+export type LandingPageMain = {
+  validator: [string, string][];
+  nominator: [string, string][];
+  storageProviders: [string, string][];
+  contentCurators: [string, string][];
+  council: [string, string][];
+}
+
+export type LandingPageExtraBase = {
+  title: {
+    value: string;
+    color: string;
+  };
+  cellData: [string, string][];
+}
+
+export type LandingPageWorkingGroupExtra = LandingPageExtraBase & {
+  type: 'WorkingGroup';
+}
+
+export type LandingPageCouncilExtra = LandingPageExtraBase & {
+  type: 'Council';
+  extra: {
+    termReward: string;
+    termMaxBonus: string;
+    text: string;
+    button: {
+      href: string;
+      text: string;
+    }
+  }
+}
