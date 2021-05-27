@@ -47,3 +47,41 @@ export type StatusServerData = {
   };
   price: string;
 };
+
+export type NetworkStatisticsData = {
+  blockHeight: number;
+  numberOfMembers: number;
+  content: number;
+  numberOfChannels: number;
+  proposalCount: number;
+  historicalProposals: number;
+  numberOfForumCategories: number;
+  numberOfForumPosts: number;
+  councilMintCapacity: number;
+  councilMintSpent: number;
+  contentCuratorMintCapacity: number;
+  contentCuratorMintSpent: number;
+  storageProviderMintCapacity: number;
+  storageProviderMintSpent: number;
+};
+
+export type ProposalStatistics = {
+  all: number;
+  Active: number;
+  Approved: number;
+  Rejected: number;
+  Expired: number;
+  Slashed: number;
+  Canceled: number;
+  Vetoed: number;
+}
+
+export type ProposalStatisticsData = {
+  text: ProposalStatistics;
+  spending: ProposalStatistics;
+  workingGroups: ProposalStatistics;
+  networkChanges: ProposalStatistics;
+  all: ProposalStatistics
+}
+
+export type GenericProposalType = 'text' | 'spending' | 'networkChanges' | 'workingGroups';

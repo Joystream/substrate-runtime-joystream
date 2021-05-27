@@ -4,14 +4,23 @@ import CouncilTransport from './council';
 import WorkingGroupsTransport from './workingGroups';
 import { APIQueryCache } from './APIQueryCache';
 import { Seats } from '@joystream/types/council';
-import { Option } from '@polkadot/types';
+import { Option, u32 } from '@polkadot/types';
 import { BlockNumber, BalanceOf, Exposure } from '@polkadot/types/interfaces';
 import { WorkerId } from '@joystream/types/working-group';
 import { RewardRelationshipId, RewardRelationship } from '@joystream/types/recurring-rewards';
 import { StakeId, Stake } from '@joystream/types/stake';
 import { TokenomicsData } from '@polkadot/joy-utils/src/types/tokenomics';
 import { calculateValidatorsRewardsPerEra } from '../functions/staking';
-import { WorkingGroupKey } from '@joystream/types/common';
+import { WorkingGroupKey, PostId, ChannelId } from '@joystream/types/common';
+import { MemberId } from '@joystream/types/members';
+import { CategoryId } from '@joystream/types/forum';
+import { MintId, Mint } from '@joystream/types/mint';
+import { genericTypes } from '../consts/tokenomics';
+import { VideoId } from '@joystream/types/content';
+
+import { ProposalId, ProposalDetails, Proposal } from '@joystream/types/proposals';
+
+import HISTORICAL_PROPOSALS from '../transport/static/historical-proposals.json';
 
 export default class TokenomicsTransport extends BaseTransport {
   private councilT: CouncilTransport;
@@ -295,5 +304,124 @@ export default class TokenomicsTransport extends BaseTransport {
       contentCurators: resolveGroupData(workingGroupsData.curators),
       operations: resolveGroupData(workingGroupsData.operations)
     };
+  }
+
+  async networkStatistics () {
+    const blockHeight = (await this.api.derive.chain.bestNumber()).toNumber();
+    const numberOfMembers = (await this.api.query.members.nextMemberId() as MemberId).toNumber();
+    const content = (await this.api.query.content.nextVideoId() as VideoId).toNumber() - 1;
+    const numberOfChannels = (await this.api.query.content.nextChannelId() as ChannelId).toNumber() - 1;
+    const proposalCount = (await this.api.query.proposalsEngine.proposalCount() as u32).toNumber();
+    const numberOfForumCategories = (await this.api.query.forum.nextCategoryId() as CategoryId).toNumber() - 1;
+    const numberOfForumPosts = (await this.api.query.forum.nextPostId() as PostId).toNumber() - 1;
+    const [councilMintId, contentCuratorMintId, storageMintId] = await Promise.all([
+      (await this.api.query.council.councilMint()) as MintId,
+      (await this.api.query.contentDirectoryWorkingGroup.mint()) as MintId,
+      (await this.api.query.storageWorkingGroup.mint()) as MintId
+    ]);
+    const [councilMint, contentMint, storageMint] = await this.api.query.minting.mints.multi<Mint>([
+      councilMintId,
+      contentCuratorMintId,
+      storageMintId
+    ]);
+
+    return {
+      blockHeight,
+      numberOfMembers,
+      content,
+      numberOfChannels,
+      proposalCount,
+      historicalProposals: HISTORICAL_PROPOSALS.length,
+      numberOfForumCategories,
+      numberOfForumPosts,
+      councilMintCapacity: councilMint.capacity.toNumber(),
+      councilMintSpent: councilMint.total_minted.toNumber(),
+      contentCuratorMintCapacity: contentMint.capacity.toNumber(),
+      contentCuratorMintSpent: contentMint.total_minted.toNumber(),
+      storageProviderMintCapacity: storageMint.capacity.toNumber(),
+      storageProviderMintSpent: storageMint.total_minted.toNumber()
+    };
+  }
+
+  async proposalStatistics () {
+    const proposalCounters = {
+      all: 0,
+      Active: 0,
+      Approved: 0,
+      Rejected: 0,
+      Expired: 0,
+      Slashed: 0,
+      Canceled: 0,
+      Vetoed: 0
+    };
+
+    const returnData = {
+      text: { ...proposalCounters },
+      spending: { ...proposalCounters },
+      workingGroups: { ...proposalCounters },
+      networkChanges: { ...proposalCounters },
+      all: { ...proposalCounters }
+    };
+
+    const proposals = await this.entriesByIds<ProposalId, ProposalDetails>(this.api.query.proposalsCodex.proposalDetailsByProposalId);
+    const proposalData = await this.api.query.proposalsEngine.proposals.multi<Proposal>(proposals.map(([id, _]) => id));
+
+    proposalData.map((proposal, index) => {
+      const proposalType = proposals[index][1].type;
+      const definedProposalType = genericTypes[proposalType];
+      const proposalStatus = proposal.status.isOfType('Active') ? 'Active' as const : proposal.status.asType('Finalized').proposalStatus.type;
+
+      returnData[definedProposalType].all++;
+      returnData[definedProposalType][proposalStatus]++;
+      returnData.all.all++;
+      returnData.all[proposalStatus]++;
+    });
+
+    return returnData;
+  }
+
+  historicalProposalStatistics () {
+    const proposalCounters = {
+      all: 0,
+      Active: 0,
+      Approved: 0,
+      Rejected: 0,
+      Expired: 0,
+      Slashed: 0,
+      Canceled: 0,
+      Vetoed: 0
+    };
+
+    const historicalProposalData = {
+      text: { ...proposalCounters },
+      spending: { ...proposalCounters },
+      workingGroups: { ...proposalCounters },
+      networkChanges: { ...proposalCounters },
+      all: { ...proposalCounters }
+    };
+
+    HISTORICAL_PROPOSALS.map(({ proposal }) => {
+      let proposalType: 'text' | 'spending' | 'networkChanges' | 'workingGroups';
+      const proposalStatus = proposal.status.Finalized
+        ? Object.keys(proposal.status.Finalized.proposalStatus)[0] as 'Approved' | 'Rejected' | 'Expired' | 'Slashed' | 'Canceled' | 'Vetoed'
+        : 'Active' as const;
+
+      if (proposal.type === 'Text') {
+        proposalType = 'text';
+      } else if (proposal.type === 'Spending') {
+        proposalType = 'spending';
+      } else if (proposal.type === 'RuntimeUpgrade' || proposal.type === 'SetElectionParameters' || proposal.type === 'SetValidatorCount') {
+        proposalType = 'networkChanges';
+      } else {
+        proposalType = 'workingGroups';
+      }
+
+      historicalProposalData[proposalType][proposalStatus]++;
+      historicalProposalData[proposalType].all++;
+      historicalProposalData.all[proposalStatus]++;
+      historicalProposalData.all.all++;
+    });
+
+    return historicalProposalData;
   }
 }
