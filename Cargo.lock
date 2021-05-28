@@ -2401,6 +2401,7 @@ dependencies = [
  "frame-system",
  "frame-system-benchmarking",
  "frame-system-rpc-runtime-api",
+ "hex-literal",
  "pallet-authority-discovery",
  "pallet-authorship",
  "pallet-babe",
@@ -2424,7 +2425,6 @@ dependencies = [
  "pallet-proposals-engine",
  "pallet-randomness-collective-flip",
  "pallet-recurring-reward",
- "pallet-service-discovery",
  "pallet-session",
  "pallet-session-benchmarking",
  "pallet-stake",
@@ -3816,7 +3816,9 @@ dependencies = [
  "pallet-timestamp",
  "parity-scale-codec",
  "serde",
+ "sp-arithmetic",
  "sp-runtime",
+ "sp-std",
  "strum 0.19.5",
  "strum_macros 0.19.4",
 ]
@@ -4140,29 +4142,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-service-discovery"
-version = "3.1.1"
-dependencies = [
- "frame-support",
- "frame-system",
- "pallet-balances",
- "pallet-common",
- "pallet-hiring",
- "pallet-membership",
- "pallet-recurring-reward",
- "pallet-stake",
- "pallet-timestamp",
- "pallet-token-mint",
- "pallet-working-group",
- "parity-scale-codec",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
 name = "pallet-session"
 version = "2.0.1"
 source = "git+https://github.com/paritytech/substrate.git?rev=2cd20966cc09b059817c3ebe12fc130cdd850d62#2cd20966cc09b059817c3ebe12fc130cdd850d62"
@@ -4249,19 +4228,16 @@ dependencies = [
 
 [[package]]
 name = "pallet-storage"
-version = "3.1.1"
+version = "4.0.0"
 dependencies = [
+ "frame-benchmarking",
  "frame-support",
  "frame-system",
  "pallet-balances",
  "pallet-common",
- "pallet-hiring",
  "pallet-membership",
- "pallet-recurring-reward",
- "pallet-stake",
+ "pallet-randomness-collective-flip",
  "pallet-timestamp",
- "pallet-token-mint",
- "pallet-working-group",
  "parity-scale-codec",
  "serde",
  "sp-arithmetic",

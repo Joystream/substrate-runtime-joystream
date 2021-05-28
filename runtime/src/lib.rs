@@ -33,6 +33,7 @@ mod runtime_api;
 mod tests;
 mod weights; // Runtime integration tests
 
+use frame_support::dispatch::DispatchResult;
 use frame_support::traits::{Currency, KeyOwnerProofSystem, OnUnbalanced};
 use frame_support::weights::{
     constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
@@ -48,7 +49,7 @@ use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 use sp_core::crypto::KeyTypeId;
 use sp_runtime::curve::PiecewiseLinear;
 use sp_runtime::traits::{BlakeTwo256, Block as BlockT, IdentityLookup, OpaqueKeys, Saturating};
-use sp_runtime::{create_runtime_str, generic, impl_opaque_keys, Perbill};
+use sp_runtime::{create_runtime_str, generic, impl_opaque_keys, ModuleId, Perbill};
 use sp_std::boxed::Box;
 use sp_std::vec::Vec;
 #[cfg(feature = "std")]
@@ -62,7 +63,7 @@ pub use runtime_api::*;
 use integration::proposals::{CouncilManager, ExtrinsicProposalEncoder, MembershipOriginValidator};
 
 use governance::{council, election};
-use storage::data_object_storage_registry;
+use storage::DynamicBagCreationPolicy;
 
 // Node dependencies
 pub use common;
@@ -78,7 +79,6 @@ pub use membership;
 pub use pallet_balances::Call as BalancesCall;
 pub use pallet_staking::StakerStatus;
 pub use proposals_codex::ProposalsConfigParameters;
-pub use storage::{data_directory, data_object_type_registry};
 pub use versioned_store;
 pub use versioned_store_permissions;
 pub use working_group;
@@ -544,30 +544,6 @@ impl memo::Trait for Runtime {
     type Event = Event;
 }
 
-parameter_types! {
-    pub const MaxObjectsPerInjection: u32 = 100;
-}
-
-impl storage::data_object_type_registry::Trait for Runtime {
-    type Event = Event;
-    type DataObjectTypeId = u64;
-}
-
-impl storage::data_directory::Trait for Runtime {
-    type Event = Event;
-    type ContentId = ContentId;
-    type StorageProviderHelper = integration::storage::StorageProviderHelper;
-    type IsActiveDataObjectType = DataObjectTypeRegistry;
-    type MemberOriginValidator = MembershipOriginValidator<Self>;
-    type MaxObjectsPerInjection = MaxObjectsPerInjection;
-}
-
-impl storage::data_object_storage_registry::Trait for Runtime {
-    type Event = Event;
-    type DataObjectStorageRelationshipId = u64;
-    type ContentIdExists = DataDirectory;
-}
-
 impl membership::Trait for Runtime {
     type Event = Event;
     type MemberId = MemberId;
@@ -601,10 +577,6 @@ impl working_group::Trait<StorageWorkingGroupInstance> for Runtime {
 impl working_group::Trait<ContentDirectoryWorkingGroupInstance> for Runtime {
     type Event = Event;
     type MaxWorkerNumberLimit = MaxWorkerNumberLimit;
-}
-
-impl service_discovery::Trait for Runtime {
-    type Event = Event;
 }
 
 parameter_types! {
@@ -672,6 +644,56 @@ parameter_types! {
     pub const SurchargeReward: Balance = 0; // no reward
 }
 
+parameter_types! {
+    pub const MaxStorageBucketNumber: u64 = 20; //TODO: adjust value
+    pub const MaxNumberOfDataObjectsPerBag: u64 = 1000; //TODO: adjust value
+    pub const DataObjectDeletionPrize: Balance = 10; //TODO: adjust value
+    pub const BlacklistSizeLimit: u64 = 10000; //TODO: adjust value
+    pub const MaxRandomIterationNumber: u64 = 30; //TODO: adjust value
+    pub const StorageModuleId: ModuleId = ModuleId(*b"mstorage"); // module storage
+    pub const StorageBucketsPerBagValueConstraint: storage::StorageBucketsPerBagValueConstraint =
+        storage::StorageBucketsPerBagValueConstraint {min: 3, max_min_diff: 7}; //TODO: adjust value
+    pub const DefaultMemberDynamicBagCreationPolicy: DynamicBagCreationPolicy = DynamicBagCreationPolicy{
+        number_of_storage_buckets: 4
+    }; //TODO: adjust value
+    pub const DefaultChannelDynamicBagCreationPolicy: DynamicBagCreationPolicy = DynamicBagCreationPolicy{
+        number_of_storage_buckets: 4
+    }; //TODO: adjust value
+}
+
+impl storage::Trait for Runtime {
+    type Event = Event;
+    type DataObjectId = DataObjectId;
+    type StorageBucketId = StorageBucketId;
+    type DistributionBucketId = DistributionBucketId;
+    type ChannelId = ChannelId;
+    type MaxStorageBucketNumber = MaxStorageBucketNumber;
+    type MaxNumberOfDataObjectsPerBag = MaxNumberOfDataObjectsPerBag;
+    type DataObjectDeletionPrize = DataObjectDeletionPrize;
+    type BlacklistSizeLimit = BlacklistSizeLimit;
+    type ModuleId = StorageModuleId;
+    type MemberOriginValidator = MembershipOriginValidator<Self>;
+    type StorageBucketsPerBagValueConstraint = StorageBucketsPerBagValueConstraint;
+    type DefaultMemberDynamicBagCreationPolicy = DefaultMemberDynamicBagCreationPolicy;
+    type DefaultChannelDynamicBagCreationPolicy = DefaultChannelDynamicBagCreationPolicy;
+    type Randomness = RandomnessCollectiveFlip;
+    type MaxRandomIterationNumber = MaxRandomIterationNumber;
+
+    fn ensure_working_group_leader_origin(origin: Self::Origin) -> DispatchResult {
+        StorageWorkingGroup::ensure_origin_is_active_leader(origin)
+    }
+
+    fn ensure_worker_origin(origin: Self::Origin, worker_id: ActorId) -> DispatchResult {
+        StorageWorkingGroup::ensure_worker_signed(origin, &worker_id).map(|_| ())
+    }
+
+    fn ensure_worker_exists(worker_id: &ActorId) -> DispatchResult {
+        StorageWorkingGroup::ensure_worker_exists(&worker_id)
+            .map(|_| ())
+            .map_err(|err| err.into())
+    }
+}
+
 /// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
 /// the specifics of the runtime. They can then be made to be agnostic over specific formats
 /// of data like extrinsics, allowing for them to continue syncing the network through upgrades
@@ -727,11 +749,6 @@ construct_runtime!(
         Hiring: hiring::{Module, Call, Storage},
         ContentWorkingGroup: content_wg::{Module, Call, Storage, Event<T>, Config<T>},
         ContentDirectory: content_directory::{Module, Call, Storage, Event<T>, Config<T>},
-        // --- Storage
-        DataObjectTypeRegistry: data_object_type_registry::{Module, Call, Storage, Event<T>, Config<T>},
-        DataDirectory: data_directory::{Module, Call, Storage, Event<T>, Config<T>},
-        DataObjectStorageRegistry: data_object_storage_registry::{Module, Call, Storage, Event<T>, Config<T>},
-        Discovery: service_discovery::{Module, Call, Storage, Event<T>},
         // --- Proposals
         ProposalsEngine: proposals_engine::{Module, Call, Storage, Event<T>},
         ProposalsDiscussion: proposals_discussion::{Module, Call, Storage, Event<T>},
@@ -740,5 +757,7 @@ construct_runtime!(
         // reserved for the future use: ForumWorkingGroup: working_group::<Instance1>::{Module, Call, Storage, Event<T>},
         StorageWorkingGroup: working_group::<Instance2>::{Module, Call, Storage, Config<T>, Event<T>},
         ContentDirectoryWorkingGroup: working_group::<Instance3>::{Module, Call, Storage, Config<T>, Event<T>},
+        //
+        Storage: storage::{Module, Call, Storage, Event<T>},
     }
 );

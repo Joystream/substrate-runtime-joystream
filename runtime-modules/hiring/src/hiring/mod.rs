@@ -101,7 +101,7 @@ pub enum CancelOpeningError {
 
 /// NB:
 /// `OpeningCancelled` does not have the ideal form.
-/// https://github.com/Joystream/substrate-hiring-module/issues/10
+/// <https://github.com/Joystream/substrate-hiring-module/issues/10>
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct OpeningCancelled {
     /// Number of unstaking application because of canceled opening

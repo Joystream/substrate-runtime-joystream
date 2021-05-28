@@ -4,7 +4,6 @@
 #[macro_use]
 
 mod proposals_integration;
-mod storage_integration;
 use sp_runtime::BuildStorage;
 
 pub(crate) fn initial_test_ext() -> sp_io::TestExternalities {

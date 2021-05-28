@@ -1,6 +1,6 @@
 [package]
 name = 'pallet-storage'
-version = '3.1.1'
+version = '4.0.0'
 authors = ['Joystream contributors']
 edition = '2018'
 
@@ -11,33 +11,37 @@ sp-std = { package = 'sp-std', default-features = false, git = 'https://github.c
 frame-support = { package = 'frame-support', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
 frame-system = { package = 'frame-system', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
 sp-arithmetic = { package = 'sp-arithmetic', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
-sp-runtime = { package = 'sp-runtime', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
-membership = { package = 'pallet-membership', default-features = false, path = '../membership'}
+balances = { package = 'pallet-balances', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
 pallet-timestamp = { package = 'pallet-timestamp', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
-working-group = { package = 'pallet-working-group', default-features = false, path = '../working-group'}
+sp-runtime = { package = 'sp-runtime', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
 common = { package = 'pallet-common', default-features = false, path = '../common'}
+membership = { package = 'pallet-membership', default-features = false, path = '../membership'}
+
+# Benchmarking
+frame-benchmarking = { package = 'frame-benchmarking', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62', optional = true}
 
 [dev-dependencies]
 sp-io = { package = 'sp-io', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
 sp-core = { package = 'sp-core', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
-balances = { package = 'pallet-balances', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
-stake = { package = 'pallet-stake', default-features = false, path = '../stake'}
-hiring = { package = 'pallet-hiring', default-features = false, path = '../hiring'}
-minting = { package = 'pallet-token-mint', default-features = false, path = '../token-minting'}
-recurringrewards = { package = 'pallet-recurring-reward', default-features = false, path = '../recurring-reward'}
+randomness-collective-flip = { package = 'pallet-randomness-collective-flip', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
 
 [features]
 default = ['std']
-std = [
-	'serde',
-	'codec/std',
-	'sp-std/std',
-	'frame-support/std',
-	'frame-system/std',
-	'sp-arithmetic/std',
-	'sp-runtime/std',
-	'membership/std',
-	'pallet-timestamp/std',
-	'working-group/std',
-	'common/std',
+runtime-benchmarks = [
+    "frame-benchmarking",
+    "sp-runtime/runtime-benchmarks",
 ]
+std = [
+    'serde',
+    'codec/std',
+    'sp-std/std',
+    'frame-support/std',
+    'frame-system/std',
+    'sp-arithmetic/std',
+    'balances/std',
+    'pallet-timestamp/std',
+    'sp-runtime/std',
+    'common/std',
+    'membership/std',
+]
+
