@@ -1,4 +1,4 @@
-type MembershipBoughtEvent @entity {
+type MembershipBoughtEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -37,7 +37,7 @@ type MembershipBoughtEvent @entity {
   referrer: Membership
 }
 
-type MemberInvitedEvent @entity {
+type MemberInvitedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -76,7 +76,7 @@ type MemberInvitedEvent @entity {
   metadata: MemberMetadata!
 }
 
-type MemberProfileUpdatedEvent @entity {
+type MemberProfileUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -106,7 +106,7 @@ type MemberProfileUpdatedEvent @entity {
   newMetadata: MemberMetadata!
 }
 
-type MemberAccountsUpdatedEvent @entity {
+type MemberAccountsUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -136,7 +136,7 @@ type MemberAccountsUpdatedEvent @entity {
   newControllerAccount: String
 }
 
-type MemberVerificationStatusUpdatedEvent @entity {
+type MemberVerificationStatusUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -166,7 +166,7 @@ type MemberVerificationStatusUpdatedEvent @entity {
   isVerified: Boolean!
 }
 
-type ReferralCutUpdatedEvent @entity {
+type ReferralCutUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -190,7 +190,7 @@ type ReferralCutUpdatedEvent @entity {
   newValue: Int!
 }
 
-type InvitesTransferredEvent @entity {
+type InvitesTransferredEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -220,7 +220,7 @@ type InvitesTransferredEvent @entity {
   numberOfInvites: Int!
 }
 
-type MembershipPriceUpdatedEvent @entity {
+type MembershipPriceUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -244,7 +244,7 @@ type MembershipPriceUpdatedEvent @entity {
   newPrice: BigInt!
 }
 
-type InitialInvitationBalanceUpdatedEvent @entity {
+type InitialInvitationBalanceUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -268,7 +268,7 @@ type InitialInvitationBalanceUpdatedEvent @entity {
   newInitialBalance: BigInt!
 }
 
-type LeaderInvitationQuotaUpdatedEvent @entity {
+type LeaderInvitationQuotaUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -292,7 +292,7 @@ type LeaderInvitationQuotaUpdatedEvent @entity {
   newInvitationQuota: Int!
 }
 
-type InitialInvitationCountUpdatedEvent @entity {
+type InitialInvitationCountUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -316,7 +316,7 @@ type InitialInvitationCountUpdatedEvent @entity {
   newInitialInvitationCount: Int!
 }
 
-type StakingAccountAddedEvent @entity {
+type StakingAccountAddedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -343,7 +343,7 @@ type StakingAccountAddedEvent @entity {
   account: String!
 }
 
-type StakingAccountConfirmedEvent @entity {
+type StakingAccountConfirmedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -370,7 +370,7 @@ type StakingAccountConfirmedEvent @entity {
   account: String!
 }
 
-type StakingAccountRemovedEvent @entity {
+type StakingAccountRemovedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"

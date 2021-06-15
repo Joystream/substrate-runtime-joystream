@@ -750,7 +750,7 @@ export async function workingGroups_RewardPaid({ store, event }: EventContext & 
     worker,
     amount,
     rewardAccount: rewardAccountId.toString(),
-    type: rewardPaymentType.isRegularReward ? RewardPaymentType.REGULAR : RewardPaymentType.MISSED,
+    paymentType: rewardPaymentType.isRegularReward ? RewardPaymentType.REGULAR : RewardPaymentType.MISSED,
   })
 
   await store.save<RewardPaidEvent>(rewardPaidEvent)
@@ -809,7 +809,7 @@ export async function workingGroups_WorkerExited({ store, event }: EventContext 
 }
 
 export async function workingGroups_LeaderUnset({ store, event }: EventContext & StoreContext): Promise<void> {
-  const group = await getWorkingGroup(store, event)
+  const group = await getWorkingGroup(store, event, ['leader'])
   const eventTime = new Date(event.blockTimestamp)
 
   const leaderUnsetEvent = new LeaderUnsetEvent({
