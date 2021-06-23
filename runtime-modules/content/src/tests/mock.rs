@@ -166,6 +166,13 @@ impl ContentActorAuthenticator for Test {
     }
 }
 
+// required for minting::BalanceOf<Test>
+impl minting::Trait for Test {
+    // Currency has been already defined
+    type Currency = balances::Module<Self>;
+    type MintId = u64;
+}
+
 pub struct MockStorageSystem {}
 
 // Anyone can upload and delete without restriction
@@ -252,9 +259,12 @@ pub struct ExtBuilder {
     next_series_id: u64,
     next_channel_transfer_request_id: u64,
     next_curator_group_id: u64,
+    max_reward_allowed: minting::BalanceOf<Test>,
+    min_cashout_allowed: minting::BalanceOf<Test>,
 }
 
 impl Default for ExtBuilder {
+    // init test scenario for ExtBuilder
     fn default() -> Self {
         Self {
             next_channel_category_id: 1,
@@ -266,6 +276,8 @@ impl Default for ExtBuilder {
             next_series_id: 1,
             next_channel_transfer_request_id: 1,
             next_curator_group_id: 1,
+            max_reward_allowed: minting::BalanceOf::<Test>::from(1_000u32),
+            min_cashout_allowed: minting::BalanceOf::<Test>::from(1u32),
         }
     }
 }
@@ -276,6 +288,7 @@ impl ExtBuilder {
             .build_storage::<Test>()
             .unwrap();
 
+        // the same as t.top().extend(GenesisConfig::<Test> etc...)
         GenesisConfig::<Test> {
             next_channel_category_id: self.next_channel_category_id,
             next_channel_id: self.next_channel_id,
@@ -286,6 +299,8 @@ impl ExtBuilder {
             next_series_id: self.next_series_id,
             next_channel_transfer_request_id: self.next_channel_transfer_request_id,
             next_curator_group_id: self.next_curator_group_id,
+            max_reward_allowed: self.max_reward_allowed,
+            min_cashout_allowed: self.min_cashout_allowed,
         }
         .assimilate_storage(&mut t)
         .unwrap();

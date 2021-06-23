@@ -1,0 +1,26 @@
+---
+# Build Pioneer, copy build artifacts and sync to S3
+
+- name: Set ws_rpc for build node
+  set_fact:
+    ws_rpc: "{{ hostvars[groups['rpc'][0]].ws_rpc }}"
+
+- name: Build Pioneer code
+  shell: "WS_URL=wss://{{ ws_rpc }} yarn && yarn workspace @joystream/types build && yarn workspace pioneer build"
+  args:
+    chdir: "{{ remote_code_path }}"
+
+- name: Copying build files to local
+  synchronize:
+    src: "{{ remote_code_path }}/pioneer/packages/apps/build"
+    dest: "{{ data_path }}"
+    mode: pull
+  run_once: true
+
+- name: Run S3 Sync to upload build files to bucket
+  community.aws.s3_sync:
+    bucket: "{{ bucket_name }}"
+    file_root: "{{ data_path }}/build"
+    profile: joystream-user
+    region: us-east-1
+  delegate_to: localhost

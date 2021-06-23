@@ -1,0 +1,18 @@
+---
+# Configure admin server to be able to create chain-spec file and subkey commands
+
+- name: Copy bash_profile content
+  shell: cat ~/.bash_profile
+  register: bash_data
+
+- name: Copy bash_profile content to bashrc for non-interactive sessions
+  blockinfile:
+    block: "{{ bash_data.stdout }}"
+    path: ~/.bashrc
+    insertbefore: BOF
+
+- name: Get dependencies for subkey
+  shell: curl https://getsubstrate.io -sSf | bash -s -- --fast
+
+- name: Install subkey
+  shell: cargo install --force subkey --git https://github.com/paritytech/substrate --version 2.0.1 --locked

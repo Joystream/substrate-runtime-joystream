@@ -1,0 +1,45 @@
+---
+# Configure chain spec and start joystream-node service on the servers
+
+- set_fact:
+    chain_path: "{{ remote_code_path }}/chains/{{ result.result.id }}"
+
+- set_fact:
+    network_path: "{{ chain_path }}/network"
+    keystore_path: "{{ chain_path }}/keystore/"
+
+- set_fact:
+    secret_path: "{{ network_path }}/secret"
+
+- name: Creating chains directory
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ network_path }}"
+
+- name: Copy node key to remote host
+  copy:
+    dest: "{{ secret_path }}"
+    content: "{{ subkey_output.stdout }}"
+
+- name: Copy auth directory to remote host
+  copy:
+    src: "{{ data_path }}/auth-{{ ansible_play_batch.index(inventory_hostname) }}/"
+    dest: "{{ keystore_path }}"
+
+- name: Create a service file
+  template:
+    src: joystream-node.service.j2
+    dest: /etc/systemd/system/joystream-node.service
+  vars:
+    template_keystore_path: "{{ keystore_path }}"
+    template_secret_path: "{{ secret_path }}"
+    template_remote_chain_spec_path: "{{ remote_chain_spec_path }}"
+  become: yes
+
+- name: Start service joystream-node, if not started
+  service:
+    name: joystream-node
+    state: started
+  become: yes

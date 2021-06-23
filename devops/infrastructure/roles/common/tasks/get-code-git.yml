@@ -1,0 +1,13 @@
+---
+# Get the latest code
+
+- name: Delete remote code directory if exists
+  file:
+    state: absent
+    path: "{{ remote_code_path }}"
+
+- name: Git checkout
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ remote_code_path }}"
+    version: "{{ branch_name }}"

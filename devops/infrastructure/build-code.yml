@@ -1,0 +1,14 @@
+---
+
+- name: Get latest Joystream code and build it
+  hosts: all
+  tasks:
+    - name: Get code from local or git repo
+      include_role:
+        name: common
+        tasks_from: "{{ 'get-code-local' if build_local_code|bool else 'get-code-git' }}"
+
+    - name: Run setup and build
+      include_role:
+        name: common
+        tasks_from: run-setup-build

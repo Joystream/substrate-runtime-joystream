@@ -353,6 +353,8 @@ pub fn testnet_genesis(
                 next_series_id: 1,
                 next_person_id: 1,
                 next_channel_transfer_request_id: 1,
+                max_reward_allowed: 1_000,
+                min_cashout_allowed: 1,
             }
         }),
         proposals_codex: Some(ProposalsCodexConfig {

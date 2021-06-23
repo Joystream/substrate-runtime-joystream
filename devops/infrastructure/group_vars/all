@@ -1,0 +1,20 @@
+---
+# Variables applicable to all hosts
+
+branch_name: sumer
+git_repo: "https://github.com/Joystream/joystream.git"
+
+local_dir: ~/Joystream/joystream
+
+# Generates random number between 1000..9999
+network_suffix: "{{ 10000 | random(1000) }}"
+
+data_path: ./data
+chain_spec_path: "{{ data_path }}/chainspec.json"
+raw_chain_spec_path: "{{ data_path }}/chainspec-raw.json"
+remote_code_path: "/home/ubuntu/joystream"
+remote_chain_spec_path: "{{ remote_code_path }}/chainspec.json"
+run_on_admin_server: true
+build_local_code: false
+
+bucket_name: s3-bucket-joystream

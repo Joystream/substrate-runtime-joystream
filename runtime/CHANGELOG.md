@@ -1,3 +1,16 @@
+### Version 9.7.0 - Sumer - runtime upgrade - May 27 2021
+- Introduced new content pallet the new content directory
+- Improved data_directory pallet
+  - Any storage provider to handle uploads of new content
+  - Integration with new content directory
+  - Introduction of quota vouchers
+  - Reset data directory
+- Added new working group instance for Operations
+
+### Version 9.3.0 - Antioch - new chain - April 7 2021
+- Following chain failure due to a debug in older version of substrate (v2.0.0-rc4) updated to substrate v2.0.1
+- Same runtime features as babylon
+
 ### Version 7.9.0 - Babylon - runtime upgrade - December 21 2020
 - Introduction of new and improved content directory
 

@@ -45,7 +45,7 @@ $ npm install -g @joystream/cli
 $ joystream-cli COMMAND
 running command...
 $ joystream-cli (-v|--version|version)
-@joystream/cli/0.5.0 linux-x64 node-v14.16.1
+@joystream/cli/0.5.1 linux-x64 node-v14.16.1
 $ joystream-cli --help [COMMAND]
 USAGE
   $ joystream-cli COMMAND
@@ -100,7 +100,7 @@ When using the CLI for the first time there are a few common steps you might wan
 * [`joystream-cli content:updateVideoCategory VIDEOCATEGORYID`](#joystream-cli-contentupdatevideocategory-videocategoryid)
 * [`joystream-cli content:updateVideoCensorshipStatus ID [STATUS]`](#joystream-cli-contentupdatevideocensorshipstatus-id-status)
 * [`joystream-cli content:video VIDEOID`](#joystream-cli-contentvideo-videoid)
-* [`joystream-cli content:videos CHANNELID`](#joystream-cli-contentvideos-channelid)
+* [`joystream-cli content:videos [CHANNELID]`](#joystream-cli-contentvideos-channelid)
 * [`joystream-cli council:info`](#joystream-cli-councilinfo)
 * [`joystream-cli help [COMMAND]`](#joystream-cli-help-command)
 * [`joystream-cli working-groups:application WGAPPLICATIONID`](#joystream-cli-working-groupsapplication-wgapplicationid)
@@ -667,13 +667,13 @@ ARGUMENTS
 
 _See code: [src/commands/content/video.ts](https://github.com/Joystream/joystream/blob/master/cli/src/commands/content/video.ts)_
 
-## `joystream-cli content:videos CHANNELID`
+## `joystream-cli content:videos [CHANNELID]`
 
 List existing content directory videos.
 
 ```
 USAGE
-  $ joystream-cli content:videos CHANNELID
+  $ joystream-cli content:videos [CHANNELID]
 
 ARGUMENTS
   CHANNELID  ID of the Channel

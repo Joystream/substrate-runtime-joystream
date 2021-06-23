@@ -1,0 +1,27 @@
+---
+# Get the latest code
+
+- name: Archive the current Git repository
+  command: git archive --format tar HEAD
+  args:  
+    chdir: "{{ local_dir }}"
+  delegate_to: localhost
+  register: archive_output
+
+- name: Save output the git repo as an archive
+  local_action: copy content={{ archive_output.stdout }} dest="{{ local_dir }}/code-archive.tar"
+
+- name: Delete remote code directory if exists
+  file:
+    state: absent
+    path: "{{ remote_code_path }}"
+
+- name: create directory for unarchiving
+  file:
+    path: "{{ remote_code_path }}"
+    state: directory
+
+- name: Extract code into path
+  unarchive:
+    src: "{{ local_dir }}/code-archive.tar"
+    dest: "{{ remote_code_path }}"

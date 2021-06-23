@@ -1,0 +1,42 @@
+---
+# Configure and start joystream-node RPC service on the servers
+
+- name: Print bootNodes
+  debug:
+    var: result.result.bootNodes
+  run_once: true
+
+- name: Create a service file
+  template:
+    src: joystream-node.service.j2
+    dest: /etc/systemd/system/joystream-node.service
+  vars:
+    template_remote_chain_spec_path: "{{ remote_chain_spec_path }}"
+    boot_nodes: "{{ result.result.bootNodes }}"
+  become: yes
+
+- name: Start service joystream-node, if not started
+  service:
+    name: joystream-node
+    state: started
+  become: yes
+
+- name: Set websocket and http endpoint variables
+  set_fact:
+    ws_rpc: "{{ inventory_hostname }}.nip.io/ws-rpc"
+    http_rpc: "{{ inventory_hostname }}.nip.io/http-rpc"
+  run_once: yes
+
+- name: Install and configure Caddy
+  include_role:
+    name: caddy_ansible.caddy_ansible
+    apply:
+      become: yes
+  vars:
+    caddy_config: "{{ lookup('template', 'templates/Caddyfile.j2') }}"
+    caddy_systemd_capabilities_enabled: true
+    caddy_update: false
+
+- name: Print RPC node DNS
+  debug:
+    msg: "RPC Endpoint: wss://{{ ws_rpc }}"

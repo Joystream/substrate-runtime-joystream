@@ -1,0 +1,9 @@
+---
+# Setup Build server install subkey
+
+- name: Setup build server, install subkey
+  hosts: build
+
+  roles:
+    - role: admin
+      when: run_on_admin_server|bool

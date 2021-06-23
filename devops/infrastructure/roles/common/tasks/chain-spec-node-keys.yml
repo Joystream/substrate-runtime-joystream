@@ -1,0 +1,76 @@
+---
+# Create chain spec files and keys and copy to all the servers
+
+- name: Debug to test variable
+  debug:
+    msg: "Data path: {{ data_path }}, Chain Spec path: {{ chain_spec_path }}"
+  run_once: true
+
+- name: Run chain-spec-builder to generate chainspec.json file
+  command: "{{ admin_code_dir }}/target/release/chain-spec-builder generate -a 2 --chain-spec-path {{ chain_spec_path }} --deployment live --endowed 1 --keystore-path {{ data_path }}"
+  register: chain_spec_output
+  delegate_to: "{{ local_or_admin }}"
+  run_once: true
+
+- name: Run subkey to generate node keys
+  shell: subkey generate-node-key
+  delegate_to: "{{ local_or_admin }}"
+  register: subkey_output
+
+- name: Print to stdout
+  debug:
+    msg:
+    - "Public Key: {{ subkey_output.stderr }}"
+    - "Private Key: {{ subkey_output.stdout }}"
+
+- name: Print to stdout chain spec
+  debug: var=chain_spec_output.stdout
+  run_once: true
+
+- name: Save output of chain spec to local file
+  copy:
+    content: '{{ chain_spec_output.stdout | regex_replace("\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]", "") }}'
+    dest: "{{ data_path }}/chain_spec_output.txt"
+  delegate_to: "{{ local_or_admin }}"
+  run_once: true
+
+- name: Change chain spec name, id, protocolId
+  json_modify:
+    chain_spec_path: "{{ chain_spec_path }}"
+    prefix: "{{ network_suffix }}"
+    all_nodes: "{{ hostvars }}"
+  delegate_to: "{{ local_or_admin }}"
+  register: result
+  run_once: true
+
+- name: Print output of modified chainspec
+  debug:
+    var: result.result
+  run_once: true
+
+- name: Run build-spec to generate raw chainspec file
+  shell: "{{ admin_code_dir }}/target/release/joystream-node build-spec --chain {{ chain_spec_path }} --raw > {{ raw_chain_spec_path }}"
+  delegate_to: "{{ local_or_admin }}"
+  run_once: true
+
+- name: Copying chain spec files to localhost
+  synchronize:
+    src: "/home/ubuntu/{{ data_path }}/"
+    dest: "{{ data_path }}"
+    mode: pull
+  run_once: true
+  when: run_on_admin_server|bool
+
+- name: Copy joystream-node binary to localhost
+  fetch:
+    src: "{{ admin_code_dir }}/target/release/joystream-node"
+    dest: "{{ data_path }}/joystream-node"
+    flat: yes
+  delegate_to: "{{ local_or_admin }}"
+  run_once: true
+  when: run_on_admin_server|bool
+
+- name: Copying raw chain spec file to all servers
+  copy:
+    src: "{{ raw_chain_spec_path }}"
+    dest: "{{ remote_chain_spec_path }}"
