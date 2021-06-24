@@ -263,6 +263,34 @@ pub fn ensure_actor_authorized_to_manage_categories<T: Trait>(
     }
 }
 
+// Enure actor can update channels and videos in the channel
+pub fn ensure_actor_authorized_to_claim_payment<T: Trait>(
+    origin: T::Origin,
+    actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
+    owner: &ChannelOwner<T::MemberId, T::CuratorGroupId, T::DAOId>,
+) -> DispatchResult {
+    // Only owner of a channel can update and delete channel assets.
+    // Lead can update and delete curator group owned channel assets.
+    match actor {
+        ContentActor::Member(member_id) => {
+            let sender = ensure_signed(origin)?;
+
+            ensure_member_auth_success::<T>(member_id, &sender)?;
+
+            // Ensure the member is the channel owner.
+            ensure!(
+                *owner == ChannelOwner::Member(*member_id),
+                Error::<T>::ActorNotAuthorized
+            );
+
+            Ok(())
+        }
+	_ => Err(Error::<T>::ActorNotAMember.into())
+        // TODO:
+        // ContentActor::Dao(_daoId) => ...,
+    }
+}
+
 // pub fn ensure_actor_authorized_to_delete_stale_assets<T: Trait>(
 //     origin: T::Origin,
 //     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,

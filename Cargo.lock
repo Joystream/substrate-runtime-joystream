@@ -3828,6 +3828,7 @@ dependencies = [
  "pallet-balances",
  "pallet-common",
  "pallet-timestamp",
+ "pallet-token-mint",
  "parity-scale-codec",
  "serde",
  "sp-arithmetic",

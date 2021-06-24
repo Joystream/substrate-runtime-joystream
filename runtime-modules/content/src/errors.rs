@@ -58,10 +58,13 @@ decl_error! {
         /// Video does not exist
         VideoDoesNotExist,
 
-        /// Video in season can`t be removed (because order is important)
+        /// Vfdeo in season can`t be removed (because order is important)
         VideoInSeason,
 
         /// Curators can only censor non-curator group owned channels
-        CannotCensoreCuratorGroupOwnedChannels
+        CannotCensoreCuratorGroupOwnedChannels,
+
+        /// Actor is not A Member
+        ActorNotAMember
     }
 }
