@@ -1,13 +1,15 @@
 {
   "name": "@joystream/cli",
   "description": "Command Line Interface for Joystream community and governance activities",
-  "version": "0.3.1",
+  "version": "0.5.0",
   "author": "Leszek Wiesner",
   "bin": {
     "joystream-cli": "./bin/run"
   },
   "bugs": "https://github.com/Joystream/joystream/issues",
   "dependencies": {
+    "@apollo/client": "^3.3.13",
+    "cross-fetch": "^3.0.6",
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@ffprobe-installer/ffprobe": "^1.1.0",
     "@joystream/types": "^0.15.0",
@@ -56,7 +58,12 @@
     "nyc": "^14.1.1",
     "ts-node": "^8.8.2",
     "typescript": "^3.8.3",
-    "json-schema-to-typescript": "^9.1.1"
+    "json-schema-to-typescript": "^9.1.1",
+    "@graphql-codegen/cli": "^1.21.4",
+    "@graphql-codegen/typescript": "^1.22.0",
+    "@graphql-codegen/import-types-preset": "^1.18.1",
+    "@graphql-codegen/typescript-operations": "^1.17.16",
+    "@graphql-codegen/typescript-document-nodes": "^1.17.11"
   },
   "engines": {
     "node": ">=12.18.0",
@@ -124,7 +131,9 @@
     "lint": "eslint ./src --ext .ts",
     "checks": "tsc --noEmit --pretty && prettier ./ --check && yarn lint",
     "format": "prettier ./ --write",
-    "generate:schema-typings": "rm -rf ./src/json-schemas/typings && json2ts -i ./src/json-schemas/ -o ./src/json-schemas/typings/"
+    "generate:schema-typings": "rm -rf ./src/json-schemas/typings && json2ts -i ./src/json-schemas/ -o ./src/json-schemas/typings/ && yarn format",
+    "generate:graphql-typings": "graphql-codegen",
+    "generate:all": "yarn generate:schema-typings && yarn generate:graphql-typings"
   },
   "types": "lib/index.d.ts",
   "volta": {

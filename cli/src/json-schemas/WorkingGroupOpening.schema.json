@@ -5,67 +5,36 @@
   "description": "JSON schema to describe Joystream working group opening",
   "type": "object",
   "additionalProperties": false,
-  "required": ["activateAt", "maxReviewPeriodLength"],
+  "required": ["stakingPolicy", "description"],
   "properties": {
-    "activateAt": {
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["ExactBlock"],
-          "properties": {
-            "ExactBlock": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Exact block number"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["CurrentBlock"],
-          "properties": { "CurrentBlock": { "type": "null" } }
-        }
-      ]
-    },
-    "maxActiveApplicants": {
+    "stakingPolicy": { "$ref": "#/definitions/StakingPolicy", "description": "Staking policy" },
+    "rewardPerBlock": {
       "type": "integer",
-      "description": "Max. number of active applicants",
-      "minimum": 1,
-      "default": 10
+      "description": "Reward per block",
+      "minimum": 1
     },
-    "maxReviewPeriodLength": {
-      "type": "integer",
-      "description": "Max. review period length in blocks",
-      "minimum": 1,
-      "default": 432000
-    },
-    "applicationStake": { "$ref": "#/definitions/StakingPolicy", "description": "Application stake properties" },
-    "roleStake": { "$ref": "#/definitions/StakingPolicy", "description": "Role stake properties" },
-    "terminateRoleUnstakingPeriod": { "$ref": "#/definitions/UnstakingPeriod" },
-    "leaveRoleUnstakingPeriod": { "$ref": "#/definitions/UnstakingPeriod" }
+    "description": {
+      "type": "string",
+      "description": "Opening description",
+      "minLength": 1
+    }
   },
   "definitions": {
-    "UnstakingPeriod": {
-      "type": "integer",
-      "minimum": 1,
-      "default": 100800
-    },
     "StakingPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["value", "mode"],
+      "required": ["amount", "unstakingPeriod"],
       "properties": {
-        "mode": {
-          "type": "string",
-          "description": "Application stake mode (Exact/AtLeast)",
-          "enum": ["Exact", "AtLeast"]
-        },
-        "value": {
+        "amount": {
           "type": "integer",
-          "description": "Required stake value in JOY",
-          "minimum": 1
+          "description": "Stake amount",
+          "minimum": 2000
+        },
+        "unstakingPeriod": {
+          "type": "integer",
+          "description": "Unstaking period in blocks",
+          "exclusiveMinimum": 43200,
+          "maximum": 4294967295
         }
       }
     }

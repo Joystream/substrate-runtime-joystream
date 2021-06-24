@@ -1,7 +1,7 @@
 import { WorkingGroups } from '../../Types'
 import ContentDirectoryCommandBase from '../../base/ContentDirectoryCommandBase'
 import chalk from 'chalk'
-import { displayCollapsedRow, displayHeader } from '../../helpers/display'
+import { displayCollapsedRow, displayHeader, memberHandle } from '../../helpers/display'
 
 export default class CuratorGroupCommand extends ContentDirectoryCommandBase {
   static description = 'Show Curator Group details by ID.'
@@ -32,7 +32,7 @@ export default class CuratorGroupCommand extends ContentDirectoryCommandBase {
     displayHeader(`Group Members (${members.length})`)
     this.log(
       members
-        .map((curator) => chalk.white(`${curator.profile.handle} (WorkerID: ${curator.workerId.toString()})`))
+        .map((curator) => chalk.white(`${memberHandle(curator.profile)} (WorkerID: ${curator.workerId.toString()})`))
         .join(', ')
     )
   }

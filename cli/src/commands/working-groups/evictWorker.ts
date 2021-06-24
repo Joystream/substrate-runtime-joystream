@@ -2,7 +2,10 @@ import WorkingGroupsCommandBase from '../../base/WorkingGroupsCommandBase'
 import { apiModuleByGroup } from '../../Api'
 import { formatBalance } from '@polkadot/util'
 import chalk from 'chalk'
-import { createParamOptions } from '../../helpers/promptOptions'
+import { flags } from '@oclif/command'
+import { isValidBalance } from '../../helpers/validation'
+import ExitCodes from '../../ExitCodes'
+import BN from 'bn.js'
 
 export default class WorkingGroupsEvictWorker extends WorkingGroupsCommandBase {
   static description = 'Evicts given worker. Requires lead access.'
@@ -16,40 +19,46 @@ export default class WorkingGroupsEvictWorker extends WorkingGroupsCommandBase {
 
   static flags = {
     ...WorkingGroupsCommandBase.flags,
+    penalty: flags.string({
+      description: 'Optional penalty in JOY',
+      required: false,
+    }),
+    rationale: flags.string({
+      description: 'Optional rationale',
+      required: false,
+    }),
   }
 
   async run() {
-    const { args } = this.parse(WorkingGroupsEvictWorker)
+    const {
+      args,
+      flags: { penalty, rationale },
+    } = this.parse(WorkingGroupsEvictWorker)
 
-    const account = await this.getRequiredSelectedAccount()
-    // Lead-only gate
-    await this.getRequiredLead()
+    const lead = await this.getRequiredLeadContext()
 
     const workerId = parseInt(args.workerId)
     // This will also make sure the worker is valid
     const groupMember = await this.getWorkerForLeadAction(workerId)
 
-    // TODO: Terminate worker text limits? (minMaxStr)
-    const rationale = await this.promptForParam('Bytes', createParamOptions('rationale'))
-    const shouldSlash = groupMember.stake
-      ? await this.simplePrompt({
-          message: `Should the worker stake (${formatBalance(groupMember.stake)}) be slashed?`,
-          type: 'confirm',
-          default: false,
-        })
-      : false
+    if (penalty && !isValidBalance(penalty)) {
+      this.error('Invalid penalty amount', { exit: ExitCodes.InvalidInput })
+    }
 
-    await this.requestAccountDecoding(account)
+    if (penalty && (!groupMember.stake || groupMember.stake.lt(new BN(penalty)))) {
+      this.error('Penalty cannot exceed worker stake', { exit: ExitCodes.InvalidInput })
+    }
 
-    await this.sendAndFollowNamedTx(account, apiModuleByGroup[this.group], 'terminateRole', [
-      workerId,
-      rationale,
-      shouldSlash,
-    ])
+    await this.sendAndFollowNamedTx(
+      await this.getDecodedPair(lead.roleAccount.toString()),
+      apiModuleByGroup[this.group],
+      'terminateRole',
+      [workerId, penalty || null, rationale || null]
+    )
 
-    this.log(chalk.green(`Worker ${chalk.white(workerId)} has been evicted!`))
-    if (shouldSlash) {
-      this.log(chalk.green(`Worker stake totalling ${chalk.white(formatBalance(groupMember.stake))} has been slashed!`))
+    this.log(chalk.green(`Worker ${chalk.white(workerId.toString())} has been evicted!`))
+    if (penalty) {
+      this.log(chalk.green(`${chalk.white(formatBalance(penalty))} of worker's stake has been slashed!`))
     }
   }
 }

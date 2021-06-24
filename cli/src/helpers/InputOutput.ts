@@ -5,11 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import Ajv from 'ajv'
 import $RefParser, { JSONSchema } from '@apidevtools/json-schema-ref-parser'
-import { getSchemasLocation } from '@joystream/cd-schemas'
 import chalk from 'chalk'
-
-// Default schema path for resolving refs
-const DEFAULT_SCHEMA_PATH = getSchemasLocation('entities') + path.sep
 
 export const IOFlags = {
   input: flags.string({
@@ -50,7 +46,7 @@ export async function getInputJson<T>(inputPath?: string, schema?: JSONSchema, s
 
 export async function validateInput(input: unknown, schema: JSONSchema, schemaPath?: string): Promise<void> {
   const ajv = new Ajv({ allErrors: true })
-  schema = await $RefParser.dereference(schemaPath || DEFAULT_SCHEMA_PATH, schema, {})
+  schema = await $RefParser.dereference(schemaPath || '.', schema, {})
   const valid = ajv.validate(schema, input) as boolean
   if (!valid) {
     throw new CLIError(`Input JSON file is not valid: ${ajv.errorsText()}`)

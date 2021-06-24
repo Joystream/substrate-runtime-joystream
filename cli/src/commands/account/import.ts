@@ -1,44 +1,63 @@
-import fs from 'fs'
-import chalk from 'chalk'
-import path from 'path'
-import ExitCodes from '../../ExitCodes'
-import AccountsCommandBase from '../../base/AccountsCommandBase'
-import { NamedKeyringPair } from '../../Types'
-
-type AccountImportArgs = {
-  backupFilePath: string
-}
+import AccountsCommandBase, { DEFAULT_ACCOUNT_TYPE, KEYRING_OPTIONS } from '../../base/AccountsCommandBase'
+import { flags } from '@oclif/command'
+import Keyring from '@polkadot/keyring'
+import { KeypairType } from '@polkadot/util-crypto/types'
 
 export default class AccountImport extends AccountsCommandBase {
-  static description = 'Import account using JSON backup file'
+  static description = 'Import account using mnemonic phrase, seed, suri or json backup file'
 
-  static args = [
-    {
-      name: 'backupFilePath',
-      required: true,
+  static flags = {
+    name: flags.string({
+      required: false,
+      description: 'Account name',
+    }),
+    mnemonic: flags.string({
+      required: false,
+      description: 'Mnemonic phrase',
+      exclusive: ['backupFilePath', 'seed', 'suri'],
+    }),
+    seed: flags.string({
+      required: false,
+      description: 'Secret seed',
+      exclusive: ['backupFilePath', 'mnemonic', 'suri'],
+    }),
+    backupFilePath: flags.string({
+      required: false,
       description: 'Path to account backup JSON file',
-    },
-  ]
+      exclusive: ['mnemonic', 'seed', 'suri'],
+    }),
+    suri: flags.string({
+      required: false,
+      description: 'Substrate uri',
+      exclusive: ['mnemonic', 'seed', 'backupFilePath'],
+    }),
+    type: flags.enum<KeypairType>({
+      required: false,
+      description: `Account type (defaults to ${DEFAULT_ACCOUNT_TYPE})`,
+      options: ['sr25519', 'ed25519'],
+      exclusive: ['backupFilePath'],
+    }),
+  }
 
   async run() {
-    const args: AccountImportArgs = this.parse(AccountImport).args as AccountImportArgs
-    const backupAcc: NamedKeyringPair = this.fetchAccountFromJsonFile(args.backupFilePath)
-    const accountName: string = backupAcc.meta.name
-    const accountAddress: string = backupAcc.address
+    const { name, mnemonic, seed, backupFilePath, suri, type } = this.parse(AccountImport).flags
 
-    const sourcePath: string = args.backupFilePath
-    const destPath: string = path.join(this.getAccountsDirPath(), this.generateAccountFilename(backupAcc))
+    const keyring = new Keyring(KEYRING_OPTIONS)
 
-    try {
-      fs.copyFileSync(sourcePath, destPath)
-    } catch (e) {
-      this.error('Unexpected error while trying to copy input file! Permissions issue?', {
-        exit: ExitCodes.FsOperationFailed,
-      })
+    if (mnemonic) {
+      keyring.addFromMnemonic(mnemonic, {}, type)
+    } else if (seed) {
+      keyring.addFromSeed(Buffer.from(seed), {}, type)
+    } else if (suri) {
+      keyring.addFromUri(suri, {}, type)
+    } else if (backupFilePath) {
+      const pair = this.fetchAccountFromJsonFile(backupFilePath)
+      keyring.addPair(pair)
+    } else {
+      this._help()
+      return
     }
 
-    this.log(chalk.bold.greenBright(`ACCOUNT IMPORTED SUCCESFULLY!`))
-    this.log(chalk.bold.white(`NAME:    `), accountName)
-    this.log(chalk.bold.white(`ADDRESS: `), accountAddress)
+    await this.createAccount(name, keyring.getPairs()[0])
   }
 }

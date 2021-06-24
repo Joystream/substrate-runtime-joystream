@@ -2,20 +2,22 @@ import ExitCodes from '../ExitCodes'
 import { CLIError } from '@oclif/errors'
 import StateAwareCommandBase from './StateAwareCommandBase'
 import Api from '../Api'
-import { getTypeDef, Option, Tuple, TypeRegistry } from '@polkadot/types'
-import { Registry, Codec, CodecArg, TypeDef, TypeDefInfo } from '@polkadot/types/types'
-
+import { getTypeDef, Option, Tuple } from '@polkadot/types'
+import { Registry, Codec, TypeDef, TypeDefInfo } from '@polkadot/types/types'
 import { Vec, Struct, Enum } from '@polkadot/types/codec'
-import { ApiPromise, WsProvider } from '@polkadot/api'
+import { WsProvider } from '@polkadot/api'
 import { KeyringPair } from '@polkadot/keyring/types'
 import chalk from 'chalk'
 import { InterfaceTypes } from '@polkadot/types/types/registry'
 import { ApiMethodArg, ApiMethodNamedArgs, ApiParamsOptions, ApiParamOptions } from '../Types'
 import { createParamOptions } from '../helpers/promptOptions'
-import { SubmittableExtrinsic } from '@polkadot/api/types'
+import { AugmentedSubmittables, SubmittableExtrinsic } from '@polkadot/api/types'
 import { DistinctQuestion } from 'inquirer'
 import { BOOL_PROMPT_OPTIONS } from '../helpers/prompting'
 import { DispatchError } from '@polkadot/types/interfaces/system'
+import { formatBalance } from '@polkadot/util'
+import BN from 'bn.js'
+import _ from 'lodash'
 
 export class ExtrinsicFailedError extends Error {}
 
@@ -24,16 +26,19 @@ export class ExtrinsicFailedError extends Error {}
  */
 export default abstract class ApiCommandBase extends StateAwareCommandBase {
   private api: Api | null = null
-  forceSkipApiUriPrompt = false
 
   getApi(): Api {
     if (!this.api) throw new CLIError('Tried to get API before initialization.', { exit: ExitCodes.ApiError })
     return this.api
   }
 
-  // Get original api for lower-level api calls
-  getOriginalApi(): ApiPromise {
+  // Shortcuts
+  getOriginalApi() {
     return this.getApi().getOriginalApi()
+  }
+
+  getUnaugmentedApi() {
+    return this.getApi().getUnaugmentedApi()
   }
 
   getTypesRegistry(): Registry {
@@ -47,13 +52,20 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
   async init() {
     await super.init()
     let apiUri: string = this.getPreservedState().apiUri
+
     if (!apiUri) {
-      this.warn("You haven't provided a node/endpoint for the CLI to connect to yet!")
+      this.warn("You haven't provided a Joystream node websocket api uri for the CLI to connect to yet!")
       apiUri = await this.promptForApiUri()
     }
 
+    let queryNodeUri: string = this.getPreservedState().queryNodeUri
+    if (!queryNodeUri) {
+      this.warn("You haven't provided a Joystream query node uri for the CLI to connect to yet!")
+      queryNodeUri = await this.promptForQueryNodeUri()
+    }
+
     const { metadataCache } = this.getPreservedState()
-    this.api = await Api.create(apiUri, metadataCache)
+    this.api = await Api.create(apiUri, metadataCache, queryNodeUri === 'none' ? undefined : queryNodeUri)
 
     const { genesisHash, runtimeVersion } = this.getOriginalApi()
     const metadataKey = `${genesisHash}-${runtimeVersion.specVersion}`
@@ -67,7 +79,7 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
   async promptForApiUri(): Promise<string> {
     let selectedNodeUri = await this.simplePrompt({
       type: 'list',
-      message: 'Choose a node/endpoint:',
+      message: 'Choose a node websocket api uri:',
       choices: [
         {
           name: 'Local node (ws://localhost:9944)',
@@ -101,6 +113,47 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
     return selectedNodeUri
   }
 
+  async promptForQueryNodeUri(): Promise<string> {
+    let selectedUri = await this.simplePrompt({
+      type: 'list',
+      message: 'Choose a query node endpoint:',
+      choices: [
+        {
+          name: 'Local query node (http://localhost:8081/graphql)',
+          value: 'http://localhost:8081/graphql',
+        },
+        {
+          name: 'Jsgenesis-hosted query node (https://hydra.joystream.org/graphql)',
+          value: 'https://hydra.joystream.org/graphql',
+        },
+        {
+          name: 'Custom endpoint',
+          value: '',
+        },
+        {
+          name: "No endpoint (if you don't use query node some features will not be available)",
+          value: 'none',
+        },
+      ],
+    })
+
+    if (!selectedUri) {
+      do {
+        selectedUri = await this.simplePrompt({
+          type: 'input',
+          message: 'Provide a query node endpoint',
+        })
+        if (!this.isApiUriValid(selectedUri)) {
+          this.warn('Provided uri seems incorrect! Please try again...')
+        }
+      } while (!this.isApiUriValid(selectedUri))
+    }
+
+    await this.setPreservedState({ queryNodeUri: selectedUri })
+
+    return selectedUri
+  }
+
   isApiUriValid(uri: string) {
     try {
       // eslint-disable-next-line no-new
@@ -109,6 +162,17 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
       return false
     }
     return true
+  }
+
+  isQueryNodeUriValid(uri: string) {
+    let url: URL
+    try {
+      url = new URL(uri)
+    } catch (_) {
+      return false
+    }
+
+    return url.protocol === 'http:' || url.protocol === 'https:'
   }
 
   // This is needed to correctly handle some structs, enums etc.
@@ -332,7 +396,7 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
     method: string,
     paramsOptions?: ApiParamsOptions
   ): Promise<ApiMethodArg[]> {
-    const extrinsicMethod = this.getOriginalApi().tx[module][method]
+    const extrinsicMethod = (await this.getUnaugmentedApi().tx)[module][method]
     const values: ApiMethodArg[] = []
 
     this.openIndentGroup()
@@ -350,7 +414,7 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
     return values
   }
 
-  sendExtrinsic(account: KeyringPair, tx: SubmittableExtrinsic<'promise'>) {
+  sendExtrinsic(account: KeyringPair, tx: SubmittableExtrinsic<'promise'>): Promise<void> {
     return new Promise((resolve, reject) => {
       let unsubscribe: () => void
       tx.signAndSend(account, {}, (result) => {
@@ -369,11 +433,7 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
                 let errorMsg = dispatchError.toString()
                 if (dispatchError.isModule) {
                   try {
-                    // Need to assert that registry is of TypeRegistry type, since Registry intefrace
-                    // seems outdated and doesn't include DispatchErrorModule as possible argument for "findMetaError"
-                    const { name, documentation } = (this.getOriginalApi().registry as TypeRegistry).findMetaError(
-                      dispatchError.asModule
-                    )
+                    const { name, documentation } = this.getOriginalApi().registry.findMetaError(dispatchError.asModule)
                     errorMsg = `${name} (${documentation})`
                   } catch (e) {
                     // This probably means we don't have this error in the metadata
@@ -401,6 +461,13 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
     tx: SubmittableExtrinsic<'promise'>,
     warnOnly = false // If specified - only warning will be displayed in case of failure (instead of error beeing thrown)
   ): Promise<boolean> {
+    // Calculate fee and ask for confirmation
+    const fee = await this.getApi().estimateFee(account, tx)
+
+    await this.requireConfirmation(
+      `Tx fee of ${chalk.cyan(formatBalance(fee))} will be deduced from you account, do you confirm the transfer?`
+    )
+
     try {
       await this.sendExtrinsic(account, tx)
       this.log(chalk.green(`Extrinsic successful!`))
@@ -417,27 +484,55 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
     }
   }
 
-  async sendAndFollowNamedTx(
+  private humanize(p: unknown): any {
+    if (Array.isArray(p)) {
+      return p.map((v) => this.humanize(v))
+    } else if (typeof p === 'object' && p !== null) {
+      if ((p as any).toHuman) {
+        return (p as Codec).toHuman()
+      } else if (p instanceof BN) {
+        return p.toString()
+      } else {
+        return _.mapValues(p, this.humanize.bind(this))
+      }
+    }
+
+    return p
+  }
+
+  async sendAndFollowNamedTx<
+    Module extends keyof AugmentedSubmittables<'promise'>,
+    Method extends keyof AugmentedSubmittables<'promise'>[Module] & string,
+    Submittable extends AugmentedSubmittables<'promise'>[Module][Method]
+  >(
     account: KeyringPair,
-    module: string,
-    method: string,
-    params: CodecArg[],
+    module: Module,
+    method: Method,
+    params: Submittable extends (...args: any[]) => any ? Parameters<Submittable> : [],
     warnOnly = false
   ): Promise<boolean> {
-    this.log(chalk.white(`\nSending ${module}.${method} extrinsic...`))
-    const tx = await this.getOriginalApi().tx[module][method](...params)
+    this.log(
+      chalk.white(
+        `\nSending ${module}.${method} extrinsic from ${account.meta.name ? account.meta.name : account.address}...`
+      )
+    )
+    console.log('Params:', this.humanize(params))
+    const tx = await this.getUnaugmentedApi().tx[module][method](...params)
     return await this.sendAndFollowTx(account, tx, warnOnly)
   }
 
-  async buildAndSendExtrinsic(
+  async buildAndSendExtrinsic<
+    Module extends keyof AugmentedSubmittables<'promise'>,
+    Method extends keyof AugmentedSubmittables<'promise'>[Module] & string
+  >(
     account: KeyringPair,
-    module: string,
-    method: string,
+    module: Module,
+    method: Method,
     paramsOptions?: ApiParamsOptions,
     warnOnly = false // If specified - only warning will be displayed (instead of error beeing thrown)
   ): Promise<ApiMethodArg[]> {
     const params = await this.promptForExtrinsicParams(module, method, paramsOptions)
-    await this.sendAndFollowNamedTx(account, module, method, params, warnOnly)
+    await this.sendAndFollowNamedTx(account, module, method, params as any, warnOnly)
 
     return params
   }
@@ -445,7 +540,7 @@ export default abstract class ApiCommandBase extends StateAwareCommandBase {
   extrinsicArgsFromDraft(module: string, method: string, draftFilePath: string): ApiMethodNamedArgs {
     let draftJSONObj
     const parsedArgs: ApiMethodNamedArgs = []
-    const extrinsicMethod = this.getOriginalApi().tx[module][method]
+    const extrinsicMethod = this.getUnaugmentedApi().tx[module][method]
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       draftJSONObj = require(draftFilePath)

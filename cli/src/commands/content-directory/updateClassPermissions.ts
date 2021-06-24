@@ -43,10 +43,10 @@ export default class UpdateClassPermissionsCommand extends ContentDirectoryComma
     await this.requestAccountDecoding(account)
     await this.sendAndFollowNamedTx(account, 'contentDirectory', 'updateClassPermissions', [
       classId,
-      newPermissions.any_member,
-      newPermissions.entity_creation_blocked,
-      newPermissions.all_entity_property_values_locked,
-      newPermissions.maintainers,
+      this.createType('Option<bool>', newPermissions.any_member || null),
+      this.createType('Option<bool>', newPermissions.entity_creation_blocked || null),
+      this.createType('Option<bool>', newPermissions.all_entity_property_values_locked || null),
+      this.createType('Option<bool>', newPermissions.maintainers || null),
     ])
 
     console.log(chalk.green(`${chalk.white(className)} class permissions updated to:`))

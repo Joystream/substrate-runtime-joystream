@@ -1,0 +1,18 @@
+fragment MemberMetadataFields on MemberMetadata {
+  name
+  about
+}
+
+fragment MembershipFields on Membership {
+  id
+  handle
+  metadata {
+    ...MemberMetadataFields
+  }
+}
+
+query getMemberById($id: ID!) {
+  membershipByUniqueInput(where: { id: $id }) {
+    ...MembershipFields
+  }
+}

@@ -5,56 +5,29 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type UnstakingPeriod = number
-
 /**
  * JSON schema to describe Joystream working group opening
  */
 export interface WorkingGroupOpening {
-  activateAt:
-    | {
-        /**
-         * Exact block number
-         */
-        ExactBlock: number
-      }
-    | {
-        CurrentBlock: null
-      }
   /**
-   * Max. number of active applicants
+   * Staking policy
    */
-  maxActiveApplicants?: number
-  /**
-   * Max. review period length in blocks
-   */
-  maxReviewPeriodLength: number
-  /**
-   * Application stake properties
-   */
-  applicationStake?: {
+  stakingPolicy: {
     /**
-     * Application stake mode (Exact/AtLeast)
+     * Stake amount
      */
-    mode: 'Exact' | 'AtLeast'
+    amount: number
     /**
-     * Required stake value in JOY
+     * Unstaking period in blocks
      */
-    value: number
+    unstakingPeriod: number
   }
   /**
-   * Role stake properties
+   * Reward per block
    */
-  roleStake?: {
-    /**
-     * Application stake mode (Exact/AtLeast)
-     */
-    mode: 'Exact' | 'AtLeast'
-    /**
-     * Required stake value in JOY
-     */
-    value: number
-  }
-  terminateRoleUnstakingPeriod?: UnstakingPeriod
-  leaveRoleUnstakingPeriod?: UnstakingPeriod
+  rewardPerBlock?: number
+  /**
+   * Opening description
+   */
+  description: string
 }

@@ -6,7 +6,8 @@
   "scripts": {
     "status": "ts-node src/status",
     "script": "ts-node src/script",
-    "tsnode-strict": "node -r ts-node/register --unhandled-rejections=strict"
+    "tsnode-strict": "node -r ts-node/register --unhandled-rejections=strict",
+    "initialize-content-lead": "ts-node src/initialize-content-lead"
   },
   "dependencies": {
     "@joystream/types": "^0.15.0",

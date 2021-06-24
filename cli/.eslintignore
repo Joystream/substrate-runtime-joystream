@@ -1,2 +1,5 @@
 /lib
+# Temporarly ignore before merging `Sumer`
+/src/commands/media
+/src/commands/content-directory
 .eslintrc.js

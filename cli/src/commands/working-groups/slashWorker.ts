@@ -1,10 +1,11 @@
 import WorkingGroupsCommandBase from '../../base/WorkingGroupsCommandBase'
 import { apiModuleByGroup } from '../../Api'
-import { Balance } from '@polkadot/types/interfaces'
 import { formatBalance } from '@polkadot/util'
-import { minMaxInt } from '../../validators/common'
 import chalk from 'chalk'
-import { createParamOptions } from '../../helpers/promptOptions'
+import { flags } from '@oclif/command'
+import { isValidBalance } from '../../helpers/validation'
+import ExitCodes from '../../ExitCodes'
+import BN from 'bn.js'
 
 export default class WorkingGroupsSlashWorker extends WorkingGroupsCommandBase {
   static description = 'Slashes given worker stake. Requires lead access.'
@@ -14,37 +15,49 @@ export default class WorkingGroupsSlashWorker extends WorkingGroupsCommandBase {
       required: true,
       description: 'Worker ID',
     },
+    {
+      name: 'amount',
+      required: true,
+      description: 'Slash amount',
+    },
   ]
 
   static flags = {
     ...WorkingGroupsCommandBase.flags,
+    rationale: flags.string({
+      name: 'Optional rationale',
+      required: false,
+    }),
   }
 
   async run() {
-    const { args } = this.parse(WorkingGroupsSlashWorker)
+    const {
+      args: { amount, workerId },
+      flags: { rationale },
+    } = this.parse(WorkingGroupsSlashWorker)
 
-    const account = await this.getRequiredSelectedAccount()
     // Lead-only gate
-    await this.getRequiredLead()
+    const lead = await this.getRequiredLeadContext()
 
-    const workerId = parseInt(args.workerId)
-    const groupMember = await this.getWorkerWithStakeForLeadAction(workerId)
+    const groupMember = await this.getWorkerWithStakeForLeadAction(parseInt(workerId))
 
     this.log(chalk.white('Current worker stake: ', formatBalance(groupMember.stake)))
-    const balanceValidator = minMaxInt(1, groupMember.stake.toNumber())
-    const balance = (await this.promptForParam(
-      'Balance',
-      createParamOptions('amount', undefined, balanceValidator)
-    )) as Balance
 
-    await this.requestAccountDecoding(account)
+    if (!isValidBalance(amount) || groupMember.stake.lt(new BN(amount))) {
+      this.error('Invalid slash amount', { exit: ExitCodes.InvalidInput })
+    }
 
-    await this.sendAndFollowNamedTx(account, apiModuleByGroup[this.group], 'slashStake', [workerId, balance])
+    await this.sendAndFollowNamedTx(
+      await this.getDecodedPair(lead.roleAccount.toString()),
+      apiModuleByGroup[this.group],
+      'slashStake',
+      [workerId, amount, rationale || null]
+    )
 
     this.log(
       chalk.green(
-        `${chalk.white(formatBalance(balance))} from worker ${chalk.white(
-          workerId
+        `${chalk.white(formatBalance(amount))} from worker ${chalk.white(
+          workerId.toString()
         )} stake has been succesfully slashed!`
       )
     )

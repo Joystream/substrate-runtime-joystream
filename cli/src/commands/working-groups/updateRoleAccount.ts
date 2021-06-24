@@ -2,14 +2,15 @@ import WorkingGroupsCommandBase from '../../base/WorkingGroupsCommandBase'
 import { apiModuleByGroup } from '../../Api'
 import { validateAddress } from '../../helpers/validation'
 import chalk from 'chalk'
+import ExitCodes from '../../ExitCodes'
 
 export default class WorkingGroupsUpdateRoleAccount extends WorkingGroupsCommandBase {
   static description = 'Updates the worker/lead role account. Requires member controller account to be selected'
   static args = [
     {
-      name: 'accountAddress',
+      name: 'address',
       required: false,
-      description: 'New role account address (if omitted, one of the existing CLI accounts can be selected)',
+      description: 'New role account address (if omitted, can be provided interactively)',
     },
   ]
 
@@ -18,41 +19,23 @@ export default class WorkingGroupsUpdateRoleAccount extends WorkingGroupsCommand
   }
 
   async run() {
-    const { args } = this.parse(WorkingGroupsUpdateRoleAccount)
+    let { address } = this.parse(WorkingGroupsUpdateRoleAccount).args
 
-    const account = await this.getRequiredSelectedAccount()
-    const worker = await this.getRequiredWorkerByMemberController()
+    const worker = await this.getRequiredWorkerContext('MemberController')
 
-    const cliAccounts = await this.fetchAccounts()
-    let newRoleAccount: string = args.accountAddress
-    if (!newRoleAccount) {
-      newRoleAccount = (await this.promptForAccount(cliAccounts, undefined, 'Choose the new role account')).address
+    if (!address) {
+      address = await this.promptForAnyAddress('Select new role account')
+    } else if (validateAddress(address) !== true) {
+      this.error('Invalid address', { exit: ExitCodes.InvalidInput })
     }
-    validateAddress(newRoleAccount)
 
-    await this.requestAccountDecoding(account)
+    await this.sendAndFollowNamedTx(
+      await this.getDecodedPair(worker.profile.membership.controller_account.toString()),
+      apiModuleByGroup[this.group],
+      'updateRoleAccount',
+      [worker.workerId, address]
+    )
 
-    await this.sendAndFollowNamedTx(account, apiModuleByGroup[this.group], 'updateRoleAccount', [
-      worker.workerId,
-      newRoleAccount,
-    ])
-
-    this.log(chalk.green(`Succesfully updated the role account to: ${chalk.white(newRoleAccount)})`))
-
-    const matchingAccount = cliAccounts.find((account) => account.address === newRoleAccount)
-    if (matchingAccount) {
-      const switchAccount = await this.simplePrompt({
-        type: 'confirm',
-        message: 'Do you want to switch the currenly selected CLI account to the new role account?',
-        default: false,
-      })
-      if (switchAccount) {
-        await this.setSelectedAccount(matchingAccount)
-        this.log(
-          chalk.green('Account switched to: ') +
-            chalk.white(`${matchingAccount.meta.name} (${matchingAccount.address})`)
-        )
-      }
-    }
+    this.log(chalk.green(`Succesfully updated the role account to: ${chalk.white(address)})`))
   }
 }

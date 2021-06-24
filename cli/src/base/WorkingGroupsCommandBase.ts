@@ -1,19 +1,11 @@
 import ExitCodes from '../ExitCodes'
 import AccountsCommandBase from './AccountsCommandBase'
 import { flags } from '@oclif/command'
-import {
-  WorkingGroups,
-  AvailableGroups,
-  NamedKeyringPair,
-  GroupMember,
-  GroupOpening,
-  OpeningStatus,
-  GroupApplication,
-} from '../Types'
+import { WorkingGroups, AvailableGroups, GroupMember, OpeningDetails, ApplicationDetails } from '../Types'
 import _ from 'lodash'
-import { ApplicationStageKeys } from '@joystream/types/hiring'
 import chalk from 'chalk'
 import { IConfig } from '@oclif/config'
+import { memberHandle } from '../helpers/display'
 
 /**
  * Abstract base class for commands that need to use gates based on user's roles
@@ -28,11 +20,10 @@ export abstract class RolesCommandBase extends AccountsCommandBase {
   }
 
   // Use when lead access is required in given command
-  async getRequiredLead(): Promise<GroupMember> {
-    const selectedAccount: NamedKeyringPair = await this.getRequiredSelectedAccount()
+  async getRequiredLeadContext(): Promise<GroupMember> {
     const lead = await this.getApi().groupLead(this.group)
 
-    if (!lead || lead.roleAccount.toString() !== selectedAccount.address) {
+    if (!lead || !this.isKeyAvailable(lead.roleAccount)) {
       this.error(`${_.startCase(this.group)} Group Lead access required for this command!`, {
         exit: ExitCodes.AccessDenied,
       })
@@ -42,38 +33,22 @@ export abstract class RolesCommandBase extends AccountsCommandBase {
   }
 
   // Use when worker access is required in given command
-  async getRequiredWorker(): Promise<GroupMember> {
-    const selectedAccount: NamedKeyringPair = await this.getRequiredSelectedAccount()
+  async getRequiredWorkerContext(expectedKeyType: 'Role' | 'MemberController' = 'Role'): Promise<GroupMember> {
     const groupMembers = await this.getApi().groupMembers(this.group)
-    const groupMembersByAccount = groupMembers.filter((m) => m.roleAccount.toString() === selectedAccount.address)
-
-    if (!groupMembersByAccount.length) {
-      this.error(`${_.startCase(this.group)} Group Worker access required for this command!`, {
-        exit: ExitCodes.AccessDenied,
-      })
-    } else if (groupMembersByAccount.length === 1) {
-      return groupMembersByAccount[0]
-    } else {
-      return await this.promptForWorker(groupMembersByAccount)
-    }
-  }
-
-  // Use when member controller access is required, but one of the associated roles is expected to be selected
-  async getRequiredWorkerByMemberController(): Promise<GroupMember> {
-    const selectedAccount: NamedKeyringPair = await this.getRequiredSelectedAccount()
-    const memberIds = await this.getApi().getMemberIdsByControllerAccount(selectedAccount.address)
-    const controlledWorkers = (await this.getApi().groupMembers(this.group)).filter((groupMember) =>
-      memberIds.some((memberId) => groupMember.memberId.eq(memberId))
+    const availableGroupMemberContexts = groupMembers.filter((m) =>
+      expectedKeyType === 'Role'
+        ? this.isKeyAvailable(m.roleAccount.toString())
+        : this.isKeyAvailable(m.profile.membership.controller_account.toString())
     )
 
-    if (!controlledWorkers.length) {
-      this.error(`Member controller account with some associated ${this.group} group roles needs to be selected!`, {
+    if (!availableGroupMemberContexts.length) {
+      this.error(`No ${_.startCase(this.group)} Group Worker ${_.startCase(expectedKeyType)} key available!`, {
         exit: ExitCodes.AccessDenied,
       })
-    } else if (controlledWorkers.length === 1) {
-      return controlledWorkers[0]
+    } else if (availableGroupMemberContexts.length === 1) {
+      return availableGroupMemberContexts[0]
     } else {
-      return await this.promptForWorker(controlledWorkers)
+      return await this.promptForWorker(availableGroupMemberContexts)
     }
   }
 
@@ -113,33 +88,24 @@ export default abstract class WorkingGroupsCommandBase extends RolesCommandBase 
     }),
   }
 
-  async promptForApplicationsToAccept(opening: GroupOpening): Promise<number[]> {
-    const acceptableApplications = opening.applications.filter((a) => a.stage === ApplicationStageKeys.Active)
+  async promptForApplicationsToAccept(opening: OpeningDetails): Promise<number[]> {
     const acceptedApplications = await this.simplePrompt({
       message: 'Select succesful applicants',
       type: 'checkbox',
-      choices: acceptableApplications.map((a) => ({
-        name: ` ${a.wgApplicationId}: ${a.member?.handle.toString()}`,
-        value: a.wgApplicationId,
+      choices: opening.applications.map((a) => ({
+        name: ` ${a.applicationId}: ${memberHandle(a.member)}`,
+        value: a.applicationId,
       })),
     })
 
     return acceptedApplications
   }
 
-  async getOpeningForLeadAction(id: number, requiredStatus?: OpeningStatus): Promise<GroupOpening> {
+  async getOpeningForLeadAction(id: number): Promise<OpeningDetails> {
     const opening = await this.getApi().groupOpening(this.group, id)
 
-    if (!opening.type.isOfType('Worker')) {
-      this.error('A lead can only manage Worker openings!', { exit: ExitCodes.AccessDenied })
-    }
-
-    if (requiredStatus && opening.stage.status !== requiredStatus) {
-      this.error(
-        `The opening needs to be in "${_.startCase(requiredStatus)}" stage! ` +
-          `This one is: "${_.startCase(opening.stage.status)}"`,
-        { exit: ExitCodes.InvalidInput }
-      )
+    if (!opening.type.isOfType('Regular')) {
+      this.error('A lead can only manage Regular openings!', { exit: ExitCodes.AccessDenied })
     }
 
     return opening
@@ -148,20 +114,12 @@ export default abstract class WorkingGroupsCommandBase extends RolesCommandBase 
   // An alias for better code readibility in case we don't need the actual return value
   validateOpeningForLeadAction = this.getOpeningForLeadAction
 
-  async getApplicationForLeadAction(id: number, requiredStatus?: ApplicationStageKeys): Promise<GroupApplication> {
+  async getApplicationForLeadAction(id: number): Promise<ApplicationDetails> {
     const application = await this.getApi().groupApplication(this.group, id)
-    const opening = await this.getApi().groupOpening(this.group, application.wgOpeningId)
+    const opening = await this.getApi().groupOpening(this.group, application.openingId)
 
-    if (!opening.type.isOfType('Worker')) {
-      this.error('A lead can only manage Worker opening applications!', { exit: ExitCodes.AccessDenied })
-    }
-
-    if (requiredStatus && application.stage !== requiredStatus) {
-      this.error(
-        `The application needs to have "${_.startCase(requiredStatus)}" status! ` +
-          `This one has: "${_.startCase(application.stage)}"`,
-        { exit: ExitCodes.InvalidInput }
-      )
+    if (!opening.type.isOfType('Regular')) {
+      this.error('A lead can only manage Regular opening applications!', { exit: ExitCodes.AccessDenied })
     }
 
     return application

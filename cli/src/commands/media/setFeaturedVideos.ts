@@ -26,7 +26,7 @@ export default class SetFeaturedVideosCommand extends ContentDirectoryCommandBas
     const account = await this.getRequiredSelectedAccount()
     let actor = createType('Actor', { Lead: null })
     try {
-      await this.getRequiredLead()
+      await this.getRequiredLeadContext()
     } catch (e) {
       actor = await this.getCuratorContext(['FeaturedVideo'])
     }

@@ -4,10 +4,8 @@ import path from 'path'
 import ExitCodes from '../../ExitCodes'
 import AccountsCommandBase from '../../base/AccountsCommandBase'
 import { flags } from '@oclif/command'
-import { NamedKeyringPair } from '../../Types'
 
-type AccountExportFlags = { all: boolean }
-type AccountExportArgs = { path: string }
+type AccountExportArgs = { destPath: string }
 
 export default class AccountExport extends AccountsCommandBase {
   static description = 'Export account(s) to given location'
@@ -15,22 +13,30 @@ export default class AccountExport extends AccountsCommandBase {
 
   static args = [
     {
-      name: 'path',
+      name: 'destPath',
       required: true,
       description: 'Path where the exported files should be placed',
     },
   ]
 
   static flags = {
+    name: flags.string({
+      char: 'n',
+      description: 'Name of the account to export',
+      required: false,
+      exclusive: ['all'],
+    }),
     all: flags.boolean({
       char: 'a',
       description: `If provided, exports all existing accounts into "${AccountExport.MULTI_EXPORT_FOLDER_NAME}" folder inside given path`,
+      required: false,
+      exclusive: ['name'],
     }),
   }
 
-  exportAccount(account: NamedKeyringPair, destPath: string): string {
-    const sourceFilePath: string = this.getAccountFilePath(account)
-    const destFilePath: string = path.join(destPath, this.generateAccountFilename(account))
+  exportAccount(name: string, destPath: string): string {
+    const sourceFilePath: string = this.getAccountFilePath(name)
+    const destFilePath: string = path.join(destPath, this.getAccountFileName(name))
     try {
       fs.copyFileSync(sourceFilePath, destFilePath)
     } catch (e) {
@@ -43,31 +49,26 @@ export default class AccountExport extends AccountsCommandBase {
   }
 
   async run() {
-    const args: AccountExportArgs = this.parse(AccountExport).args as AccountExportArgs
-    const flags: AccountExportFlags = this.parse(AccountExport).flags as AccountExportFlags
-    const accounts: NamedKeyringPair[] = this.fetchAccounts()
+    const { destPath } = this.parse(AccountExport).args as AccountExportArgs
+    let { name, all } = this.parse(AccountExport).flags
+    const accounts = this.fetchAccounts()
 
-    if (!accounts.length) {
-      this.error('No accounts found!', { exit: ExitCodes.NoAccountFound })
-    }
-
-    if (flags.all) {
-      const destPath: string = path.join(args.path, AccountExport.MULTI_EXPORT_FOLDER_NAME)
+    if (all) {
+      const exportPath: string = path.join(destPath, AccountExport.MULTI_EXPORT_FOLDER_NAME)
       try {
-        if (!fs.existsSync(destPath)) fs.mkdirSync(destPath)
+        if (!fs.existsSync(exportPath)) fs.mkdirSync(exportPath)
       } catch (e) {
-        this.error(`Failed to create the export folder (${destPath})`, { exit: ExitCodes.FsOperationFailed })
+        this.error(`Failed to create the export folder (${exportPath})`, { exit: ExitCodes.FsOperationFailed })
       }
-      for (const account of accounts) this.exportAccount(account, destPath)
-      this.log(chalk.greenBright(`All accounts succesfully exported succesfully to: ${chalk.white(destPath)}!`))
+      for (const acc of accounts) {
+        this.exportAccount(acc.meta.name, exportPath)
+      }
+      this.log(chalk.greenBright(`All accounts succesfully exported to: ${chalk.white(exportPath)}!`))
     } else {
-      const destPath: string = args.path
-      const choosenAccount: NamedKeyringPair = await this.promptForAccount(
-        accounts,
-        null,
-        'Select an account to export'
-      )
-      const exportedFilePath: string = this.exportAccount(choosenAccount, destPath)
+      if (!name) {
+        name = await this.promptForAccount()
+      }
+      const exportedFilePath: string = this.exportAccount(name, destPath)
       this.log(chalk.greenBright(`Account succesfully exported to: ${chalk.white(exportedFilePath)}`))
     }
   }

@@ -13,11 +13,17 @@
     "baseUrl": ".",
     "paths": {
       "@polkadot/types/augment": ["../types/augment-codec/augment-types.ts"],
+      "@polkadot/api/augment": ["../types/augment-codec/augment-api.ts"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
   "include": [
     "src/**/*"
+  ],
+  /* Temporary exclude before merging `Sumer` */
+  "exclude": [
+    "src/commands/content-directory/*",
+    "src/commands/media/*"
   ]
 }

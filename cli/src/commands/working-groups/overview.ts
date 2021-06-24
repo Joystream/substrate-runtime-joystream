@@ -1,5 +1,5 @@
 import WorkingGroupsCommandBase from '../../base/WorkingGroupsCommandBase'
-import { displayHeader, displayNameValueTable, displayTable, shortAddress } from '../../helpers/display'
+import { displayHeader, displayNameValueTable, displayTable, memberHandle, shortAddress } from '../../helpers/display'
 import { formatBalance } from '@polkadot/util'
 
 import chalk from 'chalk'
@@ -18,27 +18,28 @@ export default class WorkingGroupsOverview extends WorkingGroupsCommandBase {
     if (lead) {
       displayNameValueTable([
         { name: 'Member id:', value: lead.memberId.toString() },
-        { name: 'Member handle:', value: lead.profile.handle.toString() },
+        { name: 'Member handle:', value: memberHandle(lead.profile) },
         { name: 'Role account:', value: lead.roleAccount.toString() },
       ])
     } else {
       this.log(chalk.yellow('No lead assigned!'))
     }
 
-    const accounts = this.fetchAccounts()
+    const pairs = this.getPairs()
 
     displayHeader('Members')
     const membersRows = members.map((m) => ({
       'Worker id': m.workerId.toString(),
       'Member id': m.memberId.toString(),
-      'Member handle': m.profile.handle.toString(),
+      'Member handle': memberHandle(m.profile),
       Stake: formatBalance(m.stake),
-      Earned: formatBalance(m.reward?.totalRecieved),
+      'Reward': formatBalance(m.reward?.valuePerBlock),
+      'Missed reward': formatBalance(m.reward?.totalMissed),
       'Role account': shortAddress(m.roleAccount),
       '':
         (lead?.workerId.eq(m.workerId) ? '\u{2B50}' : '  ') +
         ' ' +
-        (accounts.some((a) => a.address === m.roleAccount.toString()) ? '\u{1F511}' : '  '),
+        (pairs.some((p) => p.address === m.roleAccount.toString()) ? '\u{1F511}' : '  '),
     }))
     displayTable(membersRows, 5)
 

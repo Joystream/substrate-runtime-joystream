@@ -4,8 +4,6 @@ import _ from 'lodash'
 import RefParser, { JSONSchema } from '@apidevtools/json-schema-ref-parser'
 import chalk from 'chalk'
 import { BOOL_PROMPT_OPTIONS } from './prompting'
-import { getSchemasLocation } from '@joystream/cd-schemas'
-import path from 'path'
 
 type CustomPromptMethod = () => Promise<any>
 type CustomPrompt = DistinctQuestion | CustomPromptMethod | { $item: CustomPrompt } | 'skip'
@@ -13,10 +11,6 @@ type CustomPrompt = DistinctQuestion | CustomPromptMethod | { $item: CustomPromp
 // For the explaination of "string & { x: never }", see: https://github.com/microsoft/TypeScript/issues/29729
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type JsonSchemaCustomPrompts<T = Record<string, unknown>> = [keyof T | (string & {}) | RegExp, CustomPrompt][]
-
-// Default schema path for resolving refs
-// TODO: Would be nice to skip the filename part (but without it it doesn't work)
-const DEFAULT_SCHEMA_PATH = getSchemasLocation('entities') + path.sep
 
 export class JsonSchemaPrompter<JsonResult> {
   schema: JSONSchema
@@ -29,7 +23,7 @@ export class JsonSchemaPrompter<JsonResult> {
     schema: JSONSchema,
     defaults?: Partial<JsonResult>,
     customPrompts?: JsonSchemaCustomPrompts,
-    schemaPath: string = DEFAULT_SCHEMA_PATH
+    schemaPath = '.'
   ) {
     this.customPropmpts = customPrompts
     this.schema = schema
