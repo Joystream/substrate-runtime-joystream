@@ -280,6 +280,390 @@ $root.CouncilCandidacyNoteMetadata = (function() {
     return CouncilCandidacyNoteMetadata;
 })();
 
+$root.ForumPostReaction = (function() {
+
+    /**
+     * Properties of a ForumPostReaction.
+     * @exports IForumPostReaction
+     * @interface IForumPostReaction
+     */
+
+    /**
+     * Constructs a new ForumPostReaction.
+     * @exports ForumPostReaction
+     * @classdesc Represents a ForumPostReaction.
+     * @implements IForumPostReaction
+     * @constructor
+     * @param {IForumPostReaction=} [properties] Properties to set
+     */
+    function ForumPostReaction(properties) {
+        if (properties)
+            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * Creates a new ForumPostReaction instance using the specified properties.
+     * @function create
+     * @memberof ForumPostReaction
+     * @static
+     * @param {IForumPostReaction=} [properties] Properties to set
+     * @returns {ForumPostReaction} ForumPostReaction instance
+     */
+    ForumPostReaction.create = function create(properties) {
+        return new ForumPostReaction(properties);
+    };
+
+    /**
+     * Encodes the specified ForumPostReaction message. Does not implicitly {@link ForumPostReaction.verify|verify} messages.
+     * @function encode
+     * @memberof ForumPostReaction
+     * @static
+     * @param {IForumPostReaction} message ForumPostReaction message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    ForumPostReaction.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified ForumPostReaction message, length delimited. Does not implicitly {@link ForumPostReaction.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof ForumPostReaction
+     * @static
+     * @param {IForumPostReaction} message ForumPostReaction message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    ForumPostReaction.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a ForumPostReaction message from the specified reader or buffer.
+     * @function decode
+     * @memberof ForumPostReaction
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {ForumPostReaction} ForumPostReaction
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    ForumPostReaction.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.ForumPostReaction();
+        while (reader.pos < end) {
+            var tag = reader.uint32();
+            switch (tag >>> 3) {
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a ForumPostReaction message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof ForumPostReaction
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {ForumPostReaction} ForumPostReaction
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    ForumPostReaction.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a ForumPostReaction message.
+     * @function verify
+     * @memberof ForumPostReaction
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    ForumPostReaction.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        return null;
+    };
+
+    /**
+     * Creates a ForumPostReaction message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof ForumPostReaction
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {ForumPostReaction} ForumPostReaction
+     */
+    ForumPostReaction.fromObject = function fromObject(object) {
+        if (object instanceof $root.ForumPostReaction)
+            return object;
+        return new $root.ForumPostReaction();
+    };
+
+    /**
+     * Creates a plain object from a ForumPostReaction message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof ForumPostReaction
+     * @static
+     * @param {ForumPostReaction} message ForumPostReaction
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    ForumPostReaction.toObject = function toObject() {
+        return {};
+    };
+
+    /**
+     * Converts this ForumPostReaction to JSON.
+     * @function toJSON
+     * @memberof ForumPostReaction
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    ForumPostReaction.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Reaction enum.
+     * @name ForumPostReaction.Reaction
+     * @enum {number}
+     * @property {number} CANCEL=0 CANCEL value
+     * @property {number} LIKE=1 LIKE value
+     */
+    ForumPostReaction.Reaction = (function() {
+        var valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[0] = "CANCEL"] = 0;
+        values[valuesById[1] = "LIKE"] = 1;
+        return values;
+    })();
+
+    return ForumPostReaction;
+})();
+
+$root.ForumPostMetadata = (function() {
+
+    /**
+     * Properties of a ForumPostMetadata.
+     * @exports IForumPostMetadata
+     * @interface IForumPostMetadata
+     * @property {string|null} [text] ForumPostMetadata text
+     * @property {number|null} [repliesTo] ForumPostMetadata repliesTo
+     */
+
+    /**
+     * Constructs a new ForumPostMetadata.
+     * @exports ForumPostMetadata
+     * @classdesc Represents a ForumPostMetadata.
+     * @implements IForumPostMetadata
+     * @constructor
+     * @param {IForumPostMetadata=} [properties] Properties to set
+     */
+    function ForumPostMetadata(properties) {
+        if (properties)
+            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * ForumPostMetadata text.
+     * @member {string} text
+     * @memberof ForumPostMetadata
+     * @instance
+     */
+    ForumPostMetadata.prototype.text = "";
+
+    /**
+     * ForumPostMetadata repliesTo.
+     * @member {number} repliesTo
+     * @memberof ForumPostMetadata
+     * @instance
+     */
+    ForumPostMetadata.prototype.repliesTo = 0;
+
+    /**
+     * Creates a new ForumPostMetadata instance using the specified properties.
+     * @function create
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {IForumPostMetadata=} [properties] Properties to set
+     * @returns {ForumPostMetadata} ForumPostMetadata instance
+     */
+    ForumPostMetadata.create = function create(properties) {
+        return new ForumPostMetadata(properties);
+    };
+
+    /**
+     * Encodes the specified ForumPostMetadata message. Does not implicitly {@link ForumPostMetadata.verify|verify} messages.
+     * @function encode
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {IForumPostMetadata} message ForumPostMetadata message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    ForumPostMetadata.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.text != null && Object.hasOwnProperty.call(message, "text"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.text);
+        if (message.repliesTo != null && Object.hasOwnProperty.call(message, "repliesTo"))
+            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.repliesTo);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified ForumPostMetadata message, length delimited. Does not implicitly {@link ForumPostMetadata.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {IForumPostMetadata} message ForumPostMetadata message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    ForumPostMetadata.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a ForumPostMetadata message from the specified reader or buffer.
+     * @function decode
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {ForumPostMetadata} ForumPostMetadata
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    ForumPostMetadata.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.ForumPostMetadata();
+        while (reader.pos < end) {
+            var tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1:
+                message.text = reader.string();
+                break;
+            case 2:
+                message.repliesTo = reader.uint32();
+                break;
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a ForumPostMetadata message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {ForumPostMetadata} ForumPostMetadata
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    ForumPostMetadata.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a ForumPostMetadata message.
+     * @function verify
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    ForumPostMetadata.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.text != null && message.hasOwnProperty("text"))
+            if (!$util.isString(message.text))
+                return "text: string expected";
+        if (message.repliesTo != null && message.hasOwnProperty("repliesTo"))
+            if (!$util.isInteger(message.repliesTo))
+                return "repliesTo: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates a ForumPostMetadata message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {ForumPostMetadata} ForumPostMetadata
+     */
+    ForumPostMetadata.fromObject = function fromObject(object) {
+        if (object instanceof $root.ForumPostMetadata)
+            return object;
+        var message = new $root.ForumPostMetadata();
+        if (object.text != null)
+            message.text = String(object.text);
+        if (object.repliesTo != null)
+            message.repliesTo = object.repliesTo >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a ForumPostMetadata message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof ForumPostMetadata
+     * @static
+     * @param {ForumPostMetadata} message ForumPostMetadata
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    ForumPostMetadata.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        var object = {};
+        if (options.defaults) {
+            object.text = "";
+            object.repliesTo = 0;
+        }
+        if (message.text != null && message.hasOwnProperty("text"))
+            object.text = message.text;
+        if (message.repliesTo != null && message.hasOwnProperty("repliesTo"))
+            object.repliesTo = message.repliesTo;
+        return object;
+    };
+
+    /**
+     * Converts this ForumPostMetadata to JSON.
+     * @function toJSON
+     * @memberof ForumPostMetadata
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    ForumPostMetadata.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    return ForumPostMetadata;
+})();
+
 $root.MembershipMetadata = (function() {
 
     /**

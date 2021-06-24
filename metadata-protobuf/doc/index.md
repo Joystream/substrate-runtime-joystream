@@ -5,10 +5,15 @@
 
 - [proto/Council.proto](#proto/Council.proto)
     - [CouncilCandidacyNoteMetadata](#.CouncilCandidacyNoteMetadata)
-  
+
+- [proto/Forum.proto](#proto/Forum.proto)
+    - [ForumPostMetadata](#.ForumPostMetadata)
+
+    - [ForumPostReaction](#.ForumPostReaction)
+
 - [proto/Membership.proto](#proto/Membership.proto)
     - [MembershipMetadata](#.MembershipMetadata)
-  
+
 - [proto/WorkingGroups.proto](#proto/WorkingGroups.proto)
     - [AddUpcomingOpening](#.AddUpcomingOpening)
     - [ApplicationMetadata](#.ApplicationMetadata)
@@ -19,9 +24,9 @@
     - [UpcomingOpeningMetadata](#.UpcomingOpeningMetadata)
     - [WorkingGroupMetadata](#.WorkingGroupMetadata)
     - [WorkingGroupMetadataAction](#.WorkingGroupMetadataAction)
-  
+
     - [OpeningMetadata.ApplicationFormQuestion.InputType](#.OpeningMetadata.ApplicationFormQuestion.InputType)
-  
+
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -50,13 +55,57 @@
 
 
 
- 
 
- 
 
- 
 
- 
+
+
+
+
+
+
+
+<a name="proto/Forum.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## proto/Forum.proto
+
+
+
+<a name=".ForumPostMetadata"></a>
+
+### ForumPostMetadata
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| text | [string](#string) | optional | Post text content (md-formatted) |
+| repliesTo | [uint32](#uint32) | optional | Id of the post that given post replies to (if any) |
+
+
+
+
+
+
+
+
+<a name=".ForumPostReaction"></a>
+
+### ForumPostReaction
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| CANCEL | 0 | This means cancelling any previous reaction |
+| LIKE | 1 |  |
+
+
+
+
+
+
+
 
 
 
@@ -83,13 +132,13 @@
 
 
 
- 
 
- 
 
- 
 
- 
+
+
+
+
 
 
 
@@ -222,10 +271,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| description | [string](#string) | optional | Group description text (md-formatted) |
-| about | [string](#string) | optional | Group about text (md-formatted) |
-| status | [string](#string) | optional | Current group status (expected to be 1-3 words) |
-| status_message | [string](#string) | optional | Short status message associated with the status |
+| set_group_metadata | [SetGroupMetadata](#SetGroupMetadata) | optional |  |
+| add_upcoming_opening | [AddUpcomingOpening](#AddUpcomingOpening) | optional |  |
+| remove_upcoming_opening | [RemoveUpcomingOpening](#RemoveUpcomingOpening) | optional |  |
 
 
 
@@ -248,7 +296,7 @@
 
 
 
- 
+
 
 
 <a name=".OpeningMetadata.ApplicationFormQuestion.InputType"></a>
@@ -262,11 +310,11 @@
 | TEXT | 1 |  |
 
 
- 
 
- 
 
- 
+
+
+
 
 
 
@@ -290,7 +338,7 @@
 | <a name="string" /> string | A string must always contain UTF-8 encoded or 7-bit ASCII text. | string | String | str/unicode | string | string | string | String (UTF-8) |
 | <a name="bytes" /> bytes | May contain any arbitrary sequence of bytes. | string | ByteString | str | []byte | ByteString | string | String (ASCII-8BIT) |
 
-<!-- 
+<!--
     This extra documentation will be appended to the generated docs.
 -->
 

@@ -1,4 +1,4 @@
-type MembershipBoughtEvent implements Event @entity {
+type CategoryCreatedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -18,26 +18,13 @@ type MembershipBoughtEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "New membership created."
-  newMember: Membership!
+  "The created category"
+  category: ForumCategory!
 
-  "New member root account in SS58 encoding."
-  rootAccount: String!
-
-  "New member controller in SS58 encoding."
-  controllerAccount: String!
-
-  "New member handle."
-  handle: String!
-
-  "New member metadata"
-  metadata: MemberMetadata!
-
-  "Referrer member."
-  referrer: Membership
+  # The actor is always lead
 }
 
-type MemberInvitedEvent implements Event @entity {
+type CategoryArchivalStatusUpdatedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -57,26 +44,17 @@ type MemberInvitedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Inviting member."
-  invitingMember: Membership!
+  "The category beeing updated"
+  category: ForumCategory!
 
-  "New membership created."
-  newMember: Membership!
+  "The new archival status of the category (true = archived)"
+  newArchivalStatus: Boolean!
 
-  "New member root account in SS58 encoding."
-  rootAccount: String!
-
-  "New member controller in SS58 encoding."
-  controllerAccount: String!
-
-  "New member handle."
-  handle: String!
-
-  "New member metadata"
-  metadata: MemberMetadata!
+  "The moderator (possibly lead) responsible for updating the category"
+  actor: Worker!
 }
 
-type MemberProfileUpdatedEvent implements Event @entity {
+type CategoryDeletedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -96,17 +74,14 @@ type MemberProfileUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Membership being updated."
-  member: Membership!
+  "Category beeing deleted"
+  category: ForumCategory!
 
-  "New member handle. Null means no new value was provided."
-  newHandle: String
-
-  "New member metadata. (empty values inside metadata mean no new value was provided)"
-  newMetadata: MemberMetadata!
+  "The moderator (possibly lead) responsible for deleting the category"
+  actor: Worker!
 }
 
-type MemberAccountsUpdatedEvent implements Event @entity {
+type ThreadCreatedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -126,17 +101,19 @@ type MemberAccountsUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Membership in question."
-  member: Membership!
+  "The thread that was created"
+  thread: ForumThread!
 
-  "New member root account in SS58 encoding. Null means no new value was provided."
-  newRootAccount: String
+  "Thread's original title"
+  title: String!
 
-  "New member controller in SS58 encoding. Null means no new value was provided."
-  newControllerAccount: String
+  "Thread's original text"
+  text: String!
+
+  # The author is already part of the Thread entity itself and is immutable
 }
 
-type MemberVerificationStatusUpdatedEvent implements Event @entity {
+type ThreadModeratedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -156,17 +133,32 @@ type MemberVerificationStatusUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Membership in question."
-  member: Membership!
+  "The thread beeing moderated"
+  thread: ForumThread!
 
-  "Worker updating status"
-  worker: Worker!
+  "Rationale behind the moderation"
+  rationale: String!
 
-  "New status."
-  isVerified: Boolean!
+  "Actor responsible for the moderation"
+  actor: Worker!
 }
 
-type ReferralCutUpdatedEvent implements Event @entity {
+# FIXME: Not emitted by the runtime
+# type ThreadUpdatedEvent @entity {
+#   "Generic event data"
+#   event: Event!
+
+#   "The thread beeing updated"
+#   thread: ForumThread!
+
+#   "The new archival status of the thread (true = archived)"
+#   newArchivalStatus: Boolean!
+
+#   "Actor responsible for the update"
+#   actor: Worker!
+# }
+
+type ThreadTitleUpdatedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -186,11 +178,16 @@ type ReferralCutUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "New cut value."
-  newValue: Int!
+  "The thread beeing updated"
+  thread: ForumThread!
+
+  "New title of the thread"
+  newTitle: String!
+
+  # Only author can update the thread title, so no actor information required
 }
 
-type InvitesTransferredEvent implements Event @entity {
+type ThreadDeletedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -210,17 +207,13 @@ type InvitesTransferredEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Membership sending invites."
-  sourceMember: Membership!
+  "The thread beeing deleted"
+  thread: ForumThread!
 
-  "Membership receiving invites."
-  targetMember: Membership!
-
-  "Number of invites transferred."
-  numberOfInvites: Int!
+  # Only author can delete the thread, so no actor information required
 }
 
-type MembershipPriceUpdatedEvent implements Event @entity {
+type ThreadMovedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -240,11 +233,20 @@ type MembershipPriceUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "The new membership price."
-  newPrice: BigInt!
+  "The thread beeing moved"
+  thread: ForumThread!
+
+  "Thread's previous category"
+  oldCategory: ForumCategory!
+
+  "Thread's new category"
+  newCategory: ForumCategory!
+
+  "The actor performing the transfer"
+  actor: Worker!
 }
 
-type InitialInvitationBalanceUpdatedEvent implements Event @entity {
+type PostAddedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -264,11 +266,17 @@ type InitialInvitationBalanceUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "New initial invitation balance."
-  newInitialBalance: BigInt!
+  "The post that was added"
+  post: ForumPost!
+
+  "Whether the added post is editable"
+  isEditable: Boolean
+
+  "Post's original text"
+  text: String!
 }
 
-type LeaderInvitationQuotaUpdatedEvent implements Event @entity {
+type PostModeratedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -288,11 +296,17 @@ type LeaderInvitationQuotaUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "New quota."
-  newInvitationQuota: Int!
+  "The post beeing moderated"
+  post: ForumPost!
+
+  "The rationale behind the moderation"
+  rationale: String!
+
+  "The actor responsible for the moderation"
+  actor: Worker!
 }
 
-type InitialInvitationCountUpdatedEvent implements Event @entity {
+type PostDeletedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -312,11 +326,17 @@ type InitialInvitationCountUpdatedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "New initial invitation count for members."
-  newInitialInvitationCount: Int!
+  "List of deleted posts"
+  posts: [ForumPost!] @derivedFrom(field: "deletedInEvent")
+
+  "The actor responsible for the removal"
+  actor: Membership!
+
+  "Posts deletion rationale"
+  rationale: String!
 }
 
-type StakingAccountAddedEvent implements Event @entity {
+type PostTextUpdatedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -336,41 +356,31 @@ type StakingAccountAddedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Membership in question."
-  member: Membership!
+  "The post beeing updated"
+  post: ForumPost!
 
-  "New staking account in SS58 encoding."
-  account: String!
+  "New post text"
+  newText: String!
+
+  # Only author can edit the post, so no actor context required
 }
 
-type StakingAccountConfirmedEvent implements Event @entity {
-  ### GENERIC DATA ###
-
-  "(network}-{blockNumber}-{indexInBlock}"
-  id: ID!
-
-  "Hash of the extrinsic which caused the event to be emitted"
-  inExtrinsic: String
-
-  "Blocknumber of the block in which the event was emitted."
-  inBlock: Int!
-
-  "Network the block was produced in"
-  network: Network!
-
-  "Index of event in block from which it was emitted."
-  indexInBlock: Int!
-
-  ### SPECIFIC DATA ###
-
-  "Membership in question."
-  member: Membership!
-
-  "New staking account in SS58 encoding."
-  account: String!
+type PostReactionResultCancel @variant {
+  _phantom: Int
 }
 
-type StakingAccountRemovedEvent implements Event @entity {
+type PostReactionResultValid @variant {
+  reaction: PostReaction!
+  reactionId: Int!
+}
+
+type PostReactionResultInvalid @variant {
+  reactionId: Int!
+}
+
+union PostReactionResult = PostReactionResultCancel | PostReactionResultValid | PostReactionResultInvalid
+
+type PostReactedEvent @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -390,9 +400,101 @@ type StakingAccountRemovedEvent implements Event @entity {
 
   ### SPECIFIC DATA ###
 
-  "Membership in question."
-  member: Membership!
+  "The post beeing reacted to"
+  post: ForumPost!
 
-  "New staking account in SS58 encoding."
-  account: String!
+  "The reaction result - new valid reaction, cancelation of previous reaction or invalid reaction (which also cancels the previous one)"
+  reactionResult: PostReactionResult!
+
+  "The member reacting to the post"
+  reactingMember: Membership!
+}
+
+type VoteOnPollEvent @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "Poll alternative beeing voted on"
+  pollAlternative: ForumPollAlternative!
+
+  "The member that casted the vote"
+  votingMember: Membership!
+}
+
+type CategoryStickyThreadUpdateEvent @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The related category"
+  category: ForumCategory!
+
+  "List of the threads beeing made sticky"
+  newStickyThreads: [ForumThread!]
+
+  "The actor responsible for making the threads sticky"
+  actor: Worker!
+}
+
+type CategoryMembershipOfModeratorUpdatedEvent @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The moderator in question"
+  moderator: Worker!
+
+  "The category in question"
+  category: ForumCategory!
+
+  "The flag indicating whether the permissions to moderate the category are granted or revoked"
+  newCanModerateValue: Boolean!
+
+  # Actor is always lead
 }

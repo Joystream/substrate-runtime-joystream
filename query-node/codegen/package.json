@@ -5,7 +5,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dzlzv/hydra-cli": "3.0.0-beta.6",
-    "@dzlzv/hydra-typegen": "3.0.0-beta.6"
+    "@dzlzv/hydra-cli": "3.1.0-alpha.0",
+    "@dzlzv/hydra-typegen": "3.1.0-alpha.0"
   }
 }

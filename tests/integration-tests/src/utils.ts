@@ -6,6 +6,7 @@ import fs from 'fs'
 import { decodeAddress } from '@polkadot/keyring'
 import { Bytes } from '@polkadot/types'
 import { createType } from '@joystream/types'
+import { MetadataInput } from './types'
 
 export type AnyMessage<T> = T & {
   toJSON(): Record<string, unknown>
@@ -64,6 +65,39 @@ export class Utils {
   public static metadataFromBytes<T>(metaClass: AnyMetadataClass<T>, bytes: Bytes): T {
     // We use `toObject()` to get rid of .prototype defaults for optional fields
     return metaClass.toObject(metaClass.decode(bytes.toU8a(true))) as T
+  }
+
+  public static getDeserializedMetadataFormInput<T>(
+    metadataClass: AnyMetadataClass<T>,
+    input: MetadataInput<T>
+  ): T | null {
+    if (typeof input.value === 'string') {
+      try {
+        return Utils.metadataFromBytes(metadataClass, createType('Bytes', input.value))
+      } catch (e) {
+        if (!input.expectFailure) {
+          throw e
+        }
+        return null
+      }
+    }
+
+    return input.value
+  }
+
+  public static getMetadataBytesFromInput<T>(metadataClass: AnyMetadataClass<T>, input: MetadataInput<T>): Bytes {
+    return typeof input.value === 'string'
+      ? createType('Bytes', input.value)
+      : Utils.metadataToBytes(metadataClass, input.value)
+  }
+
+  public static bytesToString(b: Bytes): string {
+    return (
+      Buffer.from(b.toU8a(true))
+        .toString()
+        // eslint-disable-next-line no-control-regex
+        .replace(/\u0000/g, '')
+    )
   }
 
   public static assert(condition: any, msg?: string): asserts condition {

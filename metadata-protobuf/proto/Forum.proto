@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+// The enum must be wrapped inside "message", otherwide it breaks protobufjs
+message ForumPostReaction {
+  enum Reaction {
+    CANCEL = 0; // This means cancelling any previous reaction
+    LIKE = 1;
+  }
+}
+
+message ForumPostMetadata {
+  optional string text = 1; // Post text content (md-formatted)
+  optional uint32 repliesTo = 2; // Id of the post that given post replies to (if any)
+}

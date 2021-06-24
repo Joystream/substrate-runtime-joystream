@@ -8,6 +8,7 @@ import path from 'path'
 async function init() {
   const provider = new WsProvider(process.env.WS_PROVIDER_ENDPOINT_URI)
   const api = await ApiPromise.create({ provider, types })
+  // Will be resolved relatively to mappings/lib
   const entitiesPath = path.resolve(__dirname, '../../generated/graphql-server/dist/src/modules/**/*.model.js')
   // We need to create db connection (and configure env) before importing any warthog models
   const dbConnection = await createDBConnection([entitiesPath])

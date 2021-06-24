@@ -1,19 +1,14 @@
-import { MemberId } from '@joystream/types/common'
+import { MemberId, PostId, ThreadId } from '@joystream/types/common'
 import { ApplicationId, OpeningId, WorkerId, ApplyOnOpeningParameters } from '@joystream/types/working-group'
 import { Event } from '@polkadot/types/interfaces/system'
 import { BTreeMap } from '@polkadot/types'
+import { CategoryId } from '@joystream/types/forum'
 import { MembershipBoughtEvent } from './graphql/generated/schema'
-
-export type MemberContext = {
-  account: string
-  memberId: MemberId
-}
 
 export type AnyQueryNodeEvent = Pick<
   MembershipBoughtEvent,
   'createdAt' | 'updatedAt' | 'id' | 'inBlock' | 'inExtrinsic' | 'indexInBlock' | 'network'
 >
-
 export interface EventDetails {
   event: Event
   blockNumber: number
@@ -21,6 +16,18 @@ export interface EventDetails {
   blockHash: string
   indexInBlock: number
 }
+
+export type MemberContext = {
+  account: string
+  memberId: MemberId
+}
+
+export type MetadataInput<T> = {
+  value: T | string
+  expectFailure?: boolean
+}
+
+// Membership
 
 export interface MembershipBoughtEventDetails extends EventDetails {
   memberId: MemberId
@@ -45,6 +52,8 @@ export type MembershipEventName =
   | 'ReferralCutUpdated'
   | 'InitialInvitationBalanceUpdated'
   | 'LeaderInvitationQuotaUpdated'
+
+// Working groups
 
 export interface OpeningAddedEventDetails extends EventDetails {
   openingId: OpeningId
@@ -88,3 +97,47 @@ export type WorkingGroupModuleName =
   | 'contentDirectoryWorkingGroup'
   | 'forumWorkingGroup'
   | 'membershipWorkingGroup'
+
+// Forum
+
+export type ThreadPath = {
+  categoryId: CategoryId
+  threadId: ThreadId
+}
+
+export type PostPath = {
+  categoryId: CategoryId
+  threadId: ThreadId
+  postId: PostId
+}
+
+export interface CategoryCreatedEventDetails extends EventDetails {
+  categoryId: CategoryId
+}
+
+export interface ThreadCreatedEventDetails extends EventDetails {
+  threadId: ThreadId
+}
+
+export interface PostAddedEventDetails extends EventDetails {
+  postId: PostId
+}
+
+export type ForumEventName =
+  | 'CategoryCreated'
+  | 'CategoryArchivalStatusUpdated'
+  | 'CategoryDeleted'
+  | 'ThreadCreated'
+  | 'ThreadModerated'
+  | 'ThreadUpdated'
+  | 'ThreadTitleUpdated'
+  | 'ThreadDeleted'
+  | 'ThreadMoved'
+  | 'PostAdded'
+  | 'PostModerated'
+  | 'PostDeleted'
+  | 'PostTextUpdated'
+  | 'PostReacted'
+  | 'VoteOnPoll'
+  | 'CategoryStickyThreadUpdate'
+  | 'CategoryMembershipOfModeratorUpdated'

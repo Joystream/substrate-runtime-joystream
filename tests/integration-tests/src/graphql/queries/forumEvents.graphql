@@ -1,0 +1,352 @@
+fragment CategoryCreatedEventFields on CategoryCreatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  category {
+    id
+  }
+}
+
+query getCategoryCreatedEventsByEventIds($eventIds: [ID!]) {
+  categoryCreatedEvents(where: { id_in: $eventIds }) {
+    ...CategoryCreatedEventFields
+  }
+}
+
+fragment CategoryArchivalStatusUpdatedEventFields on CategoryArchivalStatusUpdatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  category {
+    id
+  }
+  newArchivalStatus
+  actor {
+    id
+  }
+}
+
+query getCategoryArchivalStatusUpdatedEventsByEventIds($eventIds: [ID!]) {
+  categoryArchivalStatusUpdatedEvents(where: { id_in: $eventIds }) {
+    ...CategoryArchivalStatusUpdatedEventFields
+  }
+}
+
+fragment CategoryDeletedEventFields on CategoryDeletedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  category {
+    id
+  }
+  actor {
+    id
+  }
+}
+
+query getCategoryDeletedEventsByEventIds($eventIds: [ID!]) {
+  categoryDeletedEvents(where: { id_in: $eventIds }) {
+    ...CategoryDeletedEventFields
+  }
+}
+
+fragment ThreadCreatedEventFields on ThreadCreatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  thread {
+    id
+  }
+}
+
+query getThreadCreatedEventsByEventIds($eventIds: [ID!]) {
+  threadCreatedEvents(where: { id_in: $eventIds }) {
+    ...ThreadCreatedEventFields
+  }
+}
+
+fragment ThreadTitleUpdatedEventFields on ThreadTitleUpdatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  thread {
+    id
+  }
+  newTitle
+}
+
+query getThreadTitleUpdatedEventsByEventIds($eventIds: [ID!]) {
+  threadTitleUpdatedEvents(where: { id_in: $eventIds }) {
+    ...ThreadTitleUpdatedEventFields
+  }
+}
+
+fragment VoteOnPollEventFields on VoteOnPollEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  pollAlternative {
+    id
+    index
+    text
+    poll {
+      thread {
+        id
+      }
+    }
+  }
+  votingMember {
+    id
+  }
+}
+
+query getVoteOnPollEventsByEventIds($eventIds: [ID!]) {
+  voteOnPollEvents(where: { id_in: $eventIds }) {
+    ...VoteOnPollEventFields
+  }
+}
+
+fragment ThreadDeletedEventFields on ThreadDeletedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  thread {
+    id
+  }
+}
+
+query getThreadDeletedEventsByEventIds($eventIds: [ID!]) {
+  threadDeletedEvents(where: { id_in: $eventIds }) {
+    ...ThreadDeletedEventFields
+  }
+}
+
+fragment PostAddedEventFields on PostAddedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  post {
+    id
+  }
+  isEditable
+  text
+}
+
+query getPostAddedEventsByEventIds($eventIds: [ID!]) {
+  postAddedEvents(where: { id_in: $eventIds }) {
+    ...PostAddedEventFields
+  }
+}
+
+fragment ThreadMovedEventFields on ThreadMovedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  thread {
+    id
+  }
+  oldCategory {
+    id
+  }
+  newCategory {
+    id
+  }
+  actor {
+    id
+  }
+}
+
+query getThreadMovedEventsByEventIds($eventIds: [ID!]) {
+  threadMovedEvents(where: { id_in: $eventIds }) {
+    ...ThreadMovedEventFields
+  }
+}
+
+fragment CategoryStickyThreadUpdateEventFields on CategoryStickyThreadUpdateEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  category {
+    id
+  }
+  newStickyThreads {
+    id
+  }
+  actor {
+    id
+  }
+}
+
+query getCategoryStickyThreadUpdateEventsByEventIds($eventIds: [ID!]) {
+  categoryStickyThreadUpdateEvents(where: { id_in: $eventIds }) {
+    ...CategoryStickyThreadUpdateEventFields
+  }
+}
+
+fragment CategoryMembershipOfModeratorUpdatedEventFields on CategoryMembershipOfModeratorUpdatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  category {
+    id
+  }
+  moderator {
+    id
+  }
+  newCanModerateValue
+}
+
+query getCategoryMembershipOfModeratorUpdatedEventsByEventIds($eventIds: [ID!]) {
+  categoryMembershipOfModeratorUpdatedEvents(where: { id_in: $eventIds }) {
+    ...CategoryMembershipOfModeratorUpdatedEventFields
+  }
+}
+
+fragment ThreadModeratedEventFields on ThreadModeratedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  thread {
+    id
+  }
+  rationale
+  actor {
+    id
+  }
+}
+
+query getThreadModeratedEventsByEventIds($eventIds: [ID!]) {
+  threadModeratedEvents(where: { id_in: $eventIds }) {
+    ...ThreadModeratedEventFields
+  }
+}
+
+fragment PostModeratedEventFields on PostModeratedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  post {
+    id
+  }
+  rationale
+  actor {
+    id
+  }
+}
+
+query getPostModeratedEventsByEventIds($eventIds: [ID!]) {
+  postModeratedEvents(where: { id_in: $eventIds }) {
+    ...PostModeratedEventFields
+  }
+}
+
+fragment PostReactedEventFields on PostReactedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  post {
+    id
+  }
+  reactionResult {
+    __typename
+    ... on PostReactionResultValid {
+      reaction
+      reactionId
+    }
+    ... on PostReactionResultInvalid {
+      reactionId
+    }
+  }
+  reactingMember {
+    id
+  }
+}
+
+query getPostReactedEventsByEventIds($eventIds: [ID!]) {
+  postReactedEvents(where: { id_in: $eventIds }) {
+    ...PostReactedEventFields
+  }
+}
+
+fragment PostTextUpdatedEventFields on PostTextUpdatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  post {
+    id
+  }
+  newText
+}
+
+query getPostTextUpdatedEventsByEventIds($eventIds: [ID!]) {
+  postTextUpdatedEvents(where: { id_in: $eventIds }) {
+    ...PostTextUpdatedEventFields
+  }
+}
+
+fragment PostDeletedEventFields on PostDeletedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  posts {
+    id
+  }
+  actor {
+    id
+  }
+  rationale
+}
+
+query getPostDeletedEventsByEventIds($eventIds: [ID!]) {
+  postDeletedEvents(where: { id_in: $eventIds }) {
+    ...PostDeletedEventFields
+  }
+}

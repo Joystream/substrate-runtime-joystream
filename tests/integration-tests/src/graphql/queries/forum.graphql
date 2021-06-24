@@ -1,0 +1,166 @@
+fragment ForumCategoryFields on ForumCategory {
+  id
+  createdAt
+  updatedAt
+  parent {
+    id
+  }
+  title
+  description
+  threads {
+    id
+    isSticky
+  }
+  moderators {
+    id
+  }
+  createdInEvent {
+    id
+  }
+  status {
+    __typename
+    ... on CategoryStatusArchived {
+      categoryArchivalStatusUpdatedEvent {
+        id
+      }
+    }
+    ... on CategoryStatusRemoved {
+      categoryDeletedEvent {
+        id
+      }
+    }
+  }
+}
+
+fragment ForumPostFields on ForumPost {
+  id
+  createdAt
+  updatedAt
+  text
+  author {
+    id
+  }
+  thread {
+    id
+  }
+  repliesTo {
+    id
+  }
+  text
+  status {
+    __typename
+    ... on PostStatusLocked {
+      postDeletedEvent {
+        id
+      }
+    }
+    ... on PostStatusModerated {
+      postModeratedEvent {
+        id
+      }
+    }
+    ... on PostStatusRemoved {
+      postDeletedEvent {
+        id
+      }
+    }
+  }
+  origin {
+    __typename
+    ... on PostOriginThreadInitial {
+      threadCreatedEvent {
+        id
+      }
+    }
+    ... on PostOriginThreadReply {
+      postAddedEvent {
+        id
+      }
+    }
+  }
+  edits {
+    id
+  }
+  reactions {
+    id
+    member {
+      id
+    }
+    reaction
+  }
+}
+
+fragment ForumThreadWithPostsFields on ForumThread {
+  id
+  createdAt
+  updatedAt
+  author {
+    id
+  }
+  category {
+    id
+  }
+  title
+  posts {
+    ...ForumPostFields
+  }
+  poll {
+    description
+    endTime
+    pollAlternatives {
+      index
+      text
+      votes {
+        votingMember {
+          id
+        }
+      }
+    }
+  }
+  isSticky
+  createdInEvent {
+    id
+  }
+  status {
+    __typename
+    ... on ThreadStatusLocked {
+      threadDeletedEvent {
+        id
+      }
+    }
+    ... on ThreadStatusModerated {
+      threadModeratedEvent {
+        id
+      }
+    }
+    ... on ThreadStatusRemoved {
+      threadDeletedEvent {
+        id
+      }
+    }
+  }
+  titleUpdates {
+    id
+  }
+  movedInEvents {
+    id
+  }
+}
+
+query getCategoriesByIds($ids: [ID!]) {
+  forumCategories(where: { id_in: $ids }) {
+    ...ForumCategoryFields
+  }
+}
+
+query getThreadsWithPostsByIds($ids: [ID!]) {
+  forumThreads(where: { id_in: $ids }) {
+    ...ForumThreadWithPostsFields
+  }
+}
+
+query getPostsByIds($ids: [ID!]) {
+  forumPosts(where: { id_in: $ids }) {
+    ...ForumPostFields
+  }
+}

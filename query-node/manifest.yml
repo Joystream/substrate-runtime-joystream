@@ -11,6 +11,7 @@ typegen:
   metadata:
     source: ${TYPEGEN_WS_URI}
   events:
+    # Membership
     - members.MembershipBought
     - members.MemberProfileUpdated
     - members.MemberAccountsUpdated
@@ -25,7 +26,7 @@ typegen:
     - members.ReferralCutUpdated
     - members.InitialInvitationBalanceUpdated
     - members.LeaderInvitationQuotaUpdated
-    # Use Storage Working Group as a reference group (all groups emit the same events)
+    # Working groups - use Storage Working Group as a reference group (all groups emit the same events)
     - storageWorkingGroup.OpeningAdded
     - storageWorkingGroup.AppliedOnOpening
     - storageWorkingGroup.OpeningFilled
@@ -48,9 +49,28 @@ typegen:
     - storageWorkingGroup.BudgetSpending
     - storageWorkingGroup.RewardPaid
     - storageWorkingGroup.NewMissedRewardLevelReached
+  # Forum
+    - forum.CategoryCreated
+    - forum.CategoryArchivalStatusUpdated
+    - forum.CategoryDeleted
+    - forum.ThreadCreated
+    - forum.ThreadModerated
+    # - forum.ThreadUpdated FIXME: Not emitted by the runtime
+    - forum.ThreadTitleUpdated
+    - forum.ThreadDeleted
+    - forum.ThreadMoved
+    - forum.VoteOnPoll
+    - forum.PostAdded
+    - forum.PostModerated
+    - forum.PostDeleted
+    - forum.PostTextUpdated
+    - forum.PostReacted
+    - forum.CategoryStickyThreadUpdate
+    - forum.CategoryMembershipOfModeratorUpdated
   calls:
     - members.updateProfile
     - members.updateAccounts
+    - forum.createThread
   outDir: ./mappings/generated/types
   customTypes:
     lib: '@joystream/types/augment/all/types'
@@ -272,6 +292,39 @@ mappings:
       handler: workingGroups_NewMissedRewardLevelReached
     - event: contentDirectoryWorkingGroup.WorkerStartedLeaving
       handler: workingGroups_WorkerStartedLeaving
+    # Forum
+    - event: forum.CategoryCreated
+      handler: forum_CategoryCreated
+    - event: forum.CategoryArchivalStatusUpdated
+      handler: forum_CategoryArchivalStatusUpdated
+    - event: forum.CategoryDeleted
+      handler: forum_CategoryDeleted
+    - event: forum.ThreadCreated
+      handler: forum_ThreadCreated
+    - event: forum.ThreadModerated
+      handler: forum_ThreadModerated
+    - event: forum.ThreadTitleUpdated
+      handler: forum_ThreadTitleUpdated
+    - event: forum.ThreadDeleted
+      handler: forum_ThreadDeleted
+    - event: forum.ThreadMoved
+      handler: forum_ThreadMoved
+    - event: forum.PostAdded
+      handler: forum_PostAdded
+    - event: forum.PostModerated
+      handler: forum_PostModerated
+    - event: forum.PostDeleted
+      handler: forum_PostDeleted
+    - event: forum.PostTextUpdated
+      handler: forum_PostTextUpdated
+    - event: forum.PostReacted
+      handler: forum_PostReacted
+    - event: forum.VoteOnPoll
+      handler: forum_VoteOnPoll
+    - event: forum.CategoryStickyThreadUpdate
+      handler: forum_CategoryStickyThreadUpdate
+    - event: forum.CategoryMembershipOfModeratorUpdated
+      handler: forum_CategoryMembershipOfModeratorUpdated
   extrinsicHandlers:
     # infer defaults here
     #- extrinsic: Balances.Transfer

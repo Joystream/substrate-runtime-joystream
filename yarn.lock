@@ -1564,26 +1564,19 @@
     ajv "^6.12.0"
     ajv-keywords "^3.4.1"
 
-"@dzlzv/hydra-common@3.0.0-beta.6":
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-common/-/hydra-common-3.0.0-beta.6.tgz#7d6e3cb13a1a6487faa4a5975b77003c27c7e8ca"
-  integrity sha512-VFtp9JEJ4PEheACHo2AMLcFW0sudFlo9DWZ3ZPLKFm880QWqxvORLCpog5HoNMyK2BqucC8FDDkcpFo16ueMAA==
+"@dzlzv/hydra-common@3.1.0-alpha.0", "@dzlzv/hydra-common@^3.1.0-alpha.0":
+  version "3.1.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-common/-/hydra-common-3.1.0-alpha.0.tgz#6e37f2ee3a1675fddac110503e2c3d3e70f7d18c"
+  integrity sha512-Vm3L6gb4+flev0VuQWSPS9d0UtLMgY5eMqLP7D1nc2QpO5rZhq9oVN+jCUQ6wIfc1pMecV8J+Njpt2yd6C3wKA==
   dependencies:
     bn.js "^5.1.3"
 
-"@dzlzv/hydra-common@^3.0.0-beta.6", "@dzlzv/hydra-common@^3.0.0-hydra-v3.0":
-  version "3.0.0-hydra-v3.0"
-  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-common/-/hydra-common-3.0.0-hydra-v3.0.tgz#e7ca2a578e8a607317600945cdd7ea4eed2d0dae"
-  integrity sha512-WLEQ22U+j/3RmmZFKz4/CbJ3tgbGlNqfMTh67fJhx/UAuXKQx6YukLvfFIjd1onDDqgAXbf8c5+i0damjrkO3w==
+"@dzlzv/hydra-db-utils@3.1.0-alpha.0", "@dzlzv/hydra-db-utils@^3.1.0-alpha.0":
+  version "3.1.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-db-utils/-/hydra-db-utils-3.1.0-alpha.0.tgz#2c61c25025c9cf5f415b7ebde647894c3ed506a5"
+  integrity sha512-j6FqXRzOHdztgiqtnKhfzkgYkfoCP4QIzNYHEDt+BbfQmpQH+71N/3wFeRlVxH8S47EVUkrL7Jd9UUXDCDWSFw==
   dependencies:
-    bn.js "^5.1.3"
-
-"@dzlzv/hydra-db-utils@3.0.0-beta.6":
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-db-utils/-/hydra-db-utils-3.0.0-beta.6.tgz#b221a24bef89a2493e42ef520fe1abbdb8d83298"
-  integrity sha512-zxH9LialjFu4mxH+0EJhHPRSewy2tbaxqr992w2gJ2hULp2kJAGRLY1kpHFG/EEE1QWvCTmcJnFw9LyC61Q8Wg==
-  dependencies:
-    "@dzlzv/hydra-common" "^3.0.0-beta.6"
+    "@dzlzv/hydra-common" "^3.1.0-alpha.0"
     "@types/ioredis" "^4.17.4"
     bn.js "^5.1.3"
     ioredis "^4.17.3"
@@ -1591,26 +1584,13 @@
     shortid "^2.2.16"
     typeorm "^0.2.25"
 
-"@dzlzv/hydra-db-utils@^3.0.0-beta.6":
-  version "3.0.0-hydra-v3.0"
-  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-db-utils/-/hydra-db-utils-3.0.0-hydra-v3.0.tgz#c61ff2b6cd8f2229d2377c5c0a09770faead8d14"
-  integrity sha512-qryrvseTrxFeJnJwXqCnKhcM7HmwqIXWdkN0kPK8+HLDg5kFXL88a3mxgyC1XL56SWQKXuCbdj3MTeJeglj4Fw==
+"@dzlzv/hydra-processor@3.1.0-alpha.0":
+  version "3.1.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-processor/-/hydra-processor-3.1.0-alpha.0.tgz#28d87dca2afefb1fa600f9e3fd4cb5cdf38761c9"
+  integrity sha512-JM39MlFpI/IsYai714RMOWW/sJoDtbL2A+NumL4WsaXLQL0Nf7MVyKrfitLNHful2MI1bqvL/B3lwCj1KeWxNQ==
   dependencies:
-    "@dzlzv/hydra-common" "^3.0.0-hydra-v3.0"
-    "@types/ioredis" "^4.17.4"
-    bn.js "^5.1.3"
-    ioredis "^4.17.3"
-    lodash "^4.17.20"
-    shortid "^2.2.16"
-    typeorm "^0.2.25"
-
-"@dzlzv/hydra-processor@3.0.0-beta.6":
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@dzlzv/hydra-processor/-/hydra-processor-3.0.0-beta.6.tgz#2a79ef2df8288216886881ec3b0adba6f209437e"
-  integrity sha512-J4Vj11jpIC443ffV95xjwiqJIKllA5X0q3q47cvmf38pRZ8BZx5UhHHykxzZpR4MqjrxAze5c/QZTaoWGptNcg==
-  dependencies:
-    "@dzlzv/hydra-common" "^3.0.0-beta.6"
-    "@dzlzv/hydra-db-utils" "^3.0.0-beta.6"
+    "@dzlzv/hydra-common" "^3.1.0-alpha.0"
+    "@dzlzv/hydra-db-utils" "^3.1.0-alpha.0"
     "@oclif/command" "^1.8.0"
     "@oclif/config" "^1"
     "@oclif/errors" "^1.3.3"
@@ -5391,6 +5371,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
   integrity sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==
 
+"@types/node@>=13.7.0":
+  version "15.0.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-15.0.3.tgz#ee09fcaac513576474c327da5818d421b98db88a"
+  integrity sha512-/WbxFeBU+0F79z9RdEOXH4CsDga+ibi5M8uEYr91u3CkT/pdWcV8MCook+4wDPnZBexRdwWS+PiVZ2xJviAzcQ==
+
 "@types/node@^10.1.0", "@types/node@^10.17.18":
   version "10.17.50"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.50.tgz#7a20902af591282aa9176baefc37d4372131c32d"
@@ -5400,11 +5385,6 @@
   version "12.19.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.19.11.tgz#9220ab4b20d91169eb78f456dbfcbabee89dfb50"
   integrity sha512-bwVfNTFZOrGXyiQ6t4B9sZerMSShWNsGRw8tC5DY1qImUNczS9SjT4G6PnzjCnxsu5Ubj6xjL2lgwddkxtQl5w==
-
-"@types/node@^13.7.0":
-  version "13.13.51"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.51.tgz#a424c5282f99fc1ca41f11b727b6aea80668bcba"
-  integrity sha512-66/xg5I5Te4oGi5Jws11PtNmKkZbOPZWyBZZ/l5AOrWj1Dyw+6Ge/JhYTq/2/Yvdqyhrue8RL+DGI298OJ0xcg==
 
 "@types/node@^9.6.4":
   version "9.6.61"
@@ -23068,10 +23048,10 @@ proto-list@~1.2.1:
   resolved "https://registry.yarnpkg.com/proto-list/-/proto-list-1.2.4.tgz#212d5bfe1318306a420f6402b8e26ff39647a849"
   integrity sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
 
-protobufjs@^6.10.2:
-  version "6.10.2"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.10.2.tgz#b9cb6bd8ec8f87514592ba3fdfd28e93f33a469b"
-  integrity sha512-27yj+04uF6ya9l+qfpH187aqEzfCF4+Uit0I9ZBQVqK09hk/SQzKa2MUqUpXaVa7LOFRg1TSSr3lVxGOk6c0SQ==
+protobufjs@^6.11.2:
+  version "6.11.2"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.2.tgz#de39fabd4ed32beaa08e9bb1e30d08544c1edf8b"
+  integrity sha512-4BQJoPooKJl2G9j3XftkIXjoC9C0Av2NOrWmbLWT1vH32GcSUHjM0Arra6UfTsVyfMAuFzaLucXn1sadxJydAw==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
     "@protobufjs/base64" "^1.1.2"
@@ -23084,7 +23064,7 @@ protobufjs@^6.10.2:
     "@protobufjs/pool" "^1.1.0"
     "@protobufjs/utf8" "^1.1.0"
     "@types/long" "^4.0.1"
-    "@types/node" "^13.7.0"
+    "@types/node" ">=13.7.0"
     long "^4.0.0"
 
 protocol-buffers-schema@^3.3.1:

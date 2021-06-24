@@ -177,6 +177,9 @@ export class FixtureRunner {
   }
 
   public async runQueryNodeChecks(): Promise<void> {
+    if (process.env.SKIP_QUERY_NODE_CHECKS) {
+      return
+    }
     if (!(this.fixture instanceof BaseQueryNodeFixture)) {
       throw new Error('Tried to run query node checks for non-query-node fixture!')
     }

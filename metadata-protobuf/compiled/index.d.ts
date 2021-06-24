@@ -107,6 +107,195 @@ export class CouncilCandidacyNoteMetadata implements ICouncilCandidacyNoteMetada
     public toJSON(): { [k: string]: any };
 }
 
+/** Properties of a ForumPostReaction. */
+export interface IForumPostReaction {
+}
+
+/** Represents a ForumPostReaction. */
+export class ForumPostReaction implements IForumPostReaction {
+
+    /**
+     * Constructs a new ForumPostReaction.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IForumPostReaction);
+
+    /**
+     * Creates a new ForumPostReaction instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns ForumPostReaction instance
+     */
+    public static create(properties?: IForumPostReaction): ForumPostReaction;
+
+    /**
+     * Encodes the specified ForumPostReaction message. Does not implicitly {@link ForumPostReaction.verify|verify} messages.
+     * @param message ForumPostReaction message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IForumPostReaction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified ForumPostReaction message, length delimited. Does not implicitly {@link ForumPostReaction.verify|verify} messages.
+     * @param message ForumPostReaction message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IForumPostReaction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a ForumPostReaction message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns ForumPostReaction
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): ForumPostReaction;
+
+    /**
+     * Decodes a ForumPostReaction message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns ForumPostReaction
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): ForumPostReaction;
+
+    /**
+     * Verifies a ForumPostReaction message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a ForumPostReaction message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns ForumPostReaction
+     */
+    public static fromObject(object: { [k: string]: any }): ForumPostReaction;
+
+    /**
+     * Creates a plain object from a ForumPostReaction message. Also converts values to other types if specified.
+     * @param message ForumPostReaction
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: ForumPostReaction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this ForumPostReaction to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
+export namespace ForumPostReaction {
+
+    /** Reaction enum. */
+    enum Reaction {
+        CANCEL = 0,
+        LIKE = 1
+    }
+}
+
+/** Properties of a ForumPostMetadata. */
+export interface IForumPostMetadata {
+
+    /** ForumPostMetadata text */
+    text?: (string|null);
+
+    /** ForumPostMetadata repliesTo */
+    repliesTo?: (number|null);
+}
+
+/** Represents a ForumPostMetadata. */
+export class ForumPostMetadata implements IForumPostMetadata {
+
+    /**
+     * Constructs a new ForumPostMetadata.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IForumPostMetadata);
+
+    /** ForumPostMetadata text. */
+    public text: string;
+
+    /** ForumPostMetadata repliesTo. */
+    public repliesTo: number;
+
+    /**
+     * Creates a new ForumPostMetadata instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns ForumPostMetadata instance
+     */
+    public static create(properties?: IForumPostMetadata): ForumPostMetadata;
+
+    /**
+     * Encodes the specified ForumPostMetadata message. Does not implicitly {@link ForumPostMetadata.verify|verify} messages.
+     * @param message ForumPostMetadata message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IForumPostMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified ForumPostMetadata message, length delimited. Does not implicitly {@link ForumPostMetadata.verify|verify} messages.
+     * @param message ForumPostMetadata message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IForumPostMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a ForumPostMetadata message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns ForumPostMetadata
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): ForumPostMetadata;
+
+    /**
+     * Decodes a ForumPostMetadata message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns ForumPostMetadata
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): ForumPostMetadata;
+
+    /**
+     * Verifies a ForumPostMetadata message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a ForumPostMetadata message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns ForumPostMetadata
+     */
+    public static fromObject(object: { [k: string]: any }): ForumPostMetadata;
+
+    /**
+     * Creates a plain object from a ForumPostMetadata message. Also converts values to other types if specified.
+     * @param message ForumPostMetadata
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: ForumPostMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this ForumPostMetadata to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+}
+
 /** Properties of a MembershipMetadata. */
 export interface IMembershipMetadata {
 

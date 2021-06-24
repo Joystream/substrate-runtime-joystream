@@ -1,4 +1,4 @@
-type OpeningAddedEvent @entity {
+type OpeningAddedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -27,7 +27,7 @@ type OpeningAddedEvent @entity {
   # Other opening data like: metadata, type, staking policy, reward etc. is immutable, so can be read directly from Opening entity
 }
 
-type AppliedOnOpeningEvent @entity {
+type AppliedOnOpeningEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -59,7 +59,7 @@ type AppliedOnOpeningEvent @entity {
   # Same as with opening - application parameters are immutable and can be fetched from Application entity
 }
 
-type OpeningFilledEvent @entity {
+type OpeningFilledEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -89,7 +89,7 @@ type OpeningFilledEvent @entity {
   workersHired: [Worker!] @derivedFrom(field: "entry")
 }
 
-type LeaderSetEvent @entity {
+type LeaderSetEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -117,7 +117,7 @@ type LeaderSetEvent @entity {
   worker: Worker
 }
 
-type WorkerRoleAccountUpdatedEvent @entity {
+type WorkerRoleAccountUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -147,7 +147,7 @@ type WorkerRoleAccountUpdatedEvent @entity {
   newRoleAccount: String!
 }
 
-type LeaderUnsetEvent @entity {
+type LeaderUnsetEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -174,7 +174,7 @@ type LeaderUnsetEvent @entity {
   leader: Worker!
 }
 
-type WorkerExitedEvent @entity {
+type WorkerExitedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -201,40 +201,7 @@ type WorkerExitedEvent @entity {
   worker: Worker!
 }
 
-type TerminatedWorkerEvent @entity {
-  ### GENERIC DATA ###
-
-  "(network}-{blockNumber}-{indexInBlock}"
-  id: ID!
-
-  "Hash of the extrinsic which caused the event to be emitted"
-  inExtrinsic: String
-
-  "Blocknumber of the block in which the event was emitted."
-  inBlock: Int!
-
-  "Network the block was produced in"
-  network: Network!
-
-  "Index of event in block from which it was emitted."
-  indexInBlock: Int!
-
-  ### SPECIFIC DATA ###
-
-  "Related group"
-  group: WorkingGroup!
-
-  "Related worker"
-  worker: Worker!
-
-  "Slash amount (if any)"
-  penalty: BigInt
-
-  "Optional rationale"
-  rationale: String
-}
-
-type TerminatedLeaderEvent @entity {
+type TerminatedWorkerEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -267,7 +234,40 @@ type TerminatedLeaderEvent @entity {
   rationale: String
 }
 
-type WorkerStartedLeavingEvent @entity {
+type TerminatedLeaderEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "Related group"
+  group: WorkingGroup!
+
+  "Related worker"
+  worker: Worker!
+
+  "Slash amount (if any)"
+  penalty: BigInt
+
+  "Optional rationale"
+  rationale: String
+}
+
+type WorkerStartedLeavingEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -297,7 +297,7 @@ type WorkerStartedLeavingEvent @entity {
   rationale: String
 }
 
-type StakeSlashedEvent @entity {
+type StakeSlashedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -333,7 +333,7 @@ type StakeSlashedEvent @entity {
   rationale: String
 }
 
-type StakeDecreasedEvent @entity {
+type StakeDecreasedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -363,7 +363,7 @@ type StakeDecreasedEvent @entity {
   amount: BigInt!
 }
 
-type StakeIncreasedEvent @entity {
+type StakeIncreasedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -393,7 +393,7 @@ type StakeIncreasedEvent @entity {
   amount: BigInt!
 }
 
-type ApplicationWithdrawnEvent @entity {
+type ApplicationWithdrawnEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -420,7 +420,7 @@ type ApplicationWithdrawnEvent @entity {
   application: WorkingGroupApplication!
 }
 
-type OpeningCanceledEvent @entity {
+type OpeningCanceledEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -447,7 +447,7 @@ type OpeningCanceledEvent @entity {
   opening: WorkingGroupOpening!
 }
 
-type BudgetSetEvent @entity {
+type BudgetSetEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -474,7 +474,7 @@ type BudgetSetEvent @entity {
   newBudget: BigInt!
 }
 
-type WorkerRewardAccountUpdatedEvent @entity {
+type WorkerRewardAccountUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -504,7 +504,7 @@ type WorkerRewardAccountUpdatedEvent @entity {
   newRewardAccount: String!
 }
 
-type WorkerRewardAmountUpdatedEvent @entity {
+type WorkerRewardAmountUpdatedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -558,7 +558,7 @@ union WorkingGroupMetadataActionResult =
   | WorkingGroupMetadataSet
   | InvalidActionMetadata
 
-type StatusTextChangedEvent @entity {
+type StatusTextChangedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -588,7 +588,7 @@ type StatusTextChangedEvent @entity {
   result: WorkingGroupMetadataActionResult!
 }
 
-type BudgetSpendingEvent @entity {
+type BudgetSpendingEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -628,7 +628,7 @@ enum RewardPaymentType {
   MISSED
 }
 
-type RewardPaidEvent @entity {
+type RewardPaidEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
@@ -661,10 +661,10 @@ type RewardPaidEvent @entity {
   amount: BigInt!
 
   "Type of the payment (REGULAR/MISSED)"
-  type: RewardPaymentType!
+  paymentType: RewardPaymentType!
 }
 
-type NewMissedRewardLevelReachedEvent @entity {
+type NewMissedRewardLevelReachedEvent implements Event @entity {
   ### GENERIC DATA ###
 
   "(network}-{blockNumber}-{indexInBlock}"
