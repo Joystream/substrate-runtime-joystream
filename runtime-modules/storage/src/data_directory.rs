@@ -51,17 +51,17 @@ pub const DEFAULT_VOUCHER: Voucher = Voucher::new(110_000_000_000, 5_000);
 pub const DEFAULT_UPLOADING_BLOCKED_STATUS: bool = false;
 
 /// The _Data directory_ main _Trait_.
-pub trait Trait:
-    pallet_timestamp::Trait
-    + frame_system::Trait
-    + data_object_type_registry::Trait
-    + membership::Trait
-    + working_group::Trait<StorageWorkingGroupInstance>
+pub trait Config:
+    pallet_timestamp::Config
+    + frame_system::Config
+    + data_object_type_registry::Config
+    + membership::Config
+    + working_group::Config<StorageWorkingGroupInstance>
     + common::MembershipTypes
     + common::StorageOwnership
 {
     /// _Data directory_ event type.
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     /// Active data object type validator.
     type IsActiveDataObjectType: data_object_type_registry::IsActiveDataObjectType<Self>;
@@ -72,7 +72,7 @@ pub trait Trait:
 
 decl_error! {
     /// _Data object storage registry_ module predefined errors.
-    pub enum Error for Module<T: Trait>{
+    pub enum Error for Module<T: Config>{
         /// Content with this ID not found.
         CidNotFound,
 
@@ -136,8 +136,8 @@ pub type DataObject<T> = DataObjectInternal<
     MemberId<T>,
     ChannelId<T>,
     DAOId<T>,
-    <T as frame_system::Trait>::BlockNumber,
-    <T as pallet_timestamp::Trait>::Moment,
+    <T as frame_system::Config>::BlockNumber,
+    <T as pallet_timestamp::Config>::Moment,
     DataObjectTypeId<T>,
     StorageProviderId<T>,
 >;
@@ -234,7 +234,7 @@ impl Voucher {
 
     /// Attempts to fill voucher and returns an updated Voucher if no overlflows occur
     /// or limits are exceeded. Error otherwise.
-    pub fn fill_voucher<T: Trait>(self, voucher_delta: Delta) -> Result<Self, Error<T>> {
+    pub fn fill_voucher<T: Config>(self, voucher_delta: Delta) -> Result<Self, Error<T>> {
         if let Some(size_used) = self.size_used.checked_add(voucher_delta.size) {
             // Ensure size limit not exceeded
             ensure!(
@@ -257,7 +257,7 @@ impl Voucher {
         Err(Error::<T>::VoucherOverflow)
     }
 
-    pub fn release_voucher<T: Trait>(self, voucher_delta: Delta) -> Result<Self, Error<T>> {
+    pub fn release_voucher<T: Config>(self, voucher_delta: Delta) -> Result<Self, Error<T>> {
         if let Some(size_used) = self.size_used.checked_sub(voucher_delta.size) {
             if let Some(objects_used) = self.objects_used.checked_sub(voucher_delta.objects) {
                 return Ok(Self {
@@ -270,7 +270,7 @@ impl Voucher {
         Err(Error::<T>::VoucherOverflow)
     }
 
-    pub fn set_new_size_limit<T: Trait>(&mut self, new_size_limit: u64) -> Result<(), Error<T>> {
+    pub fn set_new_size_limit<T: Config>(&mut self, new_size_limit: u64) -> Result<(), Error<T>> {
         if self.size_used > new_size_limit {
             Err(Error::<T>::VoucherLimitLessThanUsed)
         } else {
@@ -279,7 +279,7 @@ impl Voucher {
         }
     }
 
-    pub fn set_new_objects_limit<T: Trait>(
+    pub fn set_new_objects_limit<T: Config>(
         &mut self,
         new_objects_limit: u64,
     ) -> Result<(), Error<T>> {
@@ -296,7 +296,7 @@ impl Voucher {
 pub type DataObjectsMap<T> = BTreeMap<ContentId<T>, DataObject<T>>;
 
 decl_storage! {
-    trait Store for Module<T: Trait> as DataDirectory {
+    trait Store for Module<T: Config> as DataDirectory {
 
         /// Maps data objects by their content id.
         pub DataByContentId get(fn data_object_by_content_id) config():
@@ -405,7 +405,7 @@ decl_event! {
 
 decl_module! {
     /// _Data directory_ substrate module.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         /// Default deposit_event() handler
         fn deposit_event() = default;
 
@@ -676,7 +676,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     // Used to initialize data_directory runtime storage on runtime upgrade
     pub fn initialize_data_directory(
         vouchers: Vec<(ObjectOwner<T>, Voucher)>,
@@ -824,7 +824,7 @@ impl<T: Trait> Module<T> {
 }
 
 /// Content access helper.
-pub trait ContentIdExists<T: Trait> {
+pub trait ContentIdExists<T: Config> {
     /// Verifies the content existence.
     fn has_content(id: &T::ContentId) -> bool;
 
@@ -832,7 +832,7 @@ pub trait ContentIdExists<T: Trait> {
     fn get_data_object(id: &T::ContentId) -> Result<DataObject<T>, Error<T>>;
 }
 
-impl<T: Trait> ContentIdExists<T> for Module<T> {
+impl<T: Config> ContentIdExists<T> for Module<T> {
     fn has_content(content_id: &T::ContentId) -> bool {
         <DataByContentId<T>>::contains_key(content_id)
     }
@@ -846,7 +846,7 @@ impl<T: Trait> ContentIdExists<T> for Module<T> {
     }
 }
 
-impl<T: Trait> common::storage::StorageSystem<T> for Module<T> {
+impl<T: Config> common::storage::StorageSystem<T> for Module<T> {
     fn atomically_add_content(
         owner: ObjectOwner<T>,
         content: Vec<ContentParameters<T::ContentId, DataObjectTypeId<T>>>,

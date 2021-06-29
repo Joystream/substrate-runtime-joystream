@@ -1,5 +1,5 @@
 use codec::Decode;
-use node_runtime::{
+use joystream_node_runtime::{
     common::constraints::InputValidationLengthConstraint,
     forum::{Category, CategoryId, Post, Thread},
     AccountId, BlockNumber, ForumConfig, Moment, PostId, ThreadId,

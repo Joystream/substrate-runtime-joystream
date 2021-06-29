@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use super::mock::*;
+use super::mock::{Event, *};
 use crate::*;
 use frame_support::{assert_err, assert_ok};
 
@@ -33,7 +33,7 @@ fn curator_group_management() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::CuratorGroupCreated(curator_group_id))
+            Event::content(RawEvent::CuratorGroupCreated(curator_group_id))
         );
 
         let group = Content::curator_group_by_id(curator_group_id);
@@ -51,7 +51,7 @@ fn curator_group_management() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::CuratorGroupStatusSet(curator_group_id, true))
+            Event::content(RawEvent::CuratorGroupStatusSet(curator_group_id, true))
         );
 
         let group = Content::curator_group_by_id(curator_group_id);
@@ -76,7 +76,7 @@ fn curator_group_management() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::CuratorAdded(curator_group_id, FIRST_CURATOR_ID))
+            Event::content(RawEvent::CuratorAdded(curator_group_id, FIRST_CURATOR_ID))
         );
 
         // Ensure curator is in group
@@ -112,7 +112,7 @@ fn curator_group_management() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::CuratorRemoved(curator_group_id, FIRST_CURATOR_ID))
+            Event::content(RawEvent::CuratorRemoved(curator_group_id, FIRST_CURATOR_ID))
         );
 
         let group = Content::curator_group_by_id(curator_group_id);

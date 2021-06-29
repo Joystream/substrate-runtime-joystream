@@ -1,6 +1,6 @@
 #![cfg(feature = "std")]
 
-use crate::{GenesisConfig, Trait};
+use crate::{Config, GenesisConfig};
 use common::currency::BalanceOf;
 use serde::{Deserialize, Serialize};
 
@@ -16,12 +16,12 @@ pub struct Member<MemberId, AccountId, Moment> {
 }
 
 /// Builder fo membership module genesis configuration.
-pub struct GenesisConfigBuilder<T: Trait> {
+pub struct GenesisConfigBuilder<T: Config> {
     default_paid_membership_fee: BalanceOf<T>,
     members: Vec<(T::MemberId, T::AccountId)>,
 }
 
-impl<T: Trait> Default for GenesisConfigBuilder<T> {
+impl<T: Config> Default for GenesisConfigBuilder<T> {
     fn default() -> Self {
         Self {
             default_paid_membership_fee: BalanceOf::<T>::default(), // Was 100, will this break any tests??
@@ -30,7 +30,7 @@ impl<T: Trait> Default for GenesisConfigBuilder<T> {
     }
 }
 
-impl<T: Trait> GenesisConfigBuilder<T> {
+impl<T: Config> GenesisConfigBuilder<T> {
     /// Assign default paid membeship fee
     pub fn default_paid_membership_fee(
         mut self,

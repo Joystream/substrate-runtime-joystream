@@ -2,7 +2,7 @@
 // Internal substrate warning.
 #![allow(non_fmt_panic)]
 
-use frame_support::{impl_outer_dispatch, impl_outer_origin, parameter_types};
+use frame_support::{parameter_types, weights::Weight};
 pub use frame_system;
 use sp_core::H256;
 use sp_runtime::curve::PiecewiseLinear;
@@ -13,45 +13,49 @@ use sp_runtime::{
 };
 use sp_staking::SessionIndex;
 
+use crate as proposals_codex;
+use governance::council;
+use governance::election;
+
 use crate::{ProposalDetailsOf, ProposalEncoder};
+use frame_election_provider_support::onchain;
 use proposals_engine::VotersParameters;
 use sp_runtime::testing::TestXt;
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
-// Workaround for https://github.com/rust-lang/rust/issues/26925 . Remove when sorted.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Test;
-parameter_types! {
-    pub const BlockHashCount: u64 = 250;
-    pub const MaximumBlockWeight: u32 = 1024;
-    pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
-    pub const MinimumPeriod: u64 = 5;
-    pub const StakePoolId: [u8; 8] = *b"joystake";
-}
-
-impl_outer_dispatch! {
-    pub enum Call for Test where origin: Origin {
-        codex::ProposalCodex,
-        proposals::ProposalsEngine,
-        staking::Staking,
-        frame_system::System,
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+        Balances: balances::{Pallet, Call, Storage, Config<T>, Event<T>},
+        Staking: staking::{Pallet, Call, Config<T>, Storage, Event<T>},
+        ProposalsEngine: proposals_engine::{Pallet, Call, Storage, Event<T>},
+        ProposalsCodex: proposals_codex::{Pallet, Call, Storage, Config<T>},
+        ProposalsDiscussion: proposals_discussion::{Pallet, Call, Storage, Event<T>},
+        Election: election::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Council: council::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Members: membership::{Pallet, Call, Storage, Event<T>, Config<T>},
+        StorageWorkingGroup: working_group::<Instance2>::{Pallet, Call, Storage, Config<T>, Event<T>},
+        ContentDirectoryWorkingGroup: working_group::<Instance3>::{Pallet, Call, Storage, Config<T>, Event<T>},
     }
-}
+);
 
 impl common::currency::GovernanceCurrency for Test {
-    type Currency = balances::Module<Self>;
+    type Currency = balances::Pallet<Self>;
 }
 
 parameter_types! {
     pub const ScreenedMemberMaxInitialBalance: u64 = 500;
 }
 
-impl membership::Trait for Test {
-    type Event = ();
+impl membership::Config for Test {
+    type Event = Event;
     type MemberId = u64;
     type PaidTermId = u64;
     type SubscriptionId = u64;
@@ -63,17 +67,23 @@ parameter_types! {
     pub const ExistentialDeposit: u32 = 0;
 }
 
-impl balances::Trait for Test {
-    type Balance = u64;
+type Balance = u64;
+
+impl balances::Config for Test {
+    type Balance = Balance;
     type DustRemoval = ();
-    type Event = ();
+    type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
-    type AccountStore = System;
+    type AccountStore = frame_system::Pallet<Test>;
     type WeightInfo = ();
     type MaxLocks = ();
 }
 
-impl stake::Trait for Test {
+parameter_types! {
+    pub const StakePoolId: [u8; 8] = *b"joystake";
+}
+
+impl stake::Config for Test {
     type Currency = Balances;
     type StakePoolId = StakePoolId;
     type StakingEventsHandler = ();
@@ -89,8 +99,8 @@ parameter_types! {
     pub const MaxActiveProposalLimit: u32 = 100;
 }
 
-impl proposals_engine::Trait for Test {
-    type Event = ();
+impl proposals_engine::Config for Test {
+    type Event = Event;
     type ProposerOriginValidator = ();
     type VoterOriginValidator = ();
     type TotalVotersCounter = MockVotersParameters;
@@ -110,13 +120,13 @@ impl Default for crate::Call<Test> {
     }
 }
 
-impl minting::Trait for Test {
+impl minting::Config for Test {
     type Currency = Balances;
     type MintId = u64;
 }
 
-impl governance::council::Trait for Test {
-    type Event = ();
+impl governance::council::Config for Test {
+    type Event = Event;
     type CouncilTermEnded = ();
 }
 
@@ -135,8 +145,8 @@ parameter_types! {
     pub const PostLengthLimit: u32 = 2000;
 }
 
-impl proposals_discussion::Trait for Test {
-    type Event = ();
+impl proposals_discussion::Config for Test {
+    type Event = Event;
     type PostAuthorOriginValidator = ();
     type ThreadId = u64;
     type PostId = u64;
@@ -158,8 +168,8 @@ parameter_types! {
     pub const RuntimeUpgradeWasmProposalMaxLength: u32 = 20_000;
 }
 
-impl governance::election::Trait for Test {
-    type Event = ();
+impl governance::election::Config for Test {
+    type Event = Event;
     type CouncilElected = ();
 }
 
@@ -173,23 +183,23 @@ parameter_types! {
     pub const MaxWorkerNumberLimit: u32 = 100;
 }
 
-impl working_group::Trait<ContentDirectoryWorkingGroupInstance> for Test {
-    type Event = ();
+impl working_group::Config<ContentDirectoryWorkingGroupInstance> for Test {
+    type Event = Event;
     type MaxWorkerNumberLimit = MaxWorkerNumberLimit;
 }
 
-impl working_group::Trait<StorageWorkingGroupInstance> for Test {
-    type Event = ();
+impl working_group::Config<StorageWorkingGroupInstance> for Test {
+    type Event = Event;
     type MaxWorkerNumberLimit = MaxWorkerNumberLimit;
 }
 
-impl recurring_rewards::Trait for Test {
+impl recurring_rewards::Config for Test {
     type PayoutStatusHandler = ();
     type RecipientId = u64;
     type RewardRelationshipId = u64;
 }
 
-impl hiring::Trait for Test {
+impl hiring::Config for Test {
     type OpeningId = u64;
     type ApplicationId = u64;
     type ApplicationDeactivatedHandler = ();
@@ -208,31 +218,41 @@ pallet_staking_reward_curve::build! {
 }
 
 parameter_types! {
+    pub BlockWeights: frame_system::limits::BlockWeights =
+        frame_system::limits::BlockWeights::simple_max(
+            frame_support::weights::constants::WEIGHT_PER_SECOND * 2
+        );
     pub const SessionsPerEra: SessionIndex = 3;
     pub const BondingDuration: staking::EraIndex = 3;
     pub const RewardCurve: &'static PiecewiseLinear<'static> = &I_NPOS;
 }
-impl staking::Trait for Test {
+
+impl onchain::Config for Test {
+    type AccountId = u64;
+    type BlockNumber = u64;
+    type BlockWeights = BlockWeights;
+    type Accuracy = Perbill;
+    type DataProvider = Staking;
+}
+
+impl staking::Config for Test {
+    const MAX_NOMINATIONS: u32 = 16;
     type Currency = Balances;
     type UnixTime = Timestamp;
-    type CurrencyToVote = ();
+    type CurrencyToVote = frame_support::traits::SaturatingCurrencyToVote;
     type RewardRemainder = ();
-    type Event = ();
+    type Event = Event;
     type Slash = ();
     type Reward = ();
     type SessionsPerEra = SessionsPerEra;
     type BondingDuration = BondingDuration;
+    type SessionInterface = Self;
+    type EraPayout = staking::ConvertCurve<RewardCurve>;
+    type ElectionProvider = onchain::OnChainSequentialPhragmen<Self>;
     type SlashDeferDuration = ();
     type SlashCancelOrigin = frame_system::EnsureRoot<Self::AccountId>;
-    type SessionInterface = Self;
-    type RewardCurve = RewardCurve;
     type NextNewSession = ();
-    type ElectionLookahead = ();
-    type Call = Call;
-    type MaxIterations = ();
-    type MinSolutionScoreBump = ();
     type MaxNominatorRewardedPerValidator = ();
-    type UnsignedPriority = ();
     type WeightInfo = ();
 }
 
@@ -260,7 +280,7 @@ impl staking::SessionInterface<u64> for Test {
     }
 }
 
-impl crate::Trait for Test {
+impl crate::Config for Test {
     type TextProposalMaxLength = TextProposalMaxLength;
     type RuntimeUpgradeWasmProposalMaxLength = RuntimeUpgradeWasmProposalMaxLength;
     type MembershipOriginValidator = ();
@@ -273,35 +293,43 @@ impl ProposalEncoder<Test> for () {
     }
 }
 
-impl frame_system::Trait for Test {
+parameter_types! {
+    pub const BlockHashCount: u64 = 250;
+    pub const MaximumBlockWeight: Weight = 1024;
+    pub const MaximumBlockLength: u32 = 2 * 1024;
+}
+
+impl frame_system::Config for Test {
     type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
     type Origin = Origin;
-    type Call = Call;
     type Index = u64;
     type BlockNumber = u64;
+    type Call = Call;
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type AccountId = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
-    type Event = ();
+    type Event = Event;
     type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type Version = ();
-    type AccountData = balances::AccountData<u64>;
+    type PalletInfo = PalletInfo;
+    type AccountData = balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
-    type PalletInfo = ();
     type SystemWeightInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
 
-impl pallet_timestamp::Trait for Test {
+parameter_types! {
+    pub const MinimumPeriod: u64 = 5;
+}
+
+impl pallet_timestamp::Config for Test {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
@@ -315,10 +343,3 @@ pub fn initial_test_ext() -> sp_io::TestExternalities {
 
     t.into()
 }
-
-pub type Staking = staking::Module<Test>;
-pub type ProposalCodex = crate::Module<Test>;
-pub type ProposalsEngine = proposals_engine::Module<Test>;
-pub type Balances = balances::Module<Test>;
-pub type Timestamp = pallet_timestamp::Module<Test>;
-pub type System = frame_system::Module<Test>;

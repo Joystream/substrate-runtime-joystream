@@ -38,7 +38,7 @@ use sp_std::iter::Iterator;
 use sp_std::rc::Rc;
 use sp_std::vec::Vec;
 
-use stake::{InitiateUnstakingError, Stake, StakeActionError, StakingError, Trait as StakeTrait};
+use stake::{Config as StakeTrait, InitiateUnstakingError, Stake, StakeActionError, StakingError};
 
 mod hiring;
 #[macro_use]
@@ -49,7 +49,7 @@ mod test;
 pub use hiring::*;
 
 /// Main trait of hiring substrate module
-pub trait Trait: frame_system::Trait + stake::Trait + Sized {
+pub trait Config: frame_system::Config + stake::Config + Sized {
     /// OpeningId type
     type OpeningId: Parameter
         + Member
@@ -78,7 +78,7 @@ pub trait Trait: frame_system::Trait + stake::Trait + Sized {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as Hiring {
+    trait Store for Module<T: Config> as Hiring {
         /// Openings.
         pub OpeningById get(fn opening_by_id): map hasher(blake2_128_concat)
             T::OpeningId => Opening<BalanceOf<T>, T::BlockNumber, T::ApplicationId>;
@@ -101,7 +101,7 @@ decl_storage! {
 
 decl_module! {
     /// Main hiring module definition
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
 
         fn on_finalize(now: T::BlockNumber) {
 
@@ -167,7 +167,7 @@ decl_module! {
  */
 
 // Public API implementation
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Add new opening based on given inputs policies.
     /// The new Opening instance has stage WaitingToBegin, and is added to openingsById,
     /// and has identifier equal to nextOpeningId.
@@ -180,7 +180,7 @@ impl<T: Trait> Module<T> {
         role_staking_policy: Option<StakingPolicy<BalanceOf<T>, T::BlockNumber>>,
         human_readable_text: Vec<u8>,
     ) -> Result<T::OpeningId, AddOpeningError> {
-        let current_block_height = <frame_system::Module<T>>::block_number();
+        let current_block_height = <frame_system::Pallet<T>>::block_number();
 
         Self::ensure_can_add_opening(
             current_block_height,
@@ -241,7 +241,7 @@ impl<T: Trait> Module<T> {
         )?;
 
         //
-        let current_block_height = <frame_system::Module<T>>::block_number(); // move later!
+        let current_block_height = <frame_system::Pallet<T>>::block_number(); // move later!
         let new_active_stage = active_stage.new_stage_on_cancelling(current_block_height)?;
 
         // Ensure unstaking periods are OK.
@@ -317,7 +317,7 @@ impl<T: Trait> Module<T> {
         // == MUTATION SAFE ==
         //
 
-        let current_block_height = <frame_system::Module<T>>::block_number();
+        let current_block_height = <frame_system::Pallet<T>>::block_number();
 
         // Update state of opening
         let new_opening = opening.clone_with_new_active_opening_stage(
@@ -355,7 +355,7 @@ impl<T: Trait> Module<T> {
         // == MUTATION SAFE ==
         //
 
-        let current_block_height = <frame_system::Module<T>>::block_number();
+        let current_block_height = <frame_system::Pallet<T>>::block_number();
 
         let new_opening =
             opening.clone_with_new_active_opening_stage(hiring::ActiveOpeningStage::ReviewPeriod {
@@ -495,7 +495,7 @@ impl<T: Trait> Module<T> {
         );
 
         // Grab current block height
-        let current_block_height = <frame_system::Module<T>>::block_number();
+        let current_block_height = <frame_system::Pallet<T>>::block_number();
         // Get opening with updated counters
         let opening_needed_for_data = <OpeningById<T>>::get(opening_id);
 
@@ -651,7 +651,7 @@ impl<T: Trait> Module<T> {
         );
 
         // Grab current block height
-        let current_block_height = <frame_system::Module<T>>::block_number();
+        let current_block_height = <frame_system::Pallet<T>>::block_number();
 
         // Compute index for this new application
         let application_index_in_opening =
@@ -795,7 +795,7 @@ impl<T: Trait> Module<T> {
 
         // Drop stake from stake to application map
         <ApplicationIdByStakingId<T>>::remove(stake_id);
-        let current_block_height = <frame_system::Module<T>>::block_number();
+        let current_block_height = <frame_system::Pallet<T>>::block_number();
 
         // New application computed
         let mut new_application = application.clone();
@@ -832,7 +832,7 @@ impl<T: Trait> Module<T> {
  */
 
 /// Handles application deactivation with a cause
-pub trait ApplicationDeactivatedHandler<T: Trait> {
+pub trait ApplicationDeactivatedHandler<T: Config> {
     /// An application, with the given id, was fully deactivated, with the
     /// given cause, and was put in the inactive state.
     fn deactivated(application_id: &T::ApplicationId, cause: hiring::ApplicationDeactivationCause);
@@ -841,7 +841,7 @@ pub trait ApplicationDeactivatedHandler<T: Trait> {
 /// Helper implementation so we can provide multiple handlers by grouping handlers in tuple pairs.
 /// For example for three handlers, A, B and C we can set the StakingEventHandler type on the trait to:
 /// type StakingEventHandler = ((A, B), C)
-impl<T: Trait> ApplicationDeactivatedHandler<T> for () {
+impl<T: Config> ApplicationDeactivatedHandler<T> for () {
     fn deactivated(
         _application_id: &T::ApplicationId,
         _cause: hiring::ApplicationDeactivationCause,
@@ -850,12 +850,12 @@ impl<T: Trait> ApplicationDeactivatedHandler<T> for () {
 }
 
 /*
- *  ======== API types bound to the Trait ========
+ *  ======== API types bound to the Config ========
  */
 
 /// Error due to attempting to fill an opening.
 #[derive(Eq, PartialEq, Clone, Debug)]
-pub enum FillOpeningError<T: Trait> {
+pub enum FillOpeningError<T: Config> {
     /// Opening does not exist
     OpeningDoesNotExist,
 
@@ -880,7 +880,7 @@ pub enum FillOpeningError<T: Trait> {
 
 /// Product of ensure_can_add_application()
 #[derive(Eq, PartialEq, Clone, Debug)]
-pub struct DestructuredApplicationCanBeAddedEvaluation<T: Trait> {
+pub struct DestructuredApplicationCanBeAddedEvaluation<T: Config> {
     /// Opening object
     pub opening: Opening<BalanceOf<T>, T::BlockNumber, T::ApplicationId>,
 
@@ -903,7 +903,7 @@ pub struct DestructuredApplicationCanBeAddedEvaluation<T: Trait> {
     pub would_get_added_success: ApplicationAddedSuccess<T>,
 }
 
-impl<T: Trait> DestructuredApplicationCanBeAddedEvaluation<T> {
+impl<T: Config> DestructuredApplicationCanBeAddedEvaluation<T> {
     pub(crate) fn calculate_total_application_count(&self) -> u32 {
         // TODO: fix so that `number_of_appliations_ever_added` can be invoked.
         // cant do this due to bad design of stage => opening.stage.number_of_appliations_ever_added();
@@ -915,7 +915,7 @@ impl<T: Trait> DestructuredApplicationCanBeAddedEvaluation<T> {
 
 /// Adding application result
 #[derive(Eq, PartialEq, Clone, Debug)]
-pub enum ApplicationAddedSuccess<T: Trait> {
+pub enum ApplicationAddedSuccess<T: Config> {
     /// Application was added without side-effects
     Unconditionally,
 
@@ -923,7 +923,7 @@ pub enum ApplicationAddedSuccess<T: Trait> {
     CrowdsOutExistingApplication(T::ApplicationId),
 }
 
-impl<T: Trait> ApplicationAddedSuccess<T> {
+impl<T: Config> ApplicationAddedSuccess<T> {
     pub(crate) fn crowded_out_application_id(&self) -> Option<T::ApplicationId> {
         if let ApplicationAddedSuccess::CrowdsOutExistingApplication(id) = self {
             Some(*id)
@@ -935,7 +935,7 @@ impl<T: Trait> ApplicationAddedSuccess<T> {
 
 /// Prospects of application. Whether it would be added to the opening.
 #[derive(Eq, PartialEq, Clone, Debug)]
-pub enum ApplicationWouldGetAddedEvaluation<T: Trait> {
+pub enum ApplicationWouldGetAddedEvaluation<T: Config> {
     /// Negative prospects
     No,
 
@@ -945,11 +945,11 @@ pub enum ApplicationWouldGetAddedEvaluation<T: Trait> {
 
 /// Balance alias
 pub type BalanceOf<T> =
-    <<T as stake::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as stake::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 /// Balance alias for staking
-pub type NegativeImbalance<T> = <<T as stake::Trait>::Currency as Currency<
-    <T as frame_system::Trait>::AccountId,
+pub type NegativeImbalance<T> = <<T as stake::Config>::Currency as Currency<
+    <T as frame_system::Config>::AccountId,
 >>::NegativeImbalance;
 
 /*
@@ -965,11 +965,11 @@ struct ApplicationsDeactivationsInitiationResult {
 }
 
 type ApplicationBTreeMap<T> = BTreeMap<
-    <T as Trait>::ApplicationId,
+    <T as Config>::ApplicationId,
     hiring::Application<
-        <T as Trait>::OpeningId,
-        <T as frame_system::Trait>::BlockNumber,
-        <T as stake::Trait>::StakeId,
+        <T as Config>::OpeningId,
+        <T as frame_system::Config>::BlockNumber,
+        <T as stake::Config>::StakeId,
     >,
 >;
 
@@ -981,7 +981,7 @@ enum ApplicationDeactivationInitiationResult {
 }
 
 // Opening and application iterators
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     // Iterate through ApplicationById map
     fn application_id_iter_to_map<'a>(
         application_id_iter: impl Iterator<Item = &'a T::ApplicationId>,
@@ -1063,7 +1063,7 @@ impl<T: Trait> Module<T> {
 }
 
 // Application deactivation logic methods.
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     fn initiate_application_deactivations(
         applications: &ApplicationBTreeMap<T>,
         application_stake_unstaking_period: Option<T::BlockNumber>,
@@ -1146,7 +1146,7 @@ impl<T: Trait> Module<T> {
                 let was_unstaked = application_was_unstaked || role_was_unstaked;
 
                 // Grab current block height
-                let current_block_height = <frame_system::Module<T>>::block_number();
+                let current_block_height = <frame_system::Pallet<T>>::block_number();
 
                 /*
                  * TODO:
@@ -1252,7 +1252,7 @@ impl<T: Trait> Module<T> {
 }
 
 // Stake initiation
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     fn infallible_opt_stake_initiation(
         opt_imbalance: Option<NegativeImbalance<T>>,
         application_id: &T::ApplicationId,
@@ -1294,7 +1294,7 @@ impl<T: Trait> Module<T> {
 }
 
 // Conditions for adding application
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Evaluates prospects for a new application
     ///
     pub(crate) fn would_application_get_added(
@@ -1497,12 +1497,12 @@ pub trait StakeHandler<T: StakeTrait> {
 }
 
 /// Allows to provide different StakeHandler implementation. Useful for mocks.
-pub trait StakeHandlerProvider<T: Trait> {
+pub trait StakeHandlerProvider<T: Config> {
     /// Returns StakeHandler. Mock entry point for stake module.
     fn staking() -> Rc<RefCell<dyn StakeHandler<T>>>;
 }
 
-impl<T: Trait> StakeHandlerProvider<T> for Module<T> {
+impl<T: Config> StakeHandlerProvider<T> for Module<T> {
     /// Returns StakeHandler. Mock entry point for stake module.
     fn staking() -> Rc<RefCell<dyn StakeHandler<T>>> {
         Rc::new(RefCell::new(HiringStakeHandler {}))
@@ -1511,7 +1511,7 @@ impl<T: Trait> StakeHandlerProvider<T> for Module<T> {
 
 /// Default stake module logic implementation
 pub struct HiringStakeHandler;
-impl<T: Trait> StakeHandler<T> for HiringStakeHandler {
+impl<T: Config> StakeHandler<T> for HiringStakeHandler {
     fn create_stake(&self) -> T::StakeId {
         <stake::Module<T>>::create_stake()
     }
@@ -1545,7 +1545,7 @@ impl<T: Trait> StakeHandler<T> for HiringStakeHandler {
 // Allows to get rid of borrow() calls,
 // eg.: T::StakeHandlerProvider::staking().get_stake(stake_id);
 // instead of T::StakeHandlerProvider::staking().borrow().get_stake(stake_id);
-impl<T: Trait> StakeHandler<T> for Rc<RefCell<dyn StakeHandler<T>>> {
+impl<T: Config> StakeHandler<T> for Rc<RefCell<dyn StakeHandler<T>>> {
     fn create_stake(&self) -> T::StakeId {
         self.borrow().create_stake()
     }

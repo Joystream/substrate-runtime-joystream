@@ -25,7 +25,7 @@ pub struct NextAdjustment<Balance: Zero, BlockNumber> {
 }
 
 #[derive(Encode, Decode, Default, Copy, Clone)]
-// Note we don't use TokenMint<T: Trait> it breaks the Default derivation macro with error T doesn't impl Default
+// Note we don't use TokenMint<T: Config> it breaks the Default derivation macro with error T doesn't impl Default
 // Which requires manually implementing Default trait.
 // We want Default trait on TokenMint so we can use it as value in StorageMap without needing to wrap it in an Option
 pub struct Mint<Balance, BlockNumber>

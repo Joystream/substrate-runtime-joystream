@@ -24,6 +24,11 @@ impl pallet_balances::WeightInfo for WeightInfo {
             .saturating_add(DbWeight::get().reads(1 as Weight))
             .saturating_add(DbWeight::get().writes(1 as Weight))
     }
+    fn transfer_all() -> Weight {
+        (65949000 as Weight)
+            .saturating_add(DbWeight::get().reads(1 as Weight))
+            .saturating_add(DbWeight::get().writes(1 as Weight))
+    }
     fn transfer_keep_alive() -> Weight {
         (46665000 as Weight)
             .saturating_add(DbWeight::get().reads(1 as Weight))

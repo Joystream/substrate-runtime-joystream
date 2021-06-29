@@ -1,22 +1,22 @@
 #![cfg(test)]
 
 use super::Test;
-use crate::{PayoutStatusHandler, Trait};
+use crate::{Config, PayoutStatusHandler};
 use std::cell::RefCell;
 
-struct StatusHandlerState<T: Trait> {
+struct StatusHandlerState<T: Config> {
     successes: Vec<T::RewardRelationshipId>,
     failures: Vec<T::RewardRelationshipId>,
 }
 
-impl<T: Trait> StatusHandlerState<T> {
+impl<T: Config> StatusHandlerState<T> {
     pub fn reset(&mut self) {
         self.successes = vec![];
         self.failures = vec![];
     }
 }
 
-impl<T: Trait> Default for StatusHandlerState<T> {
+impl<T: Config> Default for StatusHandlerState<T> {
     fn default() -> Self {
         Self {
             successes: vec![],

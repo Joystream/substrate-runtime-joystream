@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::curators;
-use super::mock::*;
+use super::mock::{Event, *};
 use crate::*;
 use frame_support::{assert_err, assert_ok};
 
@@ -89,7 +89,7 @@ fn curator_owned_channels() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::ChannelCreated(
+            Event::content(RawEvent::ChannelCreated(
                 ContentActor::Curator(FIRST_CURATOR_GROUP_ID, FIRST_CURATOR_ID),
                 channel_id,
                 ChannelRecord {
@@ -169,7 +169,7 @@ fn member_owned_channels() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::ChannelCreated(
+            Event::content(RawEvent::ChannelCreated(
                 ContentActor::Member(FIRST_MEMBER_ID),
                 channel_id_1,
                 ChannelRecord {
@@ -203,7 +203,7 @@ fn member_owned_channels() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::ChannelCreated(
+            Event::content(RawEvent::ChannelCreated(
                 ContentActor::Member(SECOND_MEMBER_ID),
                 channel_id_2,
                 ChannelRecord {
@@ -236,7 +236,7 @@ fn member_owned_channels() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::ChannelUpdated(
+            Event::content(RawEvent::ChannelUpdated(
                 ContentActor::Member(FIRST_MEMBER_ID),
                 channel_id_1,
                 ChannelRecord {
@@ -303,7 +303,7 @@ fn channel_censoring() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::ChannelCensorshipStatusUpdated(
+            Event::content(RawEvent::ChannelCensorshipStatusUpdated(
                 ContentActor::Curator(group_id, FIRST_CURATOR_ID),
                 channel_id,
                 is_censored,
@@ -327,7 +327,7 @@ fn channel_censoring() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::ChannelCensorshipStatusUpdated(
+            Event::content(RawEvent::ChannelCensorshipStatusUpdated(
                 ContentActor::Curator(group_id, FIRST_CURATOR_ID),
                 channel_id,
                 is_censored,

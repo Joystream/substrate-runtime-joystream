@@ -1,5 +1,5 @@
 use codec::Decode;
-use node_runtime::{
+use joystream_node_runtime::{
     common::storage::StorageObjectOwner, data_directory::*, ChannelId, ContentId, DAOId,
     DataDirectoryConfig, MemberId, Runtime,
 };

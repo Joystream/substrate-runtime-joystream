@@ -1,62 +1,67 @@
 #![cfg(test)]
 
-use frame_support::{impl_outer_origin, parameter_types};
+use frame_support::{parameter_types, weights::Weight};
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
-    Perbill,
 };
 use sp_std::cell::{Cell, RefCell};
 use sp_std::rc::Rc;
 use std::panic;
 
 use crate::hiring::ApplicationDeactivationCause;
-use crate::{Module, Trait};
+use crate::Config;
 use balances;
 use stake;
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
+use crate as hiring;
+
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
+
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Hiring: hiring::{Pallet, Call, Storage},
+        Balances: balances::{Pallet, Call, Storage, Event<T>},
+    }
+);
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
-    pub const MaximumBlockWeight: u32 = 1024;
+    pub const MaximumBlockWeight: Weight = 1024;
     pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
 }
 
-// Workaround for https://github.com/rust-lang/rust/issues/26925 . Remove when sorted.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Test;
-
-impl frame_system::Trait for Test {
+impl frame_system::Config for Test {
     type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
     type Origin = Origin;
-    type Call = ();
     type Index = u64;
     type BlockNumber = u64;
+    type Call = Call;
     type Hash = H256;
     type Hashing = BlakeTwo256;
-    type AccountId = u64;
+    type AccountId = u128;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
-    type Event = ();
+    type Event = Event;
     type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type Version = ();
-    type AccountData = balances::AccountData<u64>;
+    type PalletInfo = PalletInfo;
+    type AccountData = balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type PalletInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
 
 parameter_types! {
@@ -64,34 +69,34 @@ parameter_types! {
     pub const StakePoolId: [u8; 8] = *b"joystake";
 }
 
-impl balances::Trait for Test {
-    type Balance = u64;
+type Balance = u64;
+
+impl balances::Config for Test {
+    type Balance = Balance;
     type DustRemoval = ();
-    type Event = ();
+    type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
     type AccountStore = System;
     type WeightInfo = ();
     type MaxLocks = ();
+    type MaxReserves = ();
+    type ReserveIdentifier = [u8; 8];
 }
 
-impl Trait for Test {
+impl Config for Test {
     type OpeningId = u64;
     type ApplicationId = u64;
     type ApplicationDeactivatedHandler = TestApplicationDeactivatedHandler;
     type StakeHandlerProvider = TestStakeHandlerProvider;
 }
 
-impl stake::Trait for Test {
+impl stake::Config for Test {
     type Currency = Balances;
     type StakePoolId = StakePoolId;
     type StakingEventsHandler = ();
     type StakeId = u64;
     type SlashId = u64;
 }
-
-pub type Balances = balances::Module<Test>;
-pub type System = frame_system::Module<Test>;
-pub type Hiring = Module<Test>;
 
 // Intercepts panic method
 // Returns: whether panic occurred
@@ -165,13 +170,13 @@ pub(crate) fn handle_mock<F: std::panic::RefUnwindSafe + Fn()>(func: F) {
 //
 thread_local! {
     pub static LAST_DEACTIVATED_APPLICATION:
-        Cell<Option<(<Test as Trait>::ApplicationId, ApplicationDeactivationCause)>> = Cell::new(None);
+        Cell<Option<(<Test as Config>::ApplicationId, ApplicationDeactivationCause)>> = Cell::new(None);
 }
 
 pub struct TestApplicationDeactivatedHandler;
 impl crate::ApplicationDeactivatedHandler<Test> for TestApplicationDeactivatedHandler {
     fn deactivated(
-        application_id: &<Test as Trait>::ApplicationId,
+        application_id: &<Test as Config>::ApplicationId,
         cause: ApplicationDeactivationCause,
     ) {
         LAST_DEACTIVATED_APPLICATION.with(|f| {
@@ -182,7 +187,7 @@ impl crate::ApplicationDeactivatedHandler<Test> for TestApplicationDeactivatedHa
 
 impl TestApplicationDeactivatedHandler {
     pub(crate) fn assert_deactivated_application(
-        expected_application_id: <Test as Trait>::ApplicationId,
+        expected_application_id: <Test as Config>::ApplicationId,
         expected_cause: ApplicationDeactivationCause,
     ) {
         let mut actual_deactivated_application = None;
@@ -198,4 +203,4 @@ impl TestApplicationDeactivatedHandler {
 }
 
 // Test fixtures starting block.
-pub(crate) static FIRST_BLOCK_HEIGHT: <Test as frame_system::Trait>::BlockNumber = 0;
+pub(crate) static FIRST_BLOCK_HEIGHT: <Test as frame_system::Config>::BlockNumber = 0;

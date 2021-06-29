@@ -25,7 +25,7 @@ pub(crate) fn increase_total_balance_issuance(balance: u64) {
 pub(crate) fn increase_total_balance_issuance_using_account_id(account_id: u64, balance: u64) {
     let initial_balance = Balances::total_issuance();
     {
-        let _ = <Test as stake::Trait>::Currency::deposit_creating(&account_id, balance);
+        let _ = <Test as stake::Config>::Currency::deposit_creating(&account_id, balance);
     }
     assert_eq!(Balances::total_issuance(), initial_balance + balance);
 }
@@ -81,7 +81,8 @@ where
 
     fn check_for_successful_call(&self) {
         let account_id = 1;
-        let _imbalance = <Test as stake::Trait>::Currency::deposit_creating(&account_id, 5_000_000);
+        let _imbalance =
+            <Test as stake::Config>::Currency::deposit_creating(&account_id, 5_000_000);
 
         assert_eq!((self.successful_call)(), Ok(()));
 
@@ -112,7 +113,7 @@ fn create_text_proposal_common_checks_succeed() {
     initial_test_ext().execute_with(|| {
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_text_proposal(
+                ProposalsCodex::create_text_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -122,7 +123,7 @@ fn create_text_proposal_common_checks_succeed() {
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_text_proposal(
+                ProposalsCodex::create_text_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -132,7 +133,7 @@ fn create_text_proposal_common_checks_succeed() {
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_text_proposal(
+                ProposalsCodex::create_text_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -142,7 +143,7 @@ fn create_text_proposal_common_checks_succeed() {
                 )
             },
             successful_call: || {
-                ProposalCodex::create_text_proposal(
+                ProposalsCodex::create_text_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -165,7 +166,7 @@ fn create_text_proposal_codex_call_fails_with_incorrect_text_size() {
 
         let long_text = [0u8; 30000].to_vec();
         assert_eq!(
-            ProposalCodex::create_text_proposal(
+            ProposalsCodex::create_text_proposal(
                 origin,
                 1,
                 b"title".to_vec(),
@@ -177,7 +178,7 @@ fn create_text_proposal_codex_call_fails_with_incorrect_text_size() {
         );
 
         assert_eq!(
-            ProposalCodex::create_text_proposal(
+            ProposalsCodex::create_text_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -195,7 +196,7 @@ fn create_runtime_upgrade_common_checks_succeed() {
     initial_test_ext().execute_with(|| {
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_runtime_upgrade_proposal(
+                ProposalsCodex::create_runtime_upgrade_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -205,7 +206,7 @@ fn create_runtime_upgrade_common_checks_succeed() {
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_runtime_upgrade_proposal(
+                ProposalsCodex::create_runtime_upgrade_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -215,7 +216,7 @@ fn create_runtime_upgrade_common_checks_succeed() {
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_runtime_upgrade_proposal(
+                ProposalsCodex::create_runtime_upgrade_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -225,7 +226,7 @@ fn create_runtime_upgrade_common_checks_succeed() {
                 )
             },
             successful_call: || {
-                ProposalCodex::create_runtime_upgrade_proposal(
+                ProposalsCodex::create_runtime_upgrade_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -248,7 +249,7 @@ fn create_upgrade_runtime_proposal_codex_call_fails_with_incorrect_wasm_size() {
 
         let long_wasm = [0u8; 30000].to_vec();
         assert_eq!(
-            ProposalCodex::create_runtime_upgrade_proposal(
+            ProposalsCodex::create_runtime_upgrade_proposal(
                 origin,
                 1,
                 b"title".to_vec(),
@@ -260,7 +261,7 @@ fn create_upgrade_runtime_proposal_codex_call_fails_with_incorrect_wasm_size() {
         );
 
         assert_eq!(
-            ProposalCodex::create_runtime_upgrade_proposal(
+            ProposalsCodex::create_runtime_upgrade_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -278,7 +279,7 @@ fn create_set_election_parameters_proposal_common_checks_succeed() {
     initial_test_ext().execute_with(|| {
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_set_election_parameters_proposal(
+                ProposalsCodex::create_set_election_parameters_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -288,7 +289,7 @@ fn create_set_election_parameters_proposal_common_checks_succeed() {
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_set_election_parameters_proposal(
+                ProposalsCodex::create_set_election_parameters_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -298,7 +299,7 @@ fn create_set_election_parameters_proposal_common_checks_succeed() {
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_set_election_parameters_proposal(
+                ProposalsCodex::create_set_election_parameters_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -308,7 +309,7 @@ fn create_set_election_parameters_proposal_common_checks_succeed() {
                 )
             },
             successful_call: || {
-                ProposalCodex::create_set_election_parameters_proposal(
+                ProposalsCodex::create_set_election_parameters_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -332,7 +333,7 @@ fn assert_failed_election_parameters_call(
     error: DispatchError,
 ) {
     assert_eq!(
-        ProposalCodex::create_set_election_parameters_proposal(
+        ProposalsCodex::create_set_election_parameters_proposal(
             RawOrigin::Signed(1).into(),
             1,
             b"title".to_vec(),
@@ -482,7 +483,7 @@ fn create_spending_proposal_common_checks_succeed() {
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_spending_proposal(
+                ProposalsCodex::create_spending_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -493,7 +494,7 @@ fn create_spending_proposal_common_checks_succeed() {
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_spending_proposal(
+                ProposalsCodex::create_spending_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -504,7 +505,7 @@ fn create_spending_proposal_common_checks_succeed() {
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_spending_proposal(
+                ProposalsCodex::create_spending_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -515,7 +516,7 @@ fn create_spending_proposal_common_checks_succeed() {
                 )
             },
             successful_call: || {
-                ProposalCodex::create_spending_proposal(
+                ProposalsCodex::create_spending_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -538,7 +539,7 @@ fn create_spending_proposal_call_fails_with_incorrect_balance() {
         increase_total_balance_issuance_using_account_id(500000, 1);
 
         assert_eq!(
-            ProposalCodex::create_spending_proposal(
+            ProposalsCodex::create_spending_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -551,7 +552,7 @@ fn create_spending_proposal_call_fails_with_incorrect_balance() {
         );
 
         assert_eq!(
-            ProposalCodex::create_spending_proposal(
+            ProposalsCodex::create_spending_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -566,11 +567,12 @@ fn create_spending_proposal_call_fails_with_incorrect_balance() {
 }
 
 #[test]
+#[cfg(feature = "standalone")]
 fn create_set_validator_count_proposal_common_checks_succeed() {
     initial_test_ext().execute_with(|| {
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_set_validator_count_proposal(
+                ProposalsCodex::create_set_validator_count_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -580,7 +582,7 @@ fn create_set_validator_count_proposal_common_checks_succeed() {
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_set_validator_count_proposal(
+                ProposalsCodex::create_set_validator_count_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -590,7 +592,7 @@ fn create_set_validator_count_proposal_common_checks_succeed() {
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_set_validator_count_proposal(
+                ProposalsCodex::create_set_validator_count_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -600,7 +602,7 @@ fn create_set_validator_count_proposal_common_checks_succeed() {
                 )
             },
             successful_call: || {
-                ProposalCodex::create_set_validator_count_proposal(
+                ProposalsCodex::create_set_validator_count_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -619,12 +621,13 @@ fn create_set_validator_count_proposal_common_checks_succeed() {
 }
 
 #[test]
+#[cfg(feature = "standalone")]
 fn create_set_validator_count_proposal_failed_with_invalid_validator_count() {
     initial_test_ext().execute_with(|| {
         staking::MinimumValidatorCount::put(10);
 
         assert_eq!(
-            ProposalCodex::create_set_validator_count_proposal(
+            ProposalsCodex::create_set_validator_count_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -636,7 +639,7 @@ fn create_set_validator_count_proposal_failed_with_invalid_validator_count() {
         );
 
         assert_eq!(
-            ProposalCodex::create_set_validator_count_proposal(
+            ProposalsCodex::create_set_validator_count_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -657,7 +660,7 @@ fn set_default_proposal_parameters_succeeded() {
         // nothing is set
         assert_eq!(<SetValidatorCountProposalVotingPeriod<Test>>::get(), 0);
 
-        ProposalCodex::set_config_values(p);
+        ProposalsCodex::set_config_values(p);
 
         assert_eq!(
             <SetValidatorCountProposalVotingPeriod<Test>>::get(),
@@ -787,7 +790,7 @@ fn run_create_add_working_group_leader_opening_proposal_common_checks_succeed(
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_add_working_group_leader_opening_proposal(
+                ProposalsCodex::create_add_working_group_leader_opening_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -797,7 +800,7 @@ fn run_create_add_working_group_leader_opening_proposal_common_checks_succeed(
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_add_working_group_leader_opening_proposal(
+                ProposalsCodex::create_add_working_group_leader_opening_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -807,7 +810,7 @@ fn run_create_add_working_group_leader_opening_proposal_common_checks_succeed(
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_add_working_group_leader_opening_proposal(
+                ProposalsCodex::create_add_working_group_leader_opening_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -817,7 +820,7 @@ fn run_create_add_working_group_leader_opening_proposal_common_checks_succeed(
                 )
             },
             successful_call: || {
-                ProposalCodex::create_add_working_group_leader_opening_proposal(
+                ProposalsCodex::create_add_working_group_leader_opening_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -853,7 +856,7 @@ fn run_create_begin_review_working_group_leader_applications_proposal_common_che
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_begin_review_working_group_leader_applications_proposal(
+                ProposalsCodex::create_begin_review_working_group_leader_applications_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -864,7 +867,7 @@ fn run_create_begin_review_working_group_leader_applications_proposal_common_che
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_begin_review_working_group_leader_applications_proposal(
+                ProposalsCodex::create_begin_review_working_group_leader_applications_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -875,7 +878,7 @@ fn run_create_begin_review_working_group_leader_applications_proposal_common_che
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_begin_review_working_group_leader_applications_proposal(
+                ProposalsCodex::create_begin_review_working_group_leader_applications_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -886,7 +889,7 @@ fn run_create_begin_review_working_group_leader_applications_proposal_common_che
                 )
             },
             successful_call: || {
-                ProposalCodex::create_begin_review_working_group_leader_applications_proposal(
+                ProposalsCodex::create_begin_review_working_group_leader_applications_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -929,7 +932,7 @@ fn run_create_fill_working_group_leader_opening_proposal_common_checks_succeed(
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_fill_working_group_leader_opening_proposal(
+                ProposalsCodex::create_fill_working_group_leader_opening_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -939,7 +942,7 @@ fn run_create_fill_working_group_leader_opening_proposal_common_checks_succeed(
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_fill_working_group_leader_opening_proposal(
+                ProposalsCodex::create_fill_working_group_leader_opening_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -949,7 +952,7 @@ fn run_create_fill_working_group_leader_opening_proposal_common_checks_succeed(
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_fill_working_group_leader_opening_proposal(
+                ProposalsCodex::create_fill_working_group_leader_opening_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -959,7 +962,7 @@ fn run_create_fill_working_group_leader_opening_proposal_common_checks_succeed(
                 )
             },
             successful_call: || {
-                ProposalCodex::create_fill_working_group_leader_opening_proposal(
+                ProposalsCodex::create_fill_working_group_leader_opening_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -992,7 +995,7 @@ fn run_create_working_group_mint_capacity_proposal_fails_with_invalid_parameters
         increase_total_balance_issuance_using_account_id(1, 500000);
 
         assert_eq!(
-            ProposalCodex::create_set_working_group_mint_capacity_proposal(
+            ProposalsCodex::create_set_working_group_mint_capacity_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -1022,7 +1025,7 @@ fn run_create_set_working_group_mint_capacity_proposal_common_checks_succeed(
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_set_working_group_mint_capacity_proposal(
+                ProposalsCodex::create_set_working_group_mint_capacity_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -1033,7 +1036,7 @@ fn run_create_set_working_group_mint_capacity_proposal_common_checks_succeed(
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_set_working_group_mint_capacity_proposal(
+                ProposalsCodex::create_set_working_group_mint_capacity_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1044,7 +1047,7 @@ fn run_create_set_working_group_mint_capacity_proposal_common_checks_succeed(
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_set_working_group_mint_capacity_proposal(
+                ProposalsCodex::create_set_working_group_mint_capacity_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1055,7 +1058,7 @@ fn run_create_set_working_group_mint_capacity_proposal_common_checks_succeed(
                 )
             },
             successful_call: || {
-                ProposalCodex::create_set_working_group_mint_capacity_proposal(
+                ProposalsCodex::create_set_working_group_mint_capacity_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1090,7 +1093,7 @@ fn run_create_decrease_working_group_leader_stake_proposal_common_checks_succeed
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_decrease_working_group_leader_stake_proposal(
+                ProposalsCodex::create_decrease_working_group_leader_stake_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -1102,7 +1105,7 @@ fn run_create_decrease_working_group_leader_stake_proposal_common_checks_succeed
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_decrease_working_group_leader_stake_proposal(
+                ProposalsCodex::create_decrease_working_group_leader_stake_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1114,7 +1117,7 @@ fn run_create_decrease_working_group_leader_stake_proposal_common_checks_succeed
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_decrease_working_group_leader_stake_proposal(
+                ProposalsCodex::create_decrease_working_group_leader_stake_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1126,7 +1129,7 @@ fn run_create_decrease_working_group_leader_stake_proposal_common_checks_succeed
                 )
             },
             successful_call: || {
-                ProposalCodex::create_decrease_working_group_leader_stake_proposal(
+                ProposalsCodex::create_decrease_working_group_leader_stake_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1167,7 +1170,7 @@ fn run_create_slash_working_group_leader_stake_proposal_common_checks_succeed(
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_slash_working_group_leader_stake_proposal(
+                ProposalsCodex::create_slash_working_group_leader_stake_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -1179,7 +1182,7 @@ fn run_create_slash_working_group_leader_stake_proposal_common_checks_succeed(
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_slash_working_group_leader_stake_proposal(
+                ProposalsCodex::create_slash_working_group_leader_stake_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1191,7 +1194,7 @@ fn run_create_slash_working_group_leader_stake_proposal_common_checks_succeed(
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_slash_working_group_leader_stake_proposal(
+                ProposalsCodex::create_slash_working_group_leader_stake_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1203,7 +1206,7 @@ fn run_create_slash_working_group_leader_stake_proposal_common_checks_succeed(
                 )
             },
             successful_call: || {
-                ProposalCodex::create_slash_working_group_leader_stake_proposal(
+                ProposalsCodex::create_slash_working_group_leader_stake_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1248,7 +1251,7 @@ fn run_slash_stake_with_zero_staking_balance_fails(working_group: WorkingGroup) 
         .unwrap();
 
         assert_eq!(
-            ProposalCodex::create_slash_working_group_leader_stake_proposal(
+            ProposalsCodex::create_slash_working_group_leader_stake_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -1283,7 +1286,7 @@ fn run_decrease_stake_with_zero_staking_balance_fails(working_group: WorkingGrou
         .unwrap();
 
         assert_eq!(
-            ProposalCodex::create_decrease_working_group_leader_stake_proposal(
+            ProposalsCodex::create_decrease_working_group_leader_stake_proposal(
                 RawOrigin::Signed(1).into(),
                 1,
                 b"title".to_vec(),
@@ -1312,7 +1315,7 @@ fn run_create_set_working_group_leader_reward_proposal_common_checks_succeed(
     initial_test_ext().execute_with(|| {
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_set_working_group_leader_reward_proposal(
+                ProposalsCodex::create_set_working_group_leader_reward_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -1324,7 +1327,7 @@ fn run_create_set_working_group_leader_reward_proposal_common_checks_succeed(
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_set_working_group_leader_reward_proposal(
+                ProposalsCodex::create_set_working_group_leader_reward_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1336,7 +1339,7 @@ fn run_create_set_working_group_leader_reward_proposal_common_checks_succeed(
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_set_working_group_leader_reward_proposal(
+                ProposalsCodex::create_set_working_group_leader_reward_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1348,7 +1351,7 @@ fn run_create_set_working_group_leader_reward_proposal_common_checks_succeed(
                 )
             },
             successful_call: || {
-                ProposalCodex::create_set_working_group_leader_reward_proposal(
+                ProposalsCodex::create_set_working_group_leader_reward_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1391,7 +1394,7 @@ fn run_create_terminate_working_group_leader_role_proposal_common_checks_succeed
 
         let proposal_fixture = ProposalTestFixture {
             insufficient_rights_call: || {
-                ProposalCodex::create_terminate_working_group_leader_role_proposal(
+                ProposalsCodex::create_terminate_working_group_leader_role_proposal(
                     RawOrigin::None.into(),
                     1,
                     b"title".to_vec(),
@@ -1401,7 +1404,7 @@ fn run_create_terminate_working_group_leader_role_proposal_common_checks_succeed
                 )
             },
             empty_stake_call: || {
-                ProposalCodex::create_terminate_working_group_leader_role_proposal(
+                ProposalsCodex::create_terminate_working_group_leader_role_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1411,7 +1414,7 @@ fn run_create_terminate_working_group_leader_role_proposal_common_checks_succeed
                 )
             },
             invalid_stake_call: || {
-                ProposalCodex::create_terminate_working_group_leader_role_proposal(
+                ProposalsCodex::create_terminate_working_group_leader_role_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),
@@ -1421,7 +1424,7 @@ fn run_create_terminate_working_group_leader_role_proposal_common_checks_succeed
                 )
             },
             successful_call: || {
-                ProposalCodex::create_terminate_working_group_leader_role_proposal(
+                ProposalsCodex::create_terminate_working_group_leader_role_proposal(
                     RawOrigin::Signed(1).into(),
                     1,
                     b"title".to_vec(),

@@ -118,7 +118,7 @@ fn test_toggle_ready() {
 
         // Grab DOSR ID from event
         let dosr_id = match System::events().last().unwrap().event {
-            MetaEvent::data_object_storage_registry(
+            Event::data_object_storage_registry(
                 data_object_storage_registry::RawEvent::DataObjectStorageRelationshipAdded(
                     dosr_id,
                     _content_id,
@@ -154,7 +154,7 @@ fn test_toggle_ready() {
         assert!(res.is_ok());
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::data_object_storage_registry(
+            Event::data_object_storage_registry(
                 data_object_storage_registry::RawEvent::DataObjectStorageRelationshipReadyUpdated(
                     storage_provider_id,
                     dosr_id,

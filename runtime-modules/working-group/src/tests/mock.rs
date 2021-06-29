@@ -1,95 +1,87 @@
+use frame_support::parameter_types;
 use frame_support::storage::StorageMap;
 use frame_support::traits::{OnFinalize, OnInitialize};
-use frame_support::{impl_outer_event, impl_outer_origin, parameter_types};
 use frame_system;
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
-    Perbill,
 };
 use std::marker::PhantomData;
 
-use crate::{BalanceOf, Module, NegativeImbalance, Trait};
+use crate as working_group;
+use crate::{BalanceOf, Config, NegativeImbalance};
 use common::constraints::InputValidationLengthConstraint;
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
-mod working_group {
-    pub use super::TestWorkingGroupInstance;
-    pub use crate::Event;
-}
-
-mod membership_mod {
-    pub use membership::Event;
-}
-
-impl_outer_event! {
-    pub enum TestEvent for Test {
-        balances<T>,
-        working_group TestWorkingGroupInstance <T>,
-        membership_mod<T>,
-        frame_system<T>,
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Balances: balances::{Pallet, Call, Storage, Event<T>},
+        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+        Minting: minting::{Pallet, Call, Storage},
+        Membership: membership::{Pallet, Call, Storage, Event<T>, Config<T>},
+        TestWorkingGroup: working_group::<Instance1>::{Pallet, Call, Storage, Config<T>, Event<T>},
     }
-}
+);
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
     pub const MaximumBlockWeight: u32 = 1024;
     pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
-    pub const MinimumPeriod: u64 = 5;
-    pub const StakePoolId: [u8; 8] = *b"joystake";
-    pub const ExistentialDeposit: u32 = 0;
 }
 
-// Workaround for https://github.com/rust-lang/rust/issues/26925 - remove when sorted.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Test;
-
-impl frame_system::Trait for Test {
+impl frame_system::Config for Test {
     type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
     type Origin = Origin;
-    type Call = ();
     type Index = u64;
     type BlockNumber = u64;
+    type Call = Call;
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type AccountId = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
-    type Event = TestEvent;
+    type Event = Event;
     type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type Version = ();
-    type AccountData = balances::AccountData<u64>;
+    type PalletInfo = PalletInfo;
+    type AccountData = balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
-    type PalletInfo = ();
     type SystemWeightInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
 
-impl hiring::Trait for Test {
+impl hiring::Config for Test {
     type OpeningId = u64;
     type ApplicationId = u64;
     type ApplicationDeactivatedHandler = ();
     type StakeHandlerProvider = hiring::Module<Self>;
 }
 
-impl minting::Trait for Test {
+impl minting::Config for Test {
     type Currency = Balances;
     type MintId = u64;
 }
 
-impl stake::Trait for Test {
+parameter_types! {
+    pub const MinimumPeriod: u64 = 5;
+    pub const StakePoolId: [u8; 8] = *b"joystake";
+    pub const ExistentialDeposit: u32 = 0;
+}
+
+impl stake::Config for Test {
     type Currency = Balances;
     type StakePoolId = StakePoolId;
     type StakingEventsHandler = StakingEventsHandler<Test>;
@@ -101,8 +93,8 @@ parameter_types! {
     pub const ScreenedMemberMaxInitialBalance: u64 = 500;
 }
 
-impl membership::Trait for Test {
-    type Event = TestEvent;
+impl membership::Config for Test {
+    type Event = Event;
     type MemberId = u64;
     type PaidTermId = u64;
     type SubscriptionId = u64;
@@ -114,45 +106,41 @@ impl common::currency::GovernanceCurrency for Test {
     type Currency = Balances;
 }
 
-impl pallet_timestamp::Trait for Test {
+impl pallet_timestamp::Config for Test {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
     type WeightInfo = ();
 }
 
-impl balances::Trait for Test {
-    type Balance = u64;
+type Balance = u64;
+
+impl balances::Config for Test {
+    type Balance = Balance;
     type DustRemoval = ();
-    type Event = TestEvent;
+    type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
     type AccountStore = System;
     type WeightInfo = ();
     type MaxLocks = ();
 }
 
-impl recurringrewards::Trait for Test {
+impl recurringrewards::Config for Test {
     type PayoutStatusHandler = ();
     type RecipientId = u64;
     type RewardRelationshipId = u64;
 }
 
-pub type Balances = balances::Module<Test>;
-pub type System = frame_system::Module<Test>;
-
 parameter_types! {
     pub const MaxWorkerNumberLimit: u32 = 3;
 }
 
-impl Trait<TestWorkingGroupInstance> for Test {
-    type Event = TestEvent;
+impl Config<TestWorkingGroupInstance> for Test {
+    type Event = Event;
     type MaxWorkerNumberLimit = MaxWorkerNumberLimit;
 }
 
-pub type Membership = membership::Module<Test>;
-
 pub type TestWorkingGroupInstance = crate::Instance1;
-pub type TestWorkingGroup = Module<Test, TestWorkingGroupInstance>;
 
 pub(crate) const WORKING_GROUP_MINT_CAPACITY: u64 = 40000;
 pub(crate) const WORKING_GROUP_CONSTRAINT_MIN: u16 = 1;
@@ -190,12 +178,12 @@ pub struct StakingEventsHandler<T> {
     pub marker: PhantomData<T>,
 }
 
-impl<T: stake::Trait + crate::Trait<TestWorkingGroupInstance>> stake::StakingEventsHandler<T>
+impl<T: stake::Config + crate::Config<TestWorkingGroupInstance>> stake::StakingEventsHandler<T>
     for StakingEventsHandler<T>
 {
     /// Unstake remaining sum back to the source_account_id
     fn unstaked(
-        stake_id: &<T as stake::Trait>::StakeId,
+        stake_id: &<T as stake::Config>::StakeId,
         _unstaked_amount: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,
     ) -> NegativeImbalance<T> {
@@ -220,8 +208,8 @@ impl<T: stake::Trait + crate::Trait<TestWorkingGroupInstance>> stake::StakingEve
 
     /// Empty handler for slashing
     fn slashed(
-        _: &<T as stake::Trait>::StakeId,
-        _: Option<<T as stake::Trait>::SlashId>,
+        _: &<T as stake::Config>::StakeId,
+        _: Option<<T as stake::Config>::SlashId>,
         _: BalanceOf<T>,
         _: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,

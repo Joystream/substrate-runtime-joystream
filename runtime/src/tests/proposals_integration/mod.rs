@@ -24,16 +24,16 @@ use super::initial_test_ext;
 
 use crate::CouncilManager;
 
-pub type Balances = pallet_balances::Module<Runtime>;
-pub type System = frame_system::Module<Runtime>;
-pub type Membership = membership::Module<Runtime>;
-pub type ProposalsEngine = proposals_engine::Module<Runtime>;
-pub type Council = governance::council::Module<Runtime>;
-pub type Election = governance::election::Module<Runtime>;
-pub type ProposalCodex = proposals_codex::Module<Runtime>;
+pub type Balances = pallet_balances::Pallet<Runtime>;
+pub type System = frame_system::Pallet<Runtime>;
+pub type Membership = membership::Pallet<Runtime>;
+pub type ProposalsEngine = proposals_engine::Pallet<Runtime>;
+pub type Council = governance::council::Pallet<Runtime>;
+pub type Election = governance::election::Pallet<Runtime>;
+pub type ProposalsCodex = proposals_codex::Pallet<Runtime>;
 
 fn setup_members(count: u8) {
-    let authority_account_id = <Runtime as frame_system::Trait>::AccountId::default();
+    let authority_account_id = <Runtime as frame_system::Config>::AccountId::default();
     Membership::set_screening_authority(RawOrigin::Root.into(), authority_account_id.clone())
         .unwrap();
 
@@ -76,10 +76,10 @@ pub(crate) fn increase_total_balance_issuance_using_account_id(
     account_id: AccountId32,
     balance: u128,
 ) {
-    type Balances = pallet_balances::Module<Runtime>;
+    type Balances = pallet_balances::Pallet<Runtime>;
     let initial_balance = Balances::total_issuance();
     {
-        let _ = <Runtime as stake::Trait>::Currency::deposit_creating(&account_id, balance);
+        let _ = <Runtime as stake::Config>::Currency::deposit_creating(&account_id, balance);
     }
     assert_eq!(Balances::total_issuance(), initial_balance + balance);
 }
@@ -169,7 +169,7 @@ impl Default for DummyProposalFixture {
                 grace_period: 0,
                 required_stake: None,
             },
-            account_id: <Runtime as frame_system::Trait>::AccountId::default(),
+            account_id: <Runtime as frame_system::Config>::AccountId::default(),
             proposer_id: 0,
             proposal_code: dummy_proposal.encode(),
             title,
@@ -236,7 +236,7 @@ struct CancelProposalFixture {
 
 impl CancelProposalFixture {
     fn new(proposal_id: u32) -> Self {
-        let account_id = <Runtime as frame_system::Trait>::AccountId::default();
+        let account_id = <Runtime as frame_system::Config>::AccountId::default();
         CancelProposalFixture {
             proposal_id,
             origin: RawOrigin::Signed(account_id),
@@ -268,7 +268,7 @@ impl CancelProposalFixture {
 #[test]
 fn proposal_cancellation_with_slashes_with_balance_checks_succeeds() {
     initial_test_ext().execute_with(|| {
-        let account_id = <Runtime as frame_system::Trait>::AccountId::default();
+        let account_id = <Runtime as frame_system::Config>::AccountId::default();
 
         setup_members(2);
         let member_id = 0; // newly created member_id
@@ -291,19 +291,19 @@ fn proposal_cancellation_with_slashes_with_balance_checks_succeeds() {
 
         let account_top_up = 500000;
         let account_starting_balance =
-            <Runtime as stake::Trait>::Currency::total_balance(&account_id);
+            <Runtime as stake::Config>::Currency::total_balance(&account_id);
 
         let _imbalance =
-            <Runtime as stake::Trait>::Currency::deposit_creating(&account_id, account_top_up);
+            <Runtime as stake::Config>::Currency::deposit_creating(&account_id, account_top_up);
 
         assert_eq!(
-            <Runtime as stake::Trait>::Currency::total_balance(&account_id),
+            <Runtime as stake::Config>::Currency::total_balance(&account_id),
             account_starting_balance + account_top_up
         );
 
         let proposal_id = dummy_proposal.create_proposal_and_assert(Ok(1)).unwrap();
         assert_eq!(
-            <Runtime as stake::Trait>::Currency::total_balance(&account_id),
+            <Runtime as stake::Config>::Currency::total_balance(&account_id),
             account_starting_balance + account_top_up - stake_amount
         );
 
@@ -342,7 +342,7 @@ fn proposal_cancellation_with_slashes_with_balance_checks_succeeds() {
 
         let cancellation_fee = ProposalCancellationFee::get() as u128;
         assert_eq!(
-            <Runtime as stake::Trait>::Currency::total_balance(&account_id),
+            <Runtime as stake::Config>::Currency::total_balance(&account_id),
             account_starting_balance + account_top_up - cancellation_fee
         );
     });
@@ -388,7 +388,7 @@ fn proposal_reset_succeeds() {
         );
 
         // Check proposals CouncilElected hook just trigger the election hook (empty council).
-        //<Runtime as governance::election::Trait>::CouncilElected::council_elected(Vec::new(), 10);
+        //<Runtime as governance::election::Config>::CouncilElected::council_elected(Vec::new(), 10);
 
         elect_single_councilor();
 
@@ -557,7 +557,7 @@ fn text_proposal_execution_succeeds() {
         let account_id: [u8; 32] = [member_id; 32];
 
         let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-            ProposalCodex::create_text_proposal(
+            ProposalsCodex::create_text_proposal(
                 RawOrigin::Signed(account_id.into()).into(),
                 member_id as u64,
                 b"title".to_vec(),
@@ -587,7 +587,7 @@ fn spending_proposal_execution_succeeds() {
         assert!(Council::set_council_mint_capacity(RawOrigin::Root.into(), new_balance).is_ok());
 
         let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-            ProposalCodex::create_spending_proposal(
+            ProposalsCodex::create_spending_proposal(
                 RawOrigin::Signed(account_id.clone().into()).into(),
                 member_id as u64,
                 b"title".to_vec(),
@@ -628,7 +628,7 @@ fn set_election_parameters_proposal_execution_succeeds() {
         assert_eq!(Election::announcing_period(), 0);
 
         let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-            ProposalCodex::create_set_election_parameters_proposal(
+            ProposalsCodex::create_set_election_parameters_proposal(
                 RawOrigin::Signed(account_id.clone().into()).into(),
                 member_id as u64,
                 b"title".to_vec(),
@@ -644,6 +644,7 @@ fn set_election_parameters_proposal_execution_succeeds() {
 }
 
 #[test]
+#[cfg(feature = "standalone")]
 fn set_validator_count_proposal_execution_succeeds() {
     initial_test_ext().execute_with(|| {
         let member_id = 1;
@@ -653,7 +654,7 @@ fn set_validator_count_proposal_execution_succeeds() {
         assert_eq!(<pallet_staking::ValidatorCount>::get(), 0);
 
         let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-            ProposalCodex::create_set_validator_count_proposal(
+            ProposalsCodex::create_set_validator_count_proposal(
                 RawOrigin::Signed(account_id.clone().into()).into(),
                 member_id as u64,
                 b"title".to_vec(),

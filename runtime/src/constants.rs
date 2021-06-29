@@ -14,10 +14,10 @@ use crate::{BlockNumber, Moment};
 /// `SLOT_DURATION` instead (like the timestamp module for calculating the
 /// minimum period).
 /// <https://research.web3.foundation/en/latest/polkadot/BABE/Babe/#6-practical-results>
-pub const MILLISECS_PER_BLOCK: Moment = 6000;
+pub const MILLISECS_PER_BLOCK: Moment = 12000;
 pub const SECS_PER_BLOCK: Moment = MILLISECS_PER_BLOCK / 1000;
 
-pub const SLOT_DURATION: Moment = 6000;
+pub const SLOT_DURATION: Moment = MILLISECS_PER_BLOCK;
 pub const BONDING_DURATION: u32 = 24 * 7;
 
 pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 10 * MINUTES;

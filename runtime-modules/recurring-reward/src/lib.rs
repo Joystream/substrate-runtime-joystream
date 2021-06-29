@@ -19,7 +19,7 @@ use minting::BalanceOf;
 mod mock;
 mod tests;
 
-pub trait Trait: frame_system::Trait + minting::Trait {
+pub trait Config: frame_system::Config + minting::Config {
     type PayoutStatusHandler: PayoutStatusHandler<Self>;
 
     /// Type of identifier for recipients.
@@ -44,7 +44,7 @@ pub trait Trait: frame_system::Trait + minting::Trait {
 }
 
 /// Handler for aftermath of a payout attempt
-pub trait PayoutStatusHandler<T: Trait> {
+pub trait PayoutStatusHandler<T: Config> {
     fn payout_succeeded(
         id: T::RewardRelationshipId,
         destination_account: &T::AccountId,
@@ -59,7 +59,7 @@ pub trait PayoutStatusHandler<T: Trait> {
 }
 
 /// Makes `()` empty tuple, a PayoutStatusHandler that does nothing.
-impl<T: Trait> PayoutStatusHandler<T> for () {
+impl<T: Config> PayoutStatusHandler<T> for () {
     fn payout_succeeded(
         _id: T::RewardRelationshipId,
         _destination_account: &T::AccountId,
@@ -142,7 +142,7 @@ impl<AccountId: Clone, Balance: Clone, BlockNumber: Clone, MintId: Clone, Recipi
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as RecurringReward {
+    trait Store for Module<T: Config> as RecurringReward {
         Recipients get(fn recipients): map hasher(blake2_128_concat)
             T::RecipientId => Recipient<BalanceOf<T>>;
 
@@ -156,7 +156,7 @@ decl_storage! {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
 
         fn on_finalize(now: T::BlockNumber) {
             Self::do_payouts(now);
@@ -172,7 +172,7 @@ pub enum RewardsError {
     RewardRelationshipNotFound,
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Adds a new Recipient and returns new recipient identifier.
     pub fn add_recipient() -> T::RecipientId {
         let next_id = Self::recipients_created();
@@ -199,7 +199,7 @@ impl<T: Trait> Module<T> {
             RewardsError::RecipientNotFound
         );
         ensure!(
-            next_payment_at_block > <frame_system::Module<T>>::block_number(),
+            next_payment_at_block > <frame_system::Pallet<T>>::block_number(),
             RewardsError::NextPaymentNotInFuture
         );
 
@@ -300,7 +300,7 @@ impl<T: Trait> Module<T> {
         if let Some(next_payout_at_block) = new_next_payment_at {
             if let Some(blocknumber) = next_payout_at_block {
                 ensure!(
-                    blocknumber > <frame_system::Module<T>>::block_number(),
+                    blocknumber > <frame_system::Pallet<T>>::block_number(),
                     RewardsError::NextPaymentNotInFuture
                 );
             }
@@ -390,7 +390,7 @@ impl<T: Trait> Module<T> {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     fn ensure_reward_relationship_exists(
         id: &T::RewardRelationshipId,
     ) -> Result<

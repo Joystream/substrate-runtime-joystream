@@ -8,56 +8,50 @@
 
 #![cfg(test)]
 
-use frame_support::{impl_outer_event, impl_outer_origin, parameter_types};
+use frame_support::parameter_types;
 pub use frame_system;
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
-    Perbill,
 };
 
 mod balance_manager;
 pub(crate) mod proposals;
 mod stakes;
 
+use crate as proposals_engine;
 use balance_manager::*;
 pub use proposals::*;
 pub use stakes::*;
 
-// Workaround for https://github.com/rust-lang/rust/issues/26925 . Remove when sorted.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Test;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
-
-mod engine {
-    pub use crate::Event;
-}
-
-mod membership_mod {
-    pub use membership::Event;
-}
-
-impl_outer_event! {
-    pub enum TestEvent for Test {
-        balances<T>,
-        engine<T>,
-        membership_mod<T>,
-        frame_system<T>,
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+        Balances: balances::{Pallet, Call, Storage, Event<T>},
+        ProposalsEngine: proposals_engine::{Pallet, Call, Storage, Event<T>},
+        Members: membership::{Pallet, Call, Storage, Event<T>, Config<T>},
     }
-}
+);
 
 parameter_types! {
     pub const ExistentialDeposit: u32 = 0;
 }
 
-impl balances::Trait for Test {
-    type Balance = u64;
+type Balance = u64;
+
+impl balances::Config for Test {
+    type Balance = Balance;
     type DustRemoval = ();
-    type Event = TestEvent;
+    type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
     type AccountStore = System;
     type WeightInfo = ();
@@ -65,12 +59,12 @@ impl balances::Trait for Test {
 }
 
 impl common::currency::GovernanceCurrency for Test {
-    type Currency = balances::Module<Self>;
+    type Currency = balances::Pallet<Self>;
 }
 
-impl proposals::Trait for Test {}
+impl proposals::Config for Test {}
 
-impl stake::Trait for Test {
+impl stake::Config for Test {
     type Currency = Balances;
     type StakePoolId = StakePoolId;
     type StakingEventsHandler = BalanceManagerStakingEventsHandler;
@@ -90,8 +84,8 @@ parameter_types! {
     pub const ScreenedMemberMaxInitialBalance: u64 = 500;
 }
 
-impl membership::Trait for Test {
-    type Event = TestEvent;
+impl membership::Config for Test {
+    type Event = Event;
     type MemberId = u64;
     type PaidTermId = u64;
     type SubscriptionId = u64;
@@ -99,8 +93,8 @@ impl membership::Trait for Test {
     type ScreenedMemberMaxInitialBalance = ScreenedMemberMaxInitialBalance;
 }
 
-impl crate::Trait for Test {
-    type Event = TestEvent;
+impl crate::Config for Test {
+    type Event = Event;
     type ProposerOriginValidator = ();
     type VoterOriginValidator = ();
     type TotalVotersCounter = ();
@@ -140,40 +134,37 @@ parameter_types! {
     pub const BlockHashCount: u64 = 250;
     pub const MaximumBlockWeight: u32 = 1024;
     pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
     pub const MinimumPeriod: u64 = 5;
     pub const StakePoolId: [u8; 8] = *b"joystake";
 }
 
-impl frame_system::Trait for Test {
+impl frame_system::Config for Test {
     type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
     type Origin = Origin;
-    type Call = ();
     type Index = u64;
     type BlockNumber = u64;
+    type Call = Call;
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type AccountId = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
-    type Event = TestEvent;
+    type Event = Event;
     type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type Version = ();
-    type AccountData = balances::AccountData<u64>;
+    type PalletInfo = PalletInfo;
+    type AccountData = balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
-    type PalletInfo = ();
     type SystemWeightInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
 
-impl pallet_timestamp::Trait for Test {
+impl pallet_timestamp::Config for Test {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
@@ -187,7 +178,3 @@ pub fn initial_test_ext() -> sp_io::TestExternalities {
 
     t.into()
 }
-
-pub type ProposalsEngine = crate::Module<Test>;
-pub type System = frame_system::Module<Test>;
-pub type Balances = balances::Module<Test>;

@@ -13,19 +13,19 @@ pub struct CouncilManager<T> {
     marker: PhantomData<T>,
 }
 
-impl<T: governance::council::Trait + membership::Trait>
+impl<T: governance::council::Config + membership::Config>
     ActorOriginValidator<
-        <T as frame_system::Trait>::Origin,
+        <T as frame_system::Config>::Origin,
         MemberId<T>,
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
     > for CouncilManager<T>
 {
     /// Check for valid combination of origin and actor_id. Actor_id should be valid member_id of
     /// the membership module
     fn ensure_actor_origin(
-        origin: <T as frame_system::Trait>::Origin,
+        origin: <T as frame_system::Config>::Origin,
         actor_id: MemberId<T>,
-    ) -> Result<<T as frame_system::Trait>::AccountId, &'static str> {
+    ) -> Result<<T as frame_system::Config>::AccountId, &'static str> {
         let account_id = <MembershipOriginValidator<T>>::ensure_actor_origin(origin, actor_id)?;
 
         if <governance::council::Module<T>>::is_councilor(&account_id) {
@@ -36,7 +36,7 @@ impl<T: governance::council::Trait + membership::Trait>
     }
 }
 
-impl<T: governance::council::Trait> VotersParameters for CouncilManager<T> {
+impl<T: governance::council::Config> VotersParameters for CouncilManager<T> {
     /// Implement total_voters_count() as council size
     fn total_voters_count() -> u32 {
         <governance::council::Module<T>>::active_council().len() as u32

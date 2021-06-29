@@ -26,7 +26,7 @@ pub type ActorId<T> = <T as MembershipTypes>::ActorId;
 pub type Url = Vec<u8>;
 
 /// Generic trait for membership dependent pallets.
-pub trait MembershipTypes: frame_system::Trait {
+pub trait MembershipTypes: frame_system::Config {
     /// Describes the common type for the members.
     type MemberId: Parameter
         + Member
@@ -105,10 +105,10 @@ pub struct BlockAndTime<BlockNumber, Moment> {
 /// Gathers current block and time information for the runtime.
 /// If this function is used inside a config() at genesis the timestamp will be 0
 /// because the timestamp is actually produced by validators.
-pub fn current_block_time<T: frame_system::Trait + pallet_timestamp::Trait>(
+pub fn current_block_time<T: frame_system::Config + pallet_timestamp::Config>(
 ) -> BlockAndTime<T::BlockNumber, T::Moment> {
     BlockAndTime {
-        block: <frame_system::Module<T>>::block_number(),
-        time: <pallet_timestamp::Module<T>>::now(),
+        block: <frame_system::Pallet<T>>::block_number(),
+        time: <pallet_timestamp::Pallet<T>>::now(),
     }
 }

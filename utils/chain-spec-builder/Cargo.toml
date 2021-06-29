@@ -7,12 +7,20 @@ version = '3.1.1'
 
 [dependencies]
 ansi_term = "0.12.1"
-rand = "0.7.2"
-structopt = "0.3.8"
-sc-keystore = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62' }
-sc-telemetry = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62' }
-sc-chain-spec = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62' }
-sp-core = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62' }
+rand = "0.7.3"
+structopt = "0.3.21"
+sc-keystore = { git = 'https://github.com/paritytech/substrate.git', branch = "polkadot-v0.9.6" }
+sc-telemetry = { git = 'https://github.com/paritytech/substrate.git', branch = "polkadot-v0.9.6" }
+sc-chain-spec = { git = 'https://github.com/paritytech/substrate.git', branch = "polkadot-v0.9.6" }
+sp-core = { git = 'https://github.com/paritytech/substrate.git', branch = "polkadot-v0.9.6" }
+sp-keystore = { git = 'https://github.com/paritytech/substrate.git', branch = "polkadot-v0.9.6" }
 joystream-node = { path = "../../node" }
 
 enum-utils = "0.1.2"
+async-std = "1.9.0"
+futures-util = "0.3.15"
+
+[features]
+default = []
+# --no-default-features
+standalone = ['joystream-node/standalone']

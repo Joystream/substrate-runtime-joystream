@@ -1,5 +1,5 @@
 use codec::Encode;
-use frame_support::debug;
+use frame_support::runtime_print;
 use sp_runtime::generic;
 use sp_runtime::generic::SignedPayload;
 use sp_runtime::SaturatedConversion;
@@ -44,10 +44,13 @@ pub(crate) fn create_transaction<
     );
     let raw_payload = SignedPayload::new(call, extra)
         .map_err(|e| {
-            debug::warn!("Unable to create signed payload: {:?}", e);
+            runtime_print!("Unable to create signed payload: {:?}", e);
         })
         .ok()?;
     let signature = raw_payload.using_encoded(|payload| C::sign(payload, public))?;
     let (call, extra, _) = raw_payload.deconstruct();
-    Some((call, (account, signature, extra)))
+    Some((
+        call,
+        (sp_runtime::MultiAddress::Id(account), signature, extra),
+    ))
 }

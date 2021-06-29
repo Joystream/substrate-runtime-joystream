@@ -8,7 +8,7 @@ use frame_support::weights::{constants::RocksDbWeight as DbWeight, Weight};
 pub struct WeightInfo;
 impl frame_system::WeightInfo for WeightInfo {
     // WARNING! Some components were not used: ["b"]
-    fn remark() -> Weight {
+    fn remark(_: u32) -> Weight {
         (9_342_000 as Weight)
     }
     fn set_heap_pages() -> Weight {
@@ -35,7 +35,7 @@ impl frame_system::WeightInfo for WeightInfo {
             .saturating_add((1_205_000 as Weight).saturating_mul(p as Weight))
             .saturating_add(DbWeight::get().writes((1 as Weight).saturating_mul(p as Weight)))
     }
-    fn suicide() -> Weight {
-        (145_274_000 as Weight)
+    fn remark_with_event(_: u32) -> u64 {
+        todo!()
     }
 }

@@ -6,25 +6,25 @@ use sp_std::marker::PhantomData;
 
 // Balance alias
 type BalanceOf<T> =
-    <<T as stake::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as stake::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 // Balance alias for staking
-type NegativeImbalance<T> = <<T as stake::Trait>::Currency as Currency<
-    <T as frame_system::Trait>::AccountId,
+type NegativeImbalance<T> = <<T as stake::Config>::Currency as Currency<
+    <T as frame_system::Config>::AccountId,
 >>::NegativeImbalance;
 
 /// Proposal implementation of the staking event handler from the stake module.
-/// 'marker' responsible for the 'Trait' binding.
+/// 'marker' responsible for the 'Config' binding.
 pub struct StakingEventsHandler<T> {
     pub marker: PhantomData<T>,
 }
 
-impl<T: stake::Trait + proposals_engine::Trait> stake::StakingEventsHandler<T>
+impl<T: stake::Config + proposals_engine::Config> stake::StakingEventsHandler<T>
     for StakingEventsHandler<T>
 {
     /// Unstake remaining sum back to the source_account_id
     fn unstaked(
-        id: &<T as stake::Trait>::StakeId,
+        id: &<T as stake::Config>::StakeId,
         _unstaked_amount: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,
     ) -> NegativeImbalance<T> {
@@ -39,8 +39,8 @@ impl<T: stake::Trait + proposals_engine::Trait> stake::StakingEventsHandler<T>
 
     /// Empty handler for slashing
     fn slashed(
-        _: &<T as stake::Trait>::StakeId,
-        _: Option<<T as stake::Trait>::SlashId>,
+        _: &<T as stake::Config>::StakeId,
+        _: Option<<T as stake::Config>::SlashId>,
         _: BalanceOf<T>,
         _: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,

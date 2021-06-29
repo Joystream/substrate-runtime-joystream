@@ -1,4 +1,4 @@
-use node_runtime::{AccountId, Balance};
+use joystream_node_runtime::{AccountId, Balance};
 use serde::Deserialize;
 use std::{fs, path::Path};
 

@@ -12,7 +12,7 @@ Not covered:
 
 pub struct FillOpeningFixture {
     pub opening_id: OpeningId,
-    pub successful_applications: BTreeSet<<mock::Test as Trait>::ApplicationId>,
+    pub successful_applications: BTreeSet<<mock::Test as Config>::ApplicationId>,
     pub opt_successful_applicant_application_stake_unstaking_period: Option<BlockNumber>,
     pub opt_failed_applicant_application_stake_unstaking_period: Option<BlockNumber>,
     pub opt_failed_applicant_role_stake_unstaking_period: Option<BlockNumber>,

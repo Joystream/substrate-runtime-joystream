@@ -10,12 +10,12 @@ pub struct ContentDirectoryWGStakingEventsHandler<T> {
     pub marker: PhantomData<T>,
 }
 
-impl<T: stake::Trait + working_group::Trait<ContentDirectoryWorkingGroupInstance>>
+impl<T: stake::Config + working_group::Config<ContentDirectoryWorkingGroupInstance>>
     stake::StakingEventsHandler<T> for ContentDirectoryWGStakingEventsHandler<T>
 {
     /// Unstake remaining sum back to the source_account_id
     fn unstaked(
-        stake_id: &<T as stake::Trait>::StakeId,
+        stake_id: &<T as stake::Config>::StakeId,
         _unstaked_amount: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,
     ) -> NegativeImbalance<T> {
@@ -40,8 +40,8 @@ impl<T: stake::Trait + working_group::Trait<ContentDirectoryWorkingGroupInstance
 
     /// Empty handler for the slashing.
     fn slashed(
-        _: &<T as stake::Trait>::StakeId,
-        _: Option<<T as stake::Trait>::SlashId>,
+        _: &<T as stake::Config>::StakeId,
+        _: Option<<T as stake::Config>::SlashId>,
         _: BalanceOf<T>,
         _: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,
@@ -54,12 +54,12 @@ pub struct StorageWgStakingEventsHandler<T> {
     pub marker: PhantomData<T>,
 }
 
-impl<T: stake::Trait + working_group::Trait<StorageWorkingGroupInstance>>
+impl<T: stake::Config + working_group::Config<StorageWorkingGroupInstance>>
     stake::StakingEventsHandler<T> for StorageWgStakingEventsHandler<T>
 {
     /// Unstake remaining sum back to the source_account_id
     fn unstaked(
-        stake_id: &<T as stake::Trait>::StakeId,
+        stake_id: &<T as stake::Config>::StakeId,
         _unstaked_amount: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,
     ) -> NegativeImbalance<T> {
@@ -84,8 +84,8 @@ impl<T: stake::Trait + working_group::Trait<StorageWorkingGroupInstance>>
 
     /// Empty handler for the slashing.
     fn slashed(
-        _: &<T as stake::Trait>::StakeId,
-        _: Option<<T as stake::Trait>::SlashId>,
+        _: &<T as stake::Config>::StakeId,
+        _: Option<<T as stake::Config>::SlashId>,
         _: BalanceOf<T>,
         _: BalanceOf<T>,
         remaining_imbalance: NegativeImbalance<T>,

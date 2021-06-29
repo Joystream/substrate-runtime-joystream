@@ -5,7 +5,7 @@ use frame_system::RawOrigin;
 use frame_system::{EventRecord, Phase};
 
 use crate::*;
-use mock::*;
+use mock::{Event, *};
 
 struct EventFixture;
 impl EventFixture {
@@ -14,7 +14,7 @@ impl EventFixture {
             .iter()
             .map(|ev| EventRecord {
                 phase: Phase::Initialization,
-                event: TestEvent::discussion(ev.clone()),
+                event: Event::proposals_discussion(ev.clone()),
                 topics: vec![],
             })
             .collect::<Vec<EventRecord<_, _>>>();

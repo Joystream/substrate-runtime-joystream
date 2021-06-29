@@ -1,4 +1,4 @@
-use node_runtime::ProposalsConfigParameters;
+use joystream_node_runtime::ProposalsConfigParameters;
 
 /// Development chain config. 0 grace period for all proposals, ie.
 /// proposals executed immediatly. Short voting period.

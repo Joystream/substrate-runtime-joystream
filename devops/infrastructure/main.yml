@@ -161,6 +161,44 @@ Resources:
       Timeout: '600'
       Count: 4
 
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: PublicPolicy
+        Version: 2012-10-17
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+      Bucket: !Ref S3Bucket
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+        - DomainName: !Select [1, !Split ["//", !GetAtt S3Bucket.WebsiteURL]]
+          Id: pioneer-origin-s3
+          CustomOriginConfig:
+            OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: pioneer-origin-s3
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: true
+        Enabled: true
+        HttpVersion: http2
+
 Outputs:
   PublicIp:
     Description: The DNS name for the created instance
@@ -185,3 +223,15 @@ Outputs:
     Value:  !Sub "${BuildInstance.PublicIp}"
     Export:
       Name: !Sub "${AWS::StackName}BuildPublicIp"
+
+  S3BucketName:
+    Value: !Ref S3Bucket
+    Description: Name of S3 bucket to hold website content
+    Export:
+      Name: !Sub "${AWS::StackName}S3BucketName"
+
+  DomainName:
+    Description: CloudFront Domain Name
+    Value:  !Sub "${CloudFrontDistribution.DomainName}"
+    Export:
+      Name: !Sub "${AWS::StackName}DomainName"

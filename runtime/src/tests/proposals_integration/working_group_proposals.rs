@@ -72,7 +72,7 @@ fn add_opening(
     };
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_add_working_group_leader_opening_proposal(
+        ProposalsCodex::create_add_working_group_leader_opening_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id as u64,
             b"title".to_vec(),
@@ -107,7 +107,7 @@ fn begin_review_applications(
     let run_to_block = sequence_number * 2;
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_begin_review_working_group_leader_applications_proposal(
+        ProposalsCodex::create_begin_review_working_group_leader_applications_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id,
             b"title".to_vec(),
@@ -137,7 +137,7 @@ fn fill_opening(
     let run_to_block = sequence_number * 2;
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_fill_working_group_leader_opening_proposal(
+        ProposalsCodex::create_fill_working_group_leader_opening_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id,
             b"title".to_vec(),
@@ -178,7 +178,7 @@ fn decrease_stake(
     let run_to_block = sequence_number * 2;
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_decrease_working_group_leader_stake_proposal(
+        ProposalsCodex::create_decrease_working_group_leader_stake_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id,
             b"title".to_vec(),
@@ -208,7 +208,7 @@ fn slash_stake(
     let run_to_block = sequence_number * 2;
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_slash_working_group_leader_stake_proposal(
+        ProposalsCodex::create_slash_working_group_leader_stake_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id,
             b"title".to_vec(),
@@ -238,7 +238,7 @@ fn set_reward(
     let run_to_block = sequence_number * 2;
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_set_working_group_leader_reward_proposal(
+        ProposalsCodex::create_set_working_group_leader_reward_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id as u64,
             b"title".to_vec(),
@@ -257,7 +257,7 @@ fn set_reward(
 }
 
 fn set_mint_capacity<
-    T: working_group::Trait<I> + frame_system::Trait + minting::Trait,
+    T: working_group::Config<I> + frame_system::Config + minting::Config,
     I: frame_support::traits::Instance,
 >(
     member_id: MemberId,
@@ -267,7 +267,7 @@ fn set_mint_capacity<
     setup_environment: bool,
     working_group: WorkingGroup,
 ) where
-    <T as minting::Trait>::MintId: From<u64>,
+    <T as minting::Config>::MintId: From<u64>,
 {
     let expected_proposal_id = sequence_number;
     let run_to_block = sequence_number * 2;
@@ -275,12 +275,12 @@ fn set_mint_capacity<
     let mint_id_result = <minting::Module<Runtime>>::add_mint(0, None);
 
     if let Ok(mint_id) = mint_id_result {
-        let mint_id: <T as minting::Trait>::MintId = mint_id.into();
+        let mint_id: <T as minting::Config>::MintId = mint_id.into();
         <working_group::Mint<T, I>>::put(mint_id);
     }
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_set_working_group_mint_capacity_proposal(
+        ProposalsCodex::create_set_working_group_mint_capacity_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id,
             b"title".to_vec(),
@@ -309,7 +309,7 @@ fn terminate_role(
     let run_to_block = sequence_number * 2;
 
     let codex_extrinsic_test_fixture = CodexProposalTestFixture::default_for_call(|| {
-        ProposalCodex::create_terminate_working_group_leader_role_proposal(
+        ProposalsCodex::create_terminate_working_group_leader_role_proposal(
             RawOrigin::Signed(account_id.into()).into(),
             member_id,
             b"title".to_vec(),
@@ -364,13 +364,13 @@ fn create_add_working_group_leader_opening_proposal_execution_succeeds() {
 }
 
 fn run_create_add_working_group_leader_opening_proposal_execution_succeeds<
-    T: working_group::Trait<I> + frame_system::Trait + stake::Trait,
+    T: working_group::Config<I> + frame_system::Config + stake::Config,
     I: frame_support::traits::Instance,
 >(
     working_group: WorkingGroup,
 ) where
-    <T as membership::Trait>::MemberId: From<u64>,
-    <T as hiring::Trait>::OpeningId: From<u64>,
+    <T as membership::Config>::MemberId: From<u64>,
+    <T as hiring::Config>::OpeningId: From<u64>,
 {
     initial_test_ext().execute_with(|| {
         let member_id: MemberId = 1;
@@ -382,7 +382,7 @@ fn run_create_add_working_group_leader_opening_proposal_execution_succeeds<
             next_opening_id
         ));
 
-        let opening_id: <T as hiring::Trait>::OpeningId = add_opening(
+        let opening_id: <T as hiring::Config>::OpeningId = add_opening(
             member_id,
             account_id,
             ActivateOpeningAt::CurrentBlock,
@@ -434,12 +434,12 @@ fn create_begin_review_working_group_leader_applications_proposal_execution_succ
 }
 
 fn run_create_begin_review_working_group_leader_applications_proposal_execution_succeeds<
-    T: working_group::Trait<I> + frame_system::Trait + stake::Trait,
+    T: working_group::Config<I> + frame_system::Config + stake::Config,
     I: frame_support::traits::Instance,
 >(
     working_group: WorkingGroup,
 ) where
-    <T as hiring::Trait>::OpeningId: From<u64> + Into<u64>,
+    <T as hiring::Config>::OpeningId: From<u64> + Into<u64>,
 {
     initial_test_ext().execute_with(|| {
         let member_id: MemberId = 1;
@@ -455,7 +455,7 @@ fn run_create_begin_review_working_group_leader_applications_proposal_execution_
         );
 
         let opening = WorkingGroupInstance::<T, I>::opening_by_id(
-            <T as hiring::Trait>::OpeningId::from(opening_id),
+            <T as hiring::Config>::OpeningId::from(opening_id),
         );
 
         let hiring_opening_id: u64 = opening.hiring_opening_id.into();
@@ -525,14 +525,14 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
     }
 
     fn run_create_fill_working_group_leader_opening_proposal_execution_succeeds<
-        T: working_group::Trait<I> + frame_system::Trait + stake::Trait,
+        T: working_group::Config<I> + frame_system::Config + stake::Config,
         I: frame_support::traits::Instance,
     >(
         working_group: WorkingGroup,
     ) where
-        <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-        <T as membership::Trait>::MemberId: From<u64>,
-        <T as hiring::Trait>::OpeningId: From<u64>,
+        <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+        <T as membership::Config>::MemberId: From<u64>,
+        <T as hiring::Config>::OpeningId: From<u64>,
     {
         initial_test_ext().execute_with(|| {
             let member_id: MemberId = 1;
@@ -615,17 +615,17 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
     }
 
     fn run_create_decrease_group_leader_stake_proposal_execution_succeeds<
-        T: working_group::Trait<I> + frame_system::Trait + stake::Trait,
+        T: working_group::Config<I> + frame_system::Config + stake::Config,
         I: frame_support::traits::Instance,
     >(
         working_group: WorkingGroup,
     ) where
-        <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-        <T as hiring::Trait>::OpeningId: From<u64>,
-        <T as membership::Trait>::MemberId: From<u64>,
-        <T as membership::Trait>::ActorId: Into<u64>,
-        <<T as stake::Trait>::Currency as traits::Currency<
-            <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+        <T as hiring::Config>::OpeningId: From<u64>,
+        <T as membership::Config>::MemberId: From<u64>,
+        <T as membership::Config>::ActorId: Into<u64>,
+        <<T as stake::Config>::Currency as traits::Currency<
+            <T as frame_system::Config>::AccountId,
         >>::Balance: From<u128>,
     {
         initial_test_ext().execute_with(|| {
@@ -744,17 +744,17 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
     }
 
     fn run_create_slash_group_leader_stake_proposal_execution_succeeds<
-        T: working_group::Trait<I> + frame_system::Trait + stake::Trait,
+        T: working_group::Config<I> + frame_system::Config + stake::Config,
         I: frame_support::traits::Instance,
     >(
         working_group: WorkingGroup,
     ) where
-        <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-        <T as hiring::Trait>::OpeningId: From<u64>,
-        <T as membership::Trait>::MemberId: From<u64>,
-        <T as membership::Trait>::ActorId: Into<u64>,
-        <<T as stake::Trait>::Currency as traits::Currency<
-            <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+        <T as hiring::Config>::OpeningId: From<u64>,
+        <T as membership::Config>::MemberId: From<u64>,
+        <T as membership::Config>::ActorId: Into<u64>,
+        <<T as stake::Config>::Currency as traits::Currency<
+            <T as frame_system::Config>::AccountId,
         >>::Balance: From<u128>,
     {
         initial_test_ext().execute_with(|| {
@@ -873,16 +873,16 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
         }
 
         fn run_create_set_working_group_mint_capacity_proposal_execution_succeeds<
-            T: working_group::Trait<I> + frame_system::Trait + minting::Trait,
+            T: working_group::Config<I> + frame_system::Config + minting::Config,
             I: frame_support::traits::Instance,
         >(
             working_group: WorkingGroup,
         ) where
-            <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-            <T as membership::Trait>::MemberId: From<u64>,
-            <T as minting::Trait>::MintId: From<u64>,
-            <<T as minting::Trait>::Currency as traits::Currency<
-                <T as frame_system::Trait>::AccountId,
+            <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+            <T as membership::Config>::MemberId: From<u64>,
+            <T as minting::Config>::MintId: From<u64>,
+            <<T as minting::Config>::Currency as traits::Currency<
+                <T as frame_system::Config>::AccountId,
             >>::Balance: From<u128>,
         {
             initial_test_ext().execute_with(|| {
@@ -942,18 +942,18 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
         }
 
         fn run_create_set_group_leader_reward_proposal_execution_succeeds<
-            T: working_group::Trait<I> + frame_system::Trait + minting::Trait,
+            T: working_group::Config<I> + frame_system::Config + minting::Config,
             I: frame_support::traits::Instance,
         >(
             working_group: WorkingGroup,
         ) where
-            <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-            <T as membership::Trait>::MemberId: From<u64>,
-            <T as membership::Trait>::ActorId: Into<u64>,
-            <T as minting::Trait>::MintId: From<u64>,
-            <T as hiring::Trait>::OpeningId: From<u64>,
-            <<T as minting::Trait>::Currency as traits::Currency<
-                <T as frame_system::Trait>::AccountId,
+            <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+            <T as membership::Config>::MemberId: From<u64>,
+            <T as membership::Config>::ActorId: Into<u64>,
+            <T as minting::Config>::MintId: From<u64>,
+            <T as hiring::Config>::OpeningId: From<u64>,
+            <<T as minting::Config>::Currency as traits::Currency<
+                <T as frame_system::Config>::AccountId,
             >>::Balance: From<u128>,
         {
             initial_test_ext().execute_with(|| {
@@ -1077,18 +1077,18 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
         }
 
         fn run_create_terminate_group_leader_role_proposal_execution_succeeds<
-            T: working_group::Trait<I> + frame_system::Trait + minting::Trait,
+            T: working_group::Config<I> + frame_system::Config + minting::Config,
             I: frame_support::traits::Instance,
         >(
             working_group: WorkingGroup,
         ) where
-            <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-            <T as membership::Trait>::MemberId: From<u64>,
-            <T as membership::Trait>::ActorId: Into<u64>,
-            <T as minting::Trait>::MintId: From<u64>,
-            <T as hiring::Trait>::OpeningId: From<u64>,
-            <<T as stake::Trait>::Currency as traits::Currency<
-                <T as frame_system::Trait>::AccountId,
+            <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+            <T as membership::Config>::MemberId: From<u64>,
+            <T as membership::Config>::ActorId: Into<u64>,
+            <T as minting::Config>::MintId: From<u64>,
+            <T as hiring::Config>::OpeningId: From<u64>,
+            <<T as stake::Config>::Currency as traits::Currency<
+                <T as frame_system::Config>::AccountId,
             >>::Balance: From<u128>,
         {
             initial_test_ext().execute_with(|| {
@@ -1202,18 +1202,18 @@ fn create_fill_working_group_leader_opening_proposal_execution_succeeds() {
         }
 
         fn run_create_terminate_group_leader_role_proposal_with_slashing_execution_succeeds<
-            T: working_group::Trait<I> + frame_system::Trait + minting::Trait,
+            T: working_group::Config<I> + frame_system::Config + minting::Config,
             I: frame_support::traits::Instance,
         >(
             working_group: WorkingGroup,
         ) where
-            <T as frame_system::Trait>::AccountId: From<[u8; 32]>,
-            <T as membership::Trait>::MemberId: From<u64>,
-            <T as membership::Trait>::ActorId: Into<u64>,
-            <T as minting::Trait>::MintId: From<u64>,
-            <T as hiring::Trait>::OpeningId: From<u64>,
-            <<T as stake::Trait>::Currency as traits::Currency<
-                <T as frame_system::Trait>::AccountId,
+            <T as frame_system::Config>::AccountId: From<[u8; 32]>,
+            <T as membership::Config>::MemberId: From<u64>,
+            <T as membership::Config>::ActorId: Into<u64>,
+            <T as minting::Config>::MintId: From<u64>,
+            <T as hiring::Config>::OpeningId: From<u64>,
+            <<T as stake::Config>::Currency as traits::Currency<
+                <T as frame_system::Config>::AccountId,
             >>::Balance: From<u128>,
         {
             initial_test_ext().execute_with(|| {

@@ -11,7 +11,7 @@ mod tests;
 
 use codec::{Codec, Decode, Encode};
 use frame_support::dispatch::DispatchResult;
-use frame_support::traits::{Currency, Get, LockableCurrency, WithdrawReason};
+use frame_support::traits::{Currency, Get, LockableCurrency, WithdrawReasons};
 use frame_support::{decl_error, decl_event, decl_module, decl_storage, ensure, Parameter};
 use frame_system::{ensure_root, ensure_signed};
 use sp_arithmetic::traits::{BaseArithmetic, One};
@@ -21,8 +21,8 @@ use sp_std::vec;
 use sp_std::vec::Vec;
 
 use common::currency::{BalanceOf, GovernanceCurrency};
-pub trait Trait: frame_system::Trait + GovernanceCurrency + pallet_timestamp::Trait {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + GovernanceCurrency + pallet_timestamp::Config {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     type MemberId: Parameter
         + Member
@@ -80,11 +80,11 @@ const DEFAULT_MAX_ABOUT_TEXT_LENGTH: u32 = 2048;
 
 /// Public membership object alias.
 pub type Membership<T> = MembershipObject<
-    <T as frame_system::Trait>::BlockNumber,
-    <T as pallet_timestamp::Trait>::Moment,
-    <T as Trait>::PaidTermId,
-    <T as Trait>::SubscriptionId,
-    <T as frame_system::Trait>::AccountId,
+    <T as frame_system::Config>::BlockNumber,
+    <T as pallet_timestamp::Config>::Moment,
+    <T as Config>::PaidTermId,
+    <T as Config>::SubscriptionId,
+    <T as frame_system::Config>::AccountId,
 >;
 
 #[derive(Encode, Decode, Default)]
@@ -157,7 +157,7 @@ pub struct PaidMembershipTerms<Balance> {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as Membership {
+    trait Store for Module<T: Config> as Membership {
         /// MemberId to assign to next member that is added to the registry, and is also the
         /// total number of members created. MemberIds start at Zero.
         pub NextMemberId get(fn members_created) : T::MemberId;
@@ -243,9 +243,9 @@ decl_storage! {
 
 decl_event! {
     pub enum Event<T> where
-      <T as frame_system::Trait>::AccountId,
-      <T as Trait>::MemberId,
-      <T as Trait>::PaidTermId,
+      <T as frame_system::Config>::AccountId,
+      <T as Config>::MemberId,
+      <T as Config>::PaidTermId,
     {
         MemberRegistered(MemberId, AccountId, EntryMethod<PaidTermId, AccountId>),
         MemberUpdatedAboutText(MemberId),
@@ -257,7 +257,7 @@ decl_event! {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         /// Predefined errors
         type Error = Error<T>;
 
@@ -292,8 +292,8 @@ decl_module! {
                 &who,
                 &user_info,
                 EntryMethod::Paid(paid_terms_id),
-                <frame_system::Module<T>>::block_number(),
-                <pallet_timestamp::Module<T>>::now()
+                <frame_system::Pallet<T>>::block_number(),
+                <pallet_timestamp::Pallet<T>>::now()
             )?;
 
             let _ = T::Currency::slash(&who, terms.fee);
@@ -453,7 +453,7 @@ decl_module! {
                 );
 
                 ensure!(
-                    frame_system::Module::<T>::account_nonce(&new_member_account).is_zero(),
+                    frame_system::Pallet::<T>::account_nonce(&new_member_account).is_zero(),
                     Error::<T>::OnlyNewAccountsCanBeUsedForScreenedMembers
                 );
 
@@ -464,7 +464,7 @@ decl_module! {
                     *b"faucet00",
                     &new_member_account,
                     initial_balance,
-                    WithdrawReason::Transfer.into(),
+                    WithdrawReasons::TRANSFER,
                 );
 
                 // Endow the new member account with an amount to get started
@@ -479,8 +479,8 @@ decl_module! {
                 &new_member_account,
                 &user_info,
                 entry_method.clone(),
-                <frame_system::Module<T>>::block_number(),
-                <pallet_timestamp::Module<T>>::now()
+                <frame_system::Pallet<T>>::block_number(),
+                <pallet_timestamp::Pallet<T>>::now()
             )?;
 
             Self::deposit_event(RawEvent::MemberRegistered(member_id, new_member_account, entry_method));
@@ -515,7 +515,7 @@ pub enum MemberRootAccountMismatch {
     SignerRootAccountMismatch,
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Provided that the member_id exists return its membership. Returns error otherwise.
     pub fn ensure_membership(id: T::MemberId) -> Result<Membership<T>, Error<T>> {
         if <MembershipById<T>>::contains_key(&id) {
@@ -745,7 +745,7 @@ impl<T: Trait> Module<T> {
 
 decl_error! {
     /// Membership module predefined errors
-    pub enum Error for Module<T: Trait> {
+    pub enum Error for Module<T: Config> {
         /// New memberships not allowed.
         NewMembershipsNotAllowed,
 

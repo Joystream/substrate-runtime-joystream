@@ -10,7 +10,7 @@ pub trait ActorOriginValidator<Origin, ActorId, AccountId> {
 /// Multiplies the T::Origin.
 /// In our current substrate version frame_system::Origin doesn't support clone(),
 /// but it will be supported in latest up-to-date substrate version.
-pub fn double_origin<T: frame_system::Trait>(origin: T::Origin) -> (T::Origin, T::Origin) {
+pub fn double_origin<T: frame_system::Config>(origin: T::Origin) -> (T::Origin, T::Origin) {
     let coerced_origin = origin.into().ok().unwrap_or(RawOrigin::None);
 
     let (cloned_origin1, cloned_origin2) = match coerced_origin {

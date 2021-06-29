@@ -1,15 +1,18 @@
 #![cfg(test)]
 
+use crate as forum;
 use crate::*;
 use common::BlockAndTime;
 
-use frame_support::{impl_outer_origin, parameter_types};
+use frame_support::{parameter_types, weights::Weight};
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
-    Perbill,
 };
+
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Runtime>;
+type Block = frame_system::mocking::MockBlock<Runtime>;
 
 /// Module which has a full Substrate module for
 /// mocking behaviour of MembershipRegistry
@@ -23,23 +26,23 @@ pub mod registry {
     }
 
     decl_storage! {
-        trait Store for Module<T: Trait> as MockForumUserRegistry {
+        trait Store for Module<T: Config> as MockForumUserRegistry {
             pub ForumUserById get(fn forum_user_by_id) config(): map hasher(blake2_128_concat)
                 T::AccountId => Member<T::AccountId>;
         }
     }
 
     decl_module! {
-        pub struct Module<T: Trait> for enum Call where origin: T::Origin {}
+        pub struct Module<T: Config> for enum Call where origin: T::Origin {}
     }
 
-    impl<T: Trait> Module<T> {
+    impl<T: Config> Module<T> {
         pub fn add_member(member: &Member<T::AccountId>) {
             <ForumUserById<T>>::insert(member.id.clone(), member.clone());
         }
     }
 
-    impl<T: Trait> ForumUserRegistry<T::AccountId> for Module<T> {
+    impl<T: Config> ForumUserRegistry<T::AccountId> for Module<T> {
         fn get_forum_user(id: &T::AccountId) -> Option<ForumUser<T::AccountId>> {
             if <ForumUserById<T>>::contains_key(id) {
                 let m = <ForumUserById<T>>::get(id);
@@ -54,58 +57,63 @@ pub mod registry {
     pub type TestMembershipRegistryModule = Module<Runtime>;
 }
 
-impl_outer_origin! {
-    pub enum Origin for Runtime {}
-}
+frame_support::construct_runtime!(
+    pub enum Runtime where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Forum: forum::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+    }
+);
 
-// Workaround for https://github.com/rust-lang/rust/issues/26925 . Remove when sorted.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Runtime;
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
-    pub const MaximumBlockWeight: u32 = 1024;
+    pub const MaximumBlockWeight: Weight = 1024;
     pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
-    pub const MinimumPeriod: u64 = 5;
 }
 
-impl frame_system::Trait for Runtime {
+impl frame_system::Config for Runtime {
     type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
     type Origin = Origin;
-    type Call = ();
     type Index = u64;
     type BlockNumber = u64;
+    type Call = Call;
     type Hash = H256;
     type Hashing = BlakeTwo256;
-    type AccountId = u64;
+    type AccountId = u128;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
-    type Event = ();
+    type Event = Event;
     type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type Version = ();
+    type PalletInfo = PalletInfo;
     type AccountData = ();
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type PalletInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
 
-impl pallet_timestamp::Trait for Runtime {
+parameter_types! {
+    pub const MinimumPeriod: u64 = 5;
+}
+
+impl pallet_timestamp::Config for Runtime {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
     type WeightInfo = ();
 }
 
-impl Trait for Runtime {
-    type Event = ();
+impl Config for Runtime {
+    type Event = Event;
     type MembershipRegistry = registry::TestMembershipRegistryModule;
     type ThreadId = u64;
     type PostId = u64;
@@ -113,7 +121,7 @@ impl Trait for Runtime {
 
 #[derive(Clone)]
 pub enum OriginType {
-    Signed(<Runtime as frame_system::Trait>::AccountId),
+    Signed(<Runtime as frame_system::Config>::AccountId),
     //Inherent, <== did not find how to make such an origin yet
     Root,
 }
@@ -409,8 +417,8 @@ pub fn assert_not_forum_sudo_cannot_update_category(
 /// - add each config as parameter, then
 ///
 
-pub fn default_genesis_config() -> GenesisConfig<Runtime> {
-    GenesisConfig::<Runtime> {
+pub fn default_genesis_config() -> forum::GenesisConfig<Runtime> {
+    forum::GenesisConfig::<Runtime> {
         category_by_id: vec![], // endowed_accounts.iter().cloned().map(|k|(k, 1 << 60)).collect(),
         next_category_id: 1,
         thread_by_id: vec![],
@@ -457,30 +465,30 @@ pub fn default_genesis_config() -> GenesisConfig<Runtime> {
 
 pub type RuntimeMap<K, V> = std::vec::Vec<(K, V)>;
 pub type RuntimeCategory = Category<
-    <Runtime as frame_system::Trait>::BlockNumber,
-    <Runtime as pallet_timestamp::Trait>::Moment,
-    <Runtime as frame_system::Trait>::AccountId,
+    <Runtime as frame_system::Config>::BlockNumber,
+    <Runtime as pallet_timestamp::Config>::Moment,
+    <Runtime as frame_system::Config>::AccountId,
 >;
 pub type RuntimeThread = Thread<
-    <Runtime as frame_system::Trait>::BlockNumber,
-    <Runtime as pallet_timestamp::Trait>::Moment,
-    <Runtime as frame_system::Trait>::AccountId,
+    <Runtime as frame_system::Config>::BlockNumber,
+    <Runtime as pallet_timestamp::Config>::Moment,
+    <Runtime as frame_system::Config>::AccountId,
     RuntimeThreadId,
 >;
 pub type RuntimePost = Post<
-    <Runtime as frame_system::Trait>::BlockNumber,
-    <Runtime as pallet_timestamp::Trait>::Moment,
-    <Runtime as frame_system::Trait>::AccountId,
+    <Runtime as frame_system::Config>::BlockNumber,
+    <Runtime as pallet_timestamp::Config>::Moment,
+    <Runtime as frame_system::Config>::AccountId,
     RuntimeThreadId,
     RuntimePostId,
 >;
 pub type RuntimeBlockchainTimestamp = BlockAndTime<
-    <Runtime as frame_system::Trait>::BlockNumber,
-    <Runtime as pallet_timestamp::Trait>::Moment,
+    <Runtime as frame_system::Config>::BlockNumber,
+    <Runtime as pallet_timestamp::Config>::Moment,
 >;
 
-pub type RuntimeThreadId = <Runtime as Trait>::ThreadId;
-pub type RuntimePostId = <Runtime as Trait>::PostId;
+pub type RuntimeThreadId = <Runtime as Config>::ThreadId;
+pub type RuntimePostId = <Runtime as Config>::PostId;
 
 pub fn genesis_config(
     category_by_id: &RuntimeMap<CategoryId, RuntimeCategory>,
@@ -489,15 +497,15 @@ pub fn genesis_config(
     next_thread_id: u64,
     post_by_id: &RuntimeMap<RuntimePostId, RuntimePost>,
     next_post_id: u64,
-    forum_sudo: <Runtime as frame_system::Trait>::AccountId,
+    forum_sudo: <Runtime as frame_system::Config>::AccountId,
     category_title_constraint: &InputValidationLengthConstraint,
     category_description_constraint: &InputValidationLengthConstraint,
     thread_title_constraint: &InputValidationLengthConstraint,
     post_text_constraint: &InputValidationLengthConstraint,
     thread_moderation_rationale_constraint: &InputValidationLengthConstraint,
     post_moderation_rationale_constraint: &InputValidationLengthConstraint,
-) -> GenesisConfig<Runtime> {
-    GenesisConfig::<Runtime> {
+) -> forum::GenesisConfig<Runtime> {
+    forum::GenesisConfig::<Runtime> {
         category_by_id: category_by_id.clone(),
         next_category_id,
         thread_by_id: thread_by_id.clone(),
@@ -524,7 +532,7 @@ pub fn default_mock_forum_user_registry_genesis_config() -> registry::GenesisCon
 // NB!:
 // Wanted to have payload: a: &GenesisConfig<Test>
 // but borrow checker made my life miserabl, so giving up for now.
-pub fn build_test_externalities(config: GenesisConfig<Runtime>) -> sp_io::TestExternalities {
+pub fn build_test_externalities(config: forum::GenesisConfig<Runtime>) -> sp_io::TestExternalities {
     let mut t = frame_system::GenesisConfig::default()
         .build_storage::<Runtime>()
         .unwrap();

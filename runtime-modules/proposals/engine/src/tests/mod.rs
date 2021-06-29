@@ -1,7 +1,7 @@
 pub(crate) mod mock;
 
 use crate::*;
-use mock::*;
+use mock::{Event, *};
 
 use codec::Encode;
 use frame_support::dispatch::DispatchResult;
@@ -14,7 +14,7 @@ use sp_std::rc::Rc;
 pub(crate) fn increase_total_balance_issuance_using_account_id(account_id: u64, balance: u64) {
     let initial_balance = Balances::total_issuance();
     {
-        let _ = <Test as stake::Trait>::Currency::deposit_creating(&account_id, balance);
+        let _ = <Test as stake::Config>::Currency::deposit_creating(&account_id, balance);
     }
     assert_eq!(Balances::total_issuance(), initial_balance + balance);
 }
@@ -255,7 +255,7 @@ impl EventFixture {
             .iter()
             .map(|ev| EventRecord {
                 phase: Phase::Initialization,
-                event: TestEvent::engine(ev.clone()),
+                event: Event::proposals_engine(ev.clone()),
                 topics: vec![],
             })
             .collect::<Vec<EventRecord<_, _>>>();
@@ -1059,7 +1059,7 @@ fn create_dummy_proposal_succeeds_with_stake() {
             .with_account_id(account_id)
             .with_stake(200);
 
-        let _imbalance = <Test as stake::Trait>::Currency::deposit_creating(&account_id, 500);
+        let _imbalance = <Test as stake::Config>::Currency::deposit_creating(&account_id, 500);
 
         let proposal_id = dummy_proposal.create_proposal_and_assert(Ok(1)).unwrap();
 
@@ -1149,16 +1149,16 @@ fn finalize_expired_proposal_and_check_stake_removing_with_balance_checks_succee
 
         let account_balance = 500;
         let _imbalance =
-            <Test as stake::Trait>::Currency::deposit_creating(&account_id, account_balance);
+            <Test as stake::Config>::Currency::deposit_creating(&account_id, account_balance);
 
         assert_eq!(
-            <Test as stake::Trait>::Currency::total_balance(&account_id),
+            <Test as stake::Config>::Currency::total_balance(&account_id),
             account_balance
         );
 
         let proposal_id = dummy_proposal.create_proposal_and_assert(Ok(1)).unwrap();
         assert_eq!(
-            <Test as stake::Trait>::Currency::total_balance(&account_id),
+            <Test as stake::Config>::Currency::total_balance(&account_id),
             account_balance - stake_amount
         );
 
@@ -1194,7 +1194,7 @@ fn finalize_expired_proposal_and_check_stake_removing_with_balance_checks_succee
 
         let rejection_fee = RejectionFee::get();
         assert_eq!(
-            <Test as stake::Trait>::Currency::total_balance(&account_id),
+            <Test as stake::Config>::Currency::total_balance(&account_id),
             account_balance - rejection_fee
         );
     });
@@ -1222,16 +1222,16 @@ fn proposal_cancellation_with_slashes_with_balance_checks_succeeds() {
 
         let account_balance = 500;
         let _imbalance =
-            <Test as stake::Trait>::Currency::deposit_creating(&account_id, account_balance);
+            <Test as stake::Config>::Currency::deposit_creating(&account_id, account_balance);
 
         assert_eq!(
-            <Test as stake::Trait>::Currency::total_balance(&account_id),
+            <Test as stake::Config>::Currency::total_balance(&account_id),
             account_balance
         );
 
         let proposal_id = dummy_proposal.create_proposal_and_assert(Ok(1)).unwrap();
         assert_eq!(
-            <Test as stake::Trait>::Currency::total_balance(&account_id),
+            <Test as stake::Config>::Currency::total_balance(&account_id),
             account_balance - stake_amount
         );
 
@@ -1269,7 +1269,7 @@ fn proposal_cancellation_with_slashes_with_balance_checks_succeeds() {
 
         let cancellation_fee = CancellationFee::get();
         assert_eq!(
-            <Test as stake::Trait>::Currency::total_balance(&account_id),
+            <Test as stake::Config>::Currency::total_balance(&account_id),
             account_balance - cancellation_fee
         );
     });
@@ -1568,7 +1568,7 @@ fn slash_balance_is_calculated_correctly() {
 
         assert_eq!(approved_slash_balance, 0);
 
-        let rejection_fee = <Test as crate::Trait>::RejectionFee::get();
+        let rejection_fee = <Test as crate::Config>::RejectionFee::get();
 
         let rejected_slash_balance = ProposalsEngine::calculate_slash_balance(
             &ProposalDecisionStatus::Rejected,
@@ -1584,7 +1584,7 @@ fn slash_balance_is_calculated_correctly() {
 
         assert_eq!(expired_slash_balance, rejection_fee);
 
-        let cancellation_fee = <Test as crate::Trait>::CancellationFee::get();
+        let cancellation_fee = <Test as crate::Config>::CancellationFee::get();
 
         let cancellation_slash_balance = ProposalsEngine::calculate_slash_balance(
             &ProposalDecisionStatus::Canceled,

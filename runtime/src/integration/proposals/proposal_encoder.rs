@@ -43,9 +43,16 @@ impl ProposalEncoder<Runtime> for ExtrinsicProposalEncoder {
             ProposalDetails::Spending(balance, destination) => Call::Council(
                 governance::council::Call::spend_from_council_mint(balance, destination),
             ),
-            ProposalDetails::SetValidatorCount(new_validator_count) => Call::Staking(
-                pallet_staking::Call::set_validator_count(new_validator_count),
-            ),
+            ProposalDetails::SetValidatorCount(_new_validator_count) => {
+                #[cfg(not(feature = "standalone"))]
+                print("Error: Calling SetValidatorCount encoding option in parachain mode.");
+                #[cfg(not(feature = "standalone"))]
+                return Vec::new();
+                #[cfg(feature = "standalone")]
+                Call::Staking(pallet_staking::Call::set_validator_count(
+                    _new_validator_count,
+                ))
+            }
             ProposalDetails::RuntimeUpgrade(wasm_code) => Call::ProposalsCodex(
                 proposals_codex::Call::execute_runtime_upgrade_proposal(wasm_code),
             ),
@@ -142,7 +149,7 @@ struct Wg<T, I> {
 
 impl<T, I> Wg<T, I>
 where
-    T: working_group::Trait<I>,
+    T: working_group::Config<I>,
     I: frame_support::traits::Instance,
 {
     // Generic call constructor for the add working group opening.

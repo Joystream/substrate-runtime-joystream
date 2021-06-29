@@ -4,10 +4,9 @@
 use codec::{Codec, Decode, Encode};
 use frame_support::storage::IterableStorageMap;
 use frame_support::traits::{Currency, ExistenceRequirement, Get, Imbalance, WithdrawReasons};
-use frame_support::{decl_module, decl_storage, ensure, Parameter};
+use frame_support::{decl_module, decl_storage, ensure, PalletId, Parameter};
 use sp_arithmetic::traits::{BaseArithmetic, One, Zero};
 use sp_runtime::traits::{AccountIdConversion, MaybeSerialize, Member};
-use sp_runtime::ModuleId;
 use sp_std::collections::btree_map::BTreeMap;
 use sp_std::prelude::*;
 
@@ -18,12 +17,13 @@ mod mock;
 mod tests;
 
 pub type BalanceOf<T> =
-    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
-pub type NegativeImbalance<T> =
-    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::NegativeImbalance;
+pub type NegativeImbalance<T> = <<T as Config>::Currency as Currency<
+    <T as frame_system::Config>::AccountId,
+>>::NegativeImbalance;
 
-pub trait Trait: frame_system::Trait + Sized {
+pub trait Config: frame_system::Config + Sized {
     /// The currency that is managed by the module
     type Currency: Currency<Self::AccountId>;
 
@@ -55,7 +55,7 @@ pub trait Trait: frame_system::Trait + Sized {
         + Ord; //required to be a key in BTreeMap
 }
 
-pub trait StakingEventsHandler<T: Trait> {
+pub trait StakingEventsHandler<T: Config> {
     /// Handler for unstaking event.
     /// The handler is informed of the amount that was unstaked, and the value removed from stake is passed as a negative imbalance.
     /// The handler is responsible to consume part or all of the value (for example by moving it into an account). The remainder
@@ -82,7 +82,7 @@ pub trait StakingEventsHandler<T: Trait> {
 }
 
 /// Default implementation just destroys the unstaked or slashed value
-impl<T: Trait> StakingEventsHandler<T> for () {
+impl<T: Config> StakingEventsHandler<T> for () {
     fn unstaked(
         _id: &T::StakeId,
         _unstaked_amount: BalanceOf<T>,
@@ -107,7 +107,7 @@ impl<T: Trait> StakingEventsHandler<T> for () {
 /// type StakingEventHandler = ((A, B), C)
 /// Individual handlers are expected consume in full or in part the negative imbalance and return any unconsumed value.
 /// The unconsumed value is then passed to the next handler in the chain.
-impl<T: Trait, X: StakingEventsHandler<T>, Y: StakingEventsHandler<T>> StakingEventsHandler<T>
+impl<T: Config, X: StakingEventsHandler<T>, Y: StakingEventsHandler<T>> StakingEventsHandler<T>
     for (X, Y)
 {
     fn unstaked(
@@ -707,7 +707,7 @@ pub struct SlashImmediateOutcome<Balance, NegativeImbalance> {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as StakePool {
+    trait Store for Module<T: Config> as StakePool {
         /// Maps identifiers to a stake.
         pub Stakes get(fn stakes): map hasher(blake2_128_concat)
             T::StakeId => Stake<T::BlockNumber, BalanceOf<T>, T::SlashId>;
@@ -719,20 +719,20 @@ decl_storage! {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn on_finalize(_now: T::BlockNumber) {
             Self::finalize_slashing_and_unstaking();
         }
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// The account ID of theis module which holds all the staked balance. (referred to as the stake pool)
     ///
     /// This actually does computation. If you need to keep using it, then make sure you cache the
     /// value and only call this once. Is it deterministic?
     pub fn stake_pool_account_id() -> T::AccountId {
-        ModuleId(T::StakePoolId::get()).into_account()
+        PalletId(T::StakePoolId::get()).into_account()
     }
 
     pub fn stake_pool_balance() -> BalanceOf<T> {
@@ -746,7 +746,7 @@ impl<T: Trait> Module<T> {
 
         <Stakes<T>>::insert(
             &stake_id,
-            Stake::new(<frame_system::Module<T>>::block_number()),
+            Stake::new(<frame_system::Pallet<T>>::block_number()),
         );
 
         stake_id
@@ -1039,7 +1039,7 @@ impl<T: Trait> Module<T> {
         let slash_id = stake.initiate_slashing(
             slash_amount,
             slash_period,
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::block_number(),
         )?;
 
         <Stakes<T>>::insert(stake_id, stake);
@@ -1096,7 +1096,7 @@ impl<T: Trait> Module<T> {
 
         if let Some(unstaking_period) = unstaking_period {
             stake
-                .initiate_unstaking(unstaking_period, <frame_system::Module<T>>::block_number())?;
+                .initiate_unstaking(unstaking_period, <frame_system::Pallet<T>>::block_number())?;
             <Stakes<T>>::insert(stake_id, stake);
         } else {
             let staked_amount = stake.unstake()?;

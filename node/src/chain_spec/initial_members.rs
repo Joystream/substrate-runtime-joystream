@@ -1,4 +1,4 @@
-use node_runtime::{membership, AccountId, Moment};
+use joystream_node_runtime::{membership, AccountId, Moment};
 use std::{fs, path::Path};
 
 /// Generates a Vec of genesis members parsed from a json file

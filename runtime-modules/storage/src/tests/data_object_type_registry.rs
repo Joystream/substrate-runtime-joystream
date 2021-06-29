@@ -6,7 +6,7 @@ use super::mock::*;
 
 fn get_last_data_object_type_id() -> u64 {
     let dot_id = match System::events().last().unwrap().event {
-        MetaEvent::data_object_type_registry(
+        Event::data_object_type_registry(
             data_object_type_registry::RawEvent::DataObjectTypeRegistered(_, dot_id),
         ) => dot_id,
         _ => 0xdeadbeefu64, // unlikely value
@@ -221,7 +221,7 @@ fn update_existing() {
             *System::events().last().unwrap(),
             EventRecord {
                 phase: Phase::Initialization,
-                event: MetaEvent::data_object_type_registry(
+                event: Event::data_object_type_registry(
                     data_object_type_registry::RawEvent::DataObjectTypeUpdated(dot_id, updated3)
                 ),
                 topics: vec![],
@@ -274,7 +274,7 @@ fn activate_existing() {
             *System::events().last().unwrap(),
             EventRecord {
                 phase: Phase::Initialization,
-                event: MetaEvent::data_object_type_registry(
+                event: Event::data_object_type_registry(
                     data_object_type_registry::RawEvent::DataObjectTypeRegistered(
                         data,
                         expected_data_object_type_id
@@ -301,7 +301,7 @@ fn activate_existing() {
             *System::events().last().unwrap(),
             EventRecord {
                 phase: Phase::Initialization,
-                event: MetaEvent::data_object_type_registry(
+                event: Event::data_object_type_registry(
                     data_object_type_registry::RawEvent::DataObjectTypeUpdated(
                         expected_data_object_type_id,
                         data

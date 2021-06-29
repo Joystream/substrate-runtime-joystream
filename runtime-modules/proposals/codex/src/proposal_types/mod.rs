@@ -11,7 +11,7 @@ use crate::ElectionParameters;
 use common::working_group::WorkingGroup;
 
 /// Encodes proposal using its details information.
-pub trait ProposalEncoder<T: crate::Trait> {
+pub trait ProposalEncoder<T: crate::Config> {
     /// Encodes proposal using its details information.
     fn encode_proposal(proposal_details: ProposalDetailsOf<T>) -> Vec<u8>;
 }
@@ -20,8 +20,8 @@ pub trait ProposalEncoder<T: crate::Trait> {
 pub type ProposalDetailsOf<T> = ProposalDetails<
     crate::BalanceOfMint<T>,
     crate::BalanceOfGovernanceCurrency<T>,
-    <T as frame_system::Trait>::BlockNumber,
-    <T as frame_system::Trait>::AccountId,
+    <T as frame_system::Config>::BlockNumber,
+    <T as frame_system::Config>::AccountId,
     working_group::OpeningId<T>,
     working_group::ApplicationId<T>,
     crate::BalanceOf<T>,

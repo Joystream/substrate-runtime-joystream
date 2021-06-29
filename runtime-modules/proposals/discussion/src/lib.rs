@@ -23,10 +23,10 @@
 //! use frame_system::ensure_root;
 //! use pallet_proposals_discussion::{self as discussions};
 //!
-//! pub trait Trait: discussions::Trait + membership::Trait {}
+//! pub trait Config: discussions::Config + membership::Config {}
 //!
 //! decl_module! {
-//!     pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+//!     pub struct Module<T: Config> for enum Call where origin: T::Origin {
 //!         #[weight = 10_000_000]
 //!         pub fn create_discussion(origin, title: Vec<u8>, author_id : T::MemberId) {
 //!             ensure_root(origin)?;
@@ -57,15 +57,15 @@ use sp_std::vec::Vec;
 use common::origin::ActorOriginValidator;
 use types::{DiscussionPost, DiscussionThread, ThreadCounter};
 
-type MemberId<T> = <T as membership::Trait>::MemberId;
+type MemberId<T> = <T as membership::Config>::MemberId;
 
 decl_event!(
     /// Proposals engine events
     pub enum Event<T>
     where
-        <T as Trait>::ThreadId,
+        <T as Config>::ThreadId,
         MemberId = MemberId<T>,
-        <T as Trait>::PostId,
+        <T as Config>::PostId,
     {
         /// Emits on thread creation.
         ThreadCreated(ThreadId, MemberId),
@@ -78,10 +78,10 @@ decl_event!(
     }
 );
 
-/// 'Proposal discussion' substrate module Trait
-pub trait Trait: frame_system::Trait + membership::Trait {
+/// 'Proposal discussion' substrate module Config
+pub trait Config: frame_system::Config + membership::Config {
     /// Discussion event type.
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     /// Validates post author id and origin combination
     type PostAuthorOriginValidator: ActorOriginValidator<
@@ -111,7 +111,7 @@ pub trait Trait: frame_system::Trait + membership::Trait {
 
 decl_error! {
     /// Discussion module predefined errors
-    pub enum Error for Module<T: Trait> {
+    pub enum Error for Module<T: Config> {
         /// Author should match the post creator
         NotAuthor,
 
@@ -146,7 +146,7 @@ decl_error! {
 
 // Storage for the proposals discussion module
 decl_storage! {
-    pub trait Store for Module<T: Trait> as ProposalDiscussion {
+    pub trait Store for Module<T: Config> as ProposalDiscussion {
         /// Map thread identifier to corresponding thread.
         pub ThreadById get(fn thread_by_id): map hasher(blake2_128_concat)
             T::ThreadId => DiscussionThread<MemberId<T>, T::BlockNumber>;
@@ -170,7 +170,7 @@ decl_storage! {
 
 decl_module! {
     /// 'Proposal discussion' substrate module
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         /// Predefined errors
         type Error = Error<T>;
 
@@ -273,7 +273,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Create the discussion thread. Cannot add more threads than 'predefined limit = MaxThreadInARowNumber'
     /// times in a row by the same author.
     pub fn create_thread(
@@ -328,10 +328,10 @@ impl<T: Trait> Module<T> {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     // Wrapper-function over frame_system::block_number()
     fn current_block() -> T::BlockNumber {
-        <frame_system::Module<T>>::block_number()
+        <frame_system::Pallet<T>>::block_number()
     }
 
     // returns incremented thread counter if last thread author equals with provided parameter

@@ -73,49 +73,49 @@ pub use types::{
 };
 
 /// Stake identifier in staking module
-pub type StakeId<T> = <T as stake::Trait>::StakeId;
+pub type StakeId<T> = <T as stake::Config>::StakeId;
 
 /// Member identifier in membership::member module
-pub type MemberId<T> = <T as membership::Trait>::MemberId;
+pub type MemberId<T> = <T as membership::Config>::MemberId;
 
 /// Workaround for BTreeSet type
 pub type ApplicationIdSet<T> = BTreeSet<ApplicationId<T>>;
 
 /// Type for the identifier for an opening for a worker/lead.
-pub type OpeningId<T> = <T as hiring::Trait>::OpeningId;
+pub type OpeningId<T> = <T as hiring::Config>::OpeningId;
 
 /// Type for the identifier for an application as a worker/lead.
-pub type ApplicationId<T> = <T as hiring::Trait>::ApplicationId;
+pub type ApplicationId<T> = <T as hiring::Config>::ApplicationId;
 
 /// Balance type of runtime
 pub type BalanceOf<T> =
-    <<T as stake::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as stake::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 /// Balance type of runtime reward
 pub type BalanceOfMint<T> =
-    <<T as minting::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as minting::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 /// Balance type of runtime
-pub type CurrencyOf<T> = <T as stake::Trait>::Currency;
+pub type CurrencyOf<T> = <T as stake::Config>::Currency;
 
 /// Negative imbalance of runtime.
-pub type NegativeImbalance<T> = <<T as stake::Trait>::Currency as Currency<
-    <T as frame_system::Trait>::AccountId,
+pub type NegativeImbalance<T> = <<T as stake::Config>::Currency as Currency<
+    <T as frame_system::Config>::AccountId,
 >>::NegativeImbalance;
 
 /// Alias for the worker application id to the worker id dictionary
 pub type ApplicationIdToWorkerIdMap<T> = BTreeMap<ApplicationId<T>, WorkerId<T>>;
 
 /// Type identifier for worker role, which must be same as membership actor identifier
-pub type WorkerId<T> = <T as membership::Trait>::ActorId;
+pub type WorkerId<T> = <T as membership::Config>::ActorId;
 
 /// Alias for the application id from the hiring module.
-pub type HiringApplicationId<T> = <T as hiring::Trait>::ApplicationId;
+pub type HiringApplicationId<T> = <T as hiring::Config>::ApplicationId;
 
 // Type simplification
 type OpeningInfo<T> = (
     OpeningOf<T>,
-    hiring::Opening<BalanceOf<T>, <T as frame_system::Trait>::BlockNumber, HiringApplicationId<T>>,
+    hiring::Opening<BalanceOf<T>, <T as frame_system::Config>::BlockNumber, HiringApplicationId<T>>,
 );
 
 // Type simplification
@@ -123,46 +123,46 @@ type ApplicationInfo<T> = (ApplicationOf<T>, ApplicationId<T>, OpeningOf<T>);
 
 // Type simplification
 type RewardSettings<T> = (
-    <T as minting::Trait>::MintId,
-    RewardPolicy<BalanceOfMint<T>, <T as frame_system::Trait>::BlockNumber>,
+    <T as minting::Config>::MintId,
+    RewardPolicy<BalanceOfMint<T>, <T as frame_system::Config>::BlockNumber>,
 );
 
 // Type simplification
 type WorkerOf<T> = Worker<
-    <T as frame_system::Trait>::AccountId,
-    <T as recurringrewards::Trait>::RewardRelationshipId,
-    <T as stake::Trait>::StakeId,
-    <T as frame_system::Trait>::BlockNumber,
+    <T as frame_system::Config>::AccountId,
+    <T as recurringrewards::Config>::RewardRelationshipId,
+    <T as stake::Config>::StakeId,
+    <T as frame_system::Config>::BlockNumber,
     MemberId<T>,
 >;
 
 // Type simplification
 type OpeningOf<T> = Opening<
-    <T as hiring::Trait>::OpeningId,
-    <T as frame_system::Trait>::BlockNumber,
+    <T as hiring::Config>::OpeningId,
+    <T as frame_system::Config>::BlockNumber,
     BalanceOf<T>,
     ApplicationId<T>,
 >;
 
 // Type simplification
 type ApplicationOf<T> = Application<
-    <T as frame_system::Trait>::AccountId,
+    <T as frame_system::Config>::AccountId,
     OpeningId<T>,
     MemberId<T>,
     HiringApplicationId<T>,
 >;
 
 /// The _Working group_ main _Trait_
-pub trait Trait<I: Instance>:
-    frame_system::Trait
-    + membership::Trait
-    + hiring::Trait
-    + minting::Trait
-    + stake::Trait
-    + recurringrewards::Trait
+pub trait Config<I: Instance>:
+    frame_system::Config
+    + membership::Config
+    + hiring::Config
+    + minting::Config
+    + stake::Config
+    + recurringrewards::Config
 {
     /// _Working group_ event type.
-    type Event: From<Event<Self, I>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self, I>> + Into<<Self as frame_system::Config>::Event>;
 
     /// Defines max workers number in the working group.
     type MaxWorkerNumberLimit: Get<u32>;
@@ -173,13 +173,13 @@ decl_event!(
     pub enum Event<T, I>
     where
         WorkerId = WorkerId<T>,
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
         OpeningId = OpeningId<T>,
         ApplicationId = ApplicationId<T>,
         ApplicationIdToWorkerIdMap = ApplicationIdToWorkerIdMap<T>,
         RationaleText = Vec<u8>,
         MintBalanceOf = minting::BalanceOf<T>,
-        <T as minting::Trait>::MintId,
+        <T as minting::Config>::MintId,
     {
         /// Emits on setting the leader.
         /// Params:
@@ -292,9 +292,9 @@ decl_event!(
 );
 
 decl_storage! {
-    trait Store for Module<T: Trait<I>, I: Instance> as WorkingGroup {
+    trait Store for Module<T: Config<I>, I: Instance> as WorkingGroup {
         /// The mint currently funding the rewards for this module.
-        pub Mint get(fn mint) : <T as minting::Trait>::MintId;
+        pub Mint get(fn mint) : <T as minting::Config>::MintId;
 
         /// The current lead.
         pub CurrentLead get(fn current_lead) : Option<WorkerId<T>>;
@@ -364,7 +364,7 @@ decl_storage! {
 
 decl_module! {
     /// _Working group_ substrate module.
-    pub struct Module<T: Trait<I>, I: Instance> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config<I>, I: Instance> for enum Call where origin: T::Origin {
         /// Default deposit_event() handler
         fn deposit_event() = default;
 
@@ -860,7 +860,7 @@ decl_module! {
                 let mint_id = Self::mint();
 
                 // Make sure valid parameters are selected for next payment at block number
-                ensure!(policy.next_payment_at_block > <frame_system::Module<T>>::block_number(),
+                ensure!(policy.next_payment_at_block > <frame_system::Pallet<T>>::block_number(),
                     Error::<T, I>::FillOpeningInvalidNextPaymentBlock);
 
                 // The verified reward settings to use
@@ -1052,7 +1052,7 @@ decl_module! {
 
 // ****************** Ensures **********************
 
-impl<T: Trait<I>, I: Instance> Module<T, I> {
+impl<T: Config<I>, I: Instance> Module<T, I> {
     fn ensure_opening_policy_commitment_is_valid(
         policy_commitment: &OpeningPolicyCommitment<T::BlockNumber, BalanceOf<T>>,
     ) -> Result<(), Error<T, I>> {
@@ -1393,7 +1393,7 @@ pub fn default_storage_size_constraint() -> u16 {
     2048
 }
 
-impl<T: Trait<I>, I: Instance> Module<T, I> {
+impl<T: Config<I>, I: Instance> Module<T, I> {
     /// Callback from StakingEventsHandler. Refunds unstaked imbalance back to the source account.
     pub fn refund_working_group_stake(
         stake_id: StakeId<T>,
@@ -1440,15 +1440,13 @@ impl<T: Trait<I>, I: Instance> Module<T, I> {
         <WorkerById<T, I>>::iter()
             .filter_map(|(worker_id, _)| {
                 // Filter the leader worker id if the leader is set.
-                lead_worker_id
-                    .clone()
-                    .map_or(Some(worker_id), |lead_worker_id| {
-                        if worker_id == lead_worker_id {
-                            None
-                        } else {
-                            Some(worker_id)
-                        }
-                    })
+                lead_worker_id.map_or(Some(worker_id), |lead_worker_id| {
+                    if worker_id == lead_worker_id {
+                        None
+                    } else {
+                        Some(worker_id)
+                    }
+                })
             })
             .collect()
     }

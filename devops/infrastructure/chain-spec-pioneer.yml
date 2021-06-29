@@ -1,9 +1,8 @@
 ---
-# Configure chain spec and start joystream-node service on the servers
+# Configure chain spec, start joystream-node service on the servers and build Pioneer
 
 - name: Create and copy the chain-spec file
   hosts: all
-  gather_facts: no
 
   tasks:
     - name: Generate chain-spec file and data keys either on localhost or admin server
@@ -16,12 +15,23 @@
 
 - name: Copy secret, auth and start joystream-node service for validators
   hosts: validators
+  gather_facts: no
 
   roles:
     - validators
 
 - name: Configure RPC service and start it
   hosts: rpc
+  gather_facts: no
 
   roles:
     - rpc
+
+- name: Build Pioneer and copy artifacts to S3
+  hosts: build
+  gather_facts: no
+
+  tasks:
+    - include_role:
+        name: admin
+        tasks_from: deploy-pioneer

@@ -35,14 +35,14 @@ use crate::*;
 const DEFAULT_FIRST_RELATIONSHIP_ID: u8 = 1;
 
 /// The _Data object storage registry_ main _Trait_.
-pub trait Trait:
-    pallet_timestamp::Trait
-    + frame_system::Trait
-    + data_directory::Trait
-    + working_group::Trait<StorageWorkingGroupInstance>
+pub trait Config:
+    pallet_timestamp::Config
+    + frame_system::Config
+    + data_directory::Config
+    + working_group::Config<StorageWorkingGroupInstance>
 {
     /// _Data object storage registry_ event type.
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     /// Type for data object storage relationship id
     type DataObjectStorageRelationshipId: Parameter
@@ -60,7 +60,7 @@ pub trait Trait:
 
 decl_error! {
     /// _Data object storage registry_ module predefined errors
-    pub enum Error for Module<T: Trait>{
+    pub enum Error for Module<T: Config>{
         /// Content with this ID not found.
         CidNotFound,
 
@@ -77,7 +77,7 @@ decl_error! {
 
 /// Defines a relationship between the content and the storage provider
 #[derive(Clone, Encode, Decode, PartialEq, Debug)]
-pub struct DataObjectStorageRelationship<T: Trait> {
+pub struct DataObjectStorageRelationship<T: Config> {
     /// Content id.
     pub content_id: <T as common::StorageOwnership>::ContentId,
 
@@ -89,7 +89,7 @@ pub struct DataObjectStorageRelationship<T: Trait> {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as DataObjectStorageRegistry {
+    trait Store for Module<T: Config> as DataObjectStorageRegistry {
 
         /// Defines first relationship id.
         pub FirstRelationshipId get(fn first_relationship_id) config(first_relationship_id):
@@ -112,7 +112,7 @@ decl_event! {
     /// _Data object storage registry_ events
     pub enum Event<T> where
         <T as common::StorageOwnership>::ContentId,
-        <T as Trait>::DataObjectStorageRelationshipId,
+        <T as Config>::DataObjectStorageRelationshipId,
         StorageProviderId = StorageProviderId<T>
     {
         /// Emits on adding of the data object storage relationship.
@@ -133,7 +133,7 @@ decl_event! {
 
 decl_module! {
     /// _Data object storage registry_ substrate module.
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         /// Default deposit_event() handler.
         fn deposit_event() = default;
 
@@ -203,7 +203,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     fn toggle_dosr_ready(
         origin: T::Origin,
         storage_provider_id: StorageProviderId<T>,

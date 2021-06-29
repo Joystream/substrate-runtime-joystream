@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::curators;
-use super::mock::*;
+use super::mock::{Event, *};
 use crate::*;
 use frame_support::{assert_err, assert_ok};
 
@@ -42,7 +42,7 @@ fn member_can_create_videos() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::VideoCreated(
+            Event::content(RawEvent::VideoCreated(
                 ContentActor::Member(FIRST_MEMBER_ID),
                 channel_id,
                 video_id,
@@ -72,7 +72,7 @@ fn member_can_create_videos() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::VideoUpdated(
+            Event::content(RawEvent::VideoUpdated(
                 ContentActor::Member(FIRST_MEMBER_ID),
                 video_id,
                 VideoUpdateParameters {
@@ -131,7 +131,7 @@ fn member_can_create_videos() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::VideoDeleted(
+            Event::content(RawEvent::VideoDeleted(
                 ContentActor::Member(FIRST_MEMBER_ID),
                 video_id
             ))
@@ -171,7 +171,7 @@ fn curators_can_censor_videos() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::VideoCensorshipStatusUpdated(
+            Event::content(RawEvent::VideoCensorshipStatusUpdated(
                 ContentActor::Curator(group_id, FIRST_CURATOR_ID),
                 video_id,
                 is_censored,
@@ -195,7 +195,7 @@ fn curators_can_censor_videos() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::VideoCensorshipStatusUpdated(
+            Event::content(RawEvent::VideoCensorshipStatusUpdated(
                 ContentActor::Curator(group_id, FIRST_CURATOR_ID),
                 video_id,
                 is_censored,
@@ -211,7 +211,7 @@ fn curators_can_censor_videos() {
         assert_err!(
             Content::update_video_censorship_status(
                 Origin::signed(FIRST_MEMBER_ORIGIN),
-                ContentActor::Member(FIRST_MEMBER_ORIGIN),
+                ContentActor::Member(FIRST_MEMBER_ID),
                 channel_id,
                 true,
                 vec![]
@@ -236,7 +236,7 @@ fn featured_videos() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::content(RawEvent::FeaturedVideosSet(
+            Event::content(RawEvent::FeaturedVideosSet(
                 ContentActor::Lead,
                 vec![1, 2, 3]
             ))

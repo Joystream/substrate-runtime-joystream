@@ -261,8 +261,8 @@ impl<BlockNumber, Moment, AccountId> Category<BlockNumber, Moment, AccountId> {
 type CategoryTreePath<BlockNumber, Moment, AccountId> =
     Vec<Category<BlockNumber, Moment, AccountId>>;
 
-pub trait Trait: frame_system::Trait + pallet_timestamp::Trait + Sized {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + pallet_timestamp::Config + Sized {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     type MembershipRegistry: ForumUserRegistry<Self::AccountId>;
 
@@ -288,7 +288,7 @@ pub trait Trait: frame_system::Trait + pallet_timestamp::Trait + Sized {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as Forum {
+    trait Store for Module<T: Config> as Forum {
 
         /// Map category identifier to corresponding category.
         pub CategoryById get(fn category_by_id) config(): map hasher(blake2_128_concat)
@@ -329,9 +329,9 @@ decl_storage! {
 decl_event!(
     pub enum Event<T>
     where
-        <T as frame_system::Trait>::AccountId,
-        <T as Trait>::ThreadId,
-        <T as Trait>::PostId,
+        <T as frame_system::Config>::AccountId,
+        <T as Config>::ThreadId,
+        <T as Config>::PostId,
     {
         /// A category was introduced
         CategoryCreated(CategoryId),
@@ -363,7 +363,7 @@ decl_event!(
 );
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
 
         fn deposit_event() = default;
 
@@ -764,7 +764,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     fn ensure_category_title_is_valid(title: &[u8]) -> DispatchResult {
         CategoryTitleConstraint::get().ensure_valid(
             title.len(),

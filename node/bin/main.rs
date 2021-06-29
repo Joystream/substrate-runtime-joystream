@@ -19,5 +19,8 @@
 #![warn(missing_docs)]
 
 fn main() -> sc_cli::Result<()> {
-    joystream_node::command::run()
+    #[cfg(not(feature = "standalone"))]
+    return joystream_node::command::run();
+    #[cfg(feature = "standalone")]
+    return joystream_node::command_standalone::run();
 }

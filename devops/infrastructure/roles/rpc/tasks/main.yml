@@ -21,6 +21,12 @@
     state: started
   become: yes
 
+- name: Set websocket and http endpoint variables
+  set_fact:
+    ws_rpc: "{{ inventory_hostname }}.nip.io/ws-rpc"
+    http_rpc: "{{ inventory_hostname }}.nip.io/http-rpc"
+  run_once: yes
+
 - name: Install and configure Caddy
   include_role:
     name: caddy_ansible.caddy_ansible
@@ -29,9 +35,8 @@
   vars:
     caddy_config: "{{ lookup('template', 'templates/Caddyfile.j2') }}"
     caddy_systemd_capabilities_enabled: true
-    ws_rpc: "{{ inventory_hostname }}.nip.io/ws-rpc"
-    http_rpc: "{{ inventory_hostname }}.nip.io/http-rpc"
+    caddy_update: false
 
 - name: Print RPC node DNS
   debug:
-    msg: "RPC Endpoint: wss://{{ inventory_hostname }}.nip.io/ws-rpc"
+    msg: "RPC Endpoint: wss://{{ ws_rpc }}"

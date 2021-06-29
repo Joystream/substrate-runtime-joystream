@@ -13,12 +13,12 @@ use sp_std::rc::Rc;
 
 use std::panic;
 
-pub(crate) type OpeningId = <Test as Trait>::OpeningId;
-pub(crate) type ApplicationId = <Test as Trait>::ApplicationId;
-pub(crate) type BlockNumber = <Test as frame_system::Trait>::BlockNumber;
-pub(crate) type StakeId = <Test as stake::Trait>::StakeId;
-pub(crate) type Balance = <<Test as stake::Trait>::Currency as Currency<
-    <Test as frame_system::Trait>::AccountId,
+pub(crate) type OpeningId = <Test as Config>::OpeningId;
+pub(crate) type ApplicationId = <Test as Config>::ApplicationId;
+pub(crate) type BlockNumber = <Test as frame_system::Config>::BlockNumber;
+pub(crate) type StakeId = <Test as stake::Config>::StakeId;
+pub(crate) type Balance = <<Test as stake::Config>::Currency as Currency<
+    <Test as frame_system::Config>::AccountId,
 >>::Balance;
 
 // Debug test object content. Recurring temporary usage - do not delete.

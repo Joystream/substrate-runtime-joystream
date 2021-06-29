@@ -18,7 +18,7 @@
   loop:
     - "{{ network_path }}"
 
-- name: Copy secret to remote host
+- name: Copy node key to remote host
   copy:
     dest: "{{ secret_path }}"
     content: "{{ subkey_output.stdout }}"

@@ -11,14 +11,6 @@ else
   source $1
 fi
 
-ACCOUNT_ID=$(aws sts get-caller-identity --profile $CLI_PROFILE --query Account --output text)
-
-NEW_STACK_NAME="${STACK_NAME}-${ACCOUNT_ID}"
-
-DATA_PATH="data-$NEW_STACK_NAME"
-
-INVENTORY_PATH="$DATA_PATH/inventory"
-
 if [ $ACCOUNT_ID == None ]; then
     echo "Couldn't find Account ID, please check if AWS Profile $CLI_PROFILE is set"
     exit 1
@@ -28,6 +20,14 @@ if [ ! -f "$KEY_PATH" ]; then
     echo "Key file not found at $KEY_PATH"
     exit 1
 fi
+
+get_aws_export () {
+  RESULT=$(aws cloudformation list-exports \
+    --profile $CLI_PROFILE \
+    --query "Exports[?starts_with(Name,'${NEW_STACK_NAME}$1')].Value" \
+    --output text | sed 's/\t\t*/\n/g')
+  echo -e $RESULT | tr " " "\n"
+}
 
 # Deploy the CloudFormation template
 echo -e "\n\n=========== Deploying main.yml ==========="
@@ -48,20 +48,15 @@ if [ $? -eq 0 ]; then
   # Install additional Ansible roles from requirements
   ansible-galaxy install -r requirements.yml
 
-  VALIDATORS=$(aws cloudformation list-exports \
-    --profile $CLI_PROFILE \
-    --query "Exports[?starts_with(Name,'${NEW_STACK_NAME}PublicIp')].Value" \
-    --output text | sed 's/\t\t*/\n/g')
+  VALIDATORS=$(get_aws_export "PublicIp")
 
-  RPC_NODES=$(aws cloudformation list-exports \
-    --profile $CLI_PROFILE \
-    --query "Exports[?starts_with(Name,'${NEW_STACK_NAME}RPCPublicIp')].Value" \
-    --output text | sed 's/\t\t*/\n/g')
+  RPC_NODES=$(get_aws_export "RPCPublicIp")
 
-  BUILD_SERVER=$(aws cloudformation list-exports \
-    --profile $CLI_PROFILE \
-    --query "Exports[?starts_with(Name,'${NEW_STACK_NAME}BuildPublicIp')].Value" \
-    --output text | sed 's/\t\t*/\n/g')
+  BUILD_SERVER=$(get_aws_export "BuildPublicIp")
+
+  BUCKET_NAME=$(get_aws_export "S3BucketName")
+
+  DOMAIN_NAME=$(get_aws_export "DomainName")
 
   mkdir -p $DATA_PATH
 
@@ -77,7 +72,9 @@ if [ $? -eq 0 ]; then
   ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH setup-admin.yml \
     --extra-vars "local_dir=$LOCAL_CODE_PATH build_local_code=$BUILD_LOCAL_CODE"
 
-  echo -e "\n\n=========== Configuring the chain spec file ==========="
-  ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH chain-spec-configuration.yml \
-    --extra-vars "local_dir=$LOCAL_CODE_PATH network_suffix=$NETWORK_SUFFIX data_path=data-$NEW_STACK_NAME"
+  echo -e "\n\n=========== Configuring the chain spec file and Pioneer app ==========="
+  ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH chain-spec-pioneer.yml \
+    --extra-vars "local_dir=$LOCAL_CODE_PATH network_suffix=$NETWORK_SUFFIX data_path=data-$NEW_STACK_NAME bucket_name=$BUCKET_NAME"
+
+  echo -e "\n\n Pioneer URL: https://$DOMAIN_NAME"
 fi

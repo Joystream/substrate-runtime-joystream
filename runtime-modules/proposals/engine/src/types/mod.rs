@@ -8,7 +8,7 @@ use frame_support::dispatch::DispatchResult;
 use frame_support::traits::Currency;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
-use sp_runtime::Perbill;
+use sp_runtime::{PerThing, Perbill};
 use sp_std::boxed::Box;
 use sp_std::cmp::PartialOrd;
 use sp_std::ops::Add;
@@ -29,7 +29,7 @@ pub(crate) use stakes::DefaultStakeHandler;
 #[cfg(test)]
 pub(crate) use stakes::MockStakeHandler;
 
-pub(crate) type Balances<T> = balances::Module<T>;
+pub(crate) type Balances<T> = balances::Pallet<T>;
 
 /// Vote kind for the proposal. Sum of all votes defines proposal status.
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
@@ -256,8 +256,8 @@ where
     // Approval quorum reached for the proposal. Compares predefined parameter with actual
     // votes sum divided by total possible votes count.
     pub fn is_approval_quorum_reached(&self) -> bool {
-        let actual_votes_fraction =
-            Perbill::from_rational_approximation(self.votes_count, self.total_voters_count);
+        let actual_votes_fraction: Perbill =
+            PerThing::from_rational(self.votes_count, self.total_voters_count);
         let approval_quorum_fraction =
             Perbill::from_percent(self.proposal.parameters.approval_quorum_percentage);
 
@@ -267,8 +267,8 @@ where
     // Slashing quorum reached for the proposal. Compares predefined parameter with actual
     // votes sum divided by total possible votes count.
     pub fn is_slashing_quorum_reached(&self) -> bool {
-        let actual_votes_fraction =
-            Perbill::from_rational_approximation(self.votes_count, self.total_voters_count);
+        let actual_votes_fraction: Perbill =
+            PerThing::from_rational(self.votes_count, self.total_voters_count);
         let slashing_quorum_fraction =
             Perbill::from_percent(self.proposal.parameters.slashing_quorum_percentage);
 
@@ -278,8 +278,8 @@ where
     // Approval threshold reached for the proposal. Compares predefined parameter with 'approve'
     // votes sum divided by actual votes count.
     pub fn is_approval_threshold_reached(&self) -> bool {
-        let approval_votes_fraction =
-            Perbill::from_rational_approximation(self.approvals, self.votes_count);
+        let approval_votes_fraction: Perbill =
+            PerThing::from_rational(self.approvals, self.votes_count);
         let required_threshold_fraction =
             Perbill::from_percent(self.proposal.parameters.approval_threshold_percentage);
 
@@ -289,8 +289,8 @@ where
     // Slashing threshold reached for the proposal. Compares predefined parameter with 'approve'
     // votes sum divided by actual votes count.
     pub fn is_slashing_threshold_reached(&self) -> bool {
-        let slashing_votes_fraction =
-            Perbill::from_rational_approximation(self.slashes, self.votes_count);
+        let slashing_votes_fraction: Perbill =
+            PerThing::from_rational(self.slashes, self.votes_count);
         let required_threshold_fraction =
             Perbill::from_percent(self.proposal.parameters.slashing_threshold_percentage);
 
@@ -310,7 +310,7 @@ pub trait ProposalExecutable {
 }
 
 /// Proposal code binary converter
-pub trait ProposalCodeDecoder<T: frame_system::Trait> {
+pub trait ProposalCodeDecoder<T: frame_system::Config> {
     /// Converts proposal code binary to executable representation
     fn decode_proposal(
         proposal_type: u32,
@@ -320,15 +320,15 @@ pub trait ProposalCodeDecoder<T: frame_system::Trait> {
 
 /// Balance alias
 pub type BalanceOf<T> =
-    <<T as stake::Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as stake::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 /// Balance alias for staking
-pub type NegativeImbalance<T> = <<T as stake::Trait>::Currency as Currency<
-    <T as frame_system::Trait>::AccountId,
+pub type NegativeImbalance<T> = <<T as stake::Config>::Currency as Currency<
+    <T as frame_system::Config>::AccountId,
 >>::NegativeImbalance;
 
 /// Balance type of runtime
-pub type CurrencyOf<T> = <T as stake::Trait>::Currency;
+pub type CurrencyOf<T> = <T as stake::Config>::Currency;
 
 /// Data container for the finalized proposal results
 pub(crate) struct FinalizedProposalData<

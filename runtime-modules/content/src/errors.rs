@@ -3,7 +3,7 @@ use frame_support::decl_error;
 
 decl_error! {
     /// Content directory errors
-    pub enum Error for Module<T: Trait> {
+    pub enum Error for Module<T: Config> {
         /// Feature Not Implemented
         FeatureNotImplemented,
 

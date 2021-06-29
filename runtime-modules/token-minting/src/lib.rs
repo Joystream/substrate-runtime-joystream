@@ -19,7 +19,7 @@ mod tests;
 
 pub use mint::*;
 
-pub trait Trait: frame_system::Trait {
+pub trait Config: frame_system::Config {
     /// The currency to mint.
     type Currency: Currency<Self::AccountId>;
 
@@ -35,7 +35,7 @@ pub trait Trait: frame_system::Trait {
 }
 
 pub type BalanceOf<T> =
-    <<T as Trait>::Currency as Currency<<T as frame_system::Trait>::AccountId>>::Balance;
+    <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
 #[derive(PartialEq, Eq, Debug)]
 pub enum GeneralError {
@@ -104,7 +104,7 @@ pub enum Adjustment<Balance: Zero, BlockNumber> {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as TokenMint {
+    trait Store for Module<T: Config> as TokenMint {
         /// Mints
         pub Mints get(fn mints) : map hasher(blake2_128_concat) T::MintId => Mint<BalanceOf<T>, T::BlockNumber>;
 
@@ -114,14 +114,14 @@ decl_storage! {
 }
 // pub Account: map hasher(blake2_128_concat) T::AccountId => AccountData<T::Balance>;
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn on_finalize(now: T::BlockNumber) {
             Self::update_mints(now);
         }
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     fn update_mints(now: T::BlockNumber) {
         // Are we reading value from storage twice?
         for (mint_id, ref mut mint) in <Mints<T>>::iter() {
@@ -136,7 +136,7 @@ impl<T: Trait> Module<T> {
         initial_capacity: BalanceOf<T>,
         adjustment: Option<Adjustment<BalanceOf<T>, T::BlockNumber>>,
     ) -> Result<T::MintId, GeneralError> {
-        let now = <frame_system::Module<T>>::block_number();
+        let now = <frame_system::Pallet<T>>::block_number();
 
         // Ensure the next adjustment if set, is in the future
         if let Some(adjustment) = adjustment {

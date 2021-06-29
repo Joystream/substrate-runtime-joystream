@@ -22,20 +22,20 @@ impl<X: CouncilTermEnded> CouncilTermEnded for (X,) {
     }
 }
 
-pub trait Trait: frame_system::Trait + recurringrewards::Trait + GovernanceCurrency {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+pub trait Config: frame_system::Config + recurringrewards::Config + GovernanceCurrency {
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     type CouncilTermEnded: CouncilTermEnded;
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as Council {
+    trait Store for Module<T: Config> as Council {
         pub ActiveCouncil get(fn active_council) config(): Seats<T::AccountId, BalanceOf<T>>;
 
         pub TermEndsAt get(fn term_ends_at) config() : T::BlockNumber = T::BlockNumber::from(1u32);
 
         /// The mint that funds council member rewards and spending proposals budget
-        pub CouncilMint get(fn council_mint) : <T as minting::Trait>::MintId;
+        pub CouncilMint get(fn council_mint) : <T as minting::Config>::MintId;
 
         /// The reward relationships currently in place. There may not necessarily be a 1-1 correspondance with
         /// the active council, since there are multiple ways of setting/adding/removing council members, some of which
@@ -71,17 +71,17 @@ decl_storage! {
 
 // Event for this module.
 decl_event!(
-    pub enum Event<T> where <T as frame_system::Trait>::BlockNumber {
+    pub enum Event<T> where <T as frame_system::Config>::BlockNumber {
         CouncilTermEnded(BlockNumber),
         NewCouncilTermStarted(BlockNumber),
     }
 );
 
-impl<T: Trait> CouncilElected<Seats<T::AccountId, BalanceOf<T>>, T::BlockNumber> for Module<T> {
+impl<T: Config> CouncilElected<Seats<T::AccountId, BalanceOf<T>>, T::BlockNumber> for Module<T> {
     fn council_elected(seats: Seats<T::AccountId, BalanceOf<T>>, term: T::BlockNumber) {
         <ActiveCouncil<T>>::put(seats.clone());
 
-        let next_term_ends_at = <frame_system::Module<T>>::block_number() + term;
+        let next_term_ends_at = <frame_system::Pallet<T>>::block_number() + term;
 
         <TermEndsAt<T>>::put(next_term_ends_at);
 
@@ -93,9 +93,9 @@ impl<T: Trait> CouncilElected<Seats<T::AccountId, BalanceOf<T>>, T::BlockNumber>
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn is_term_ended() -> bool {
-        <frame_system::Module<T>>::block_number() >= Self::term_ends_at()
+        <frame_system::Pallet<T>>::block_number() >= Self::term_ends_at()
     }
 
     pub fn is_councilor(sender: &T::AccountId) -> bool {
@@ -107,7 +107,7 @@ impl<T: Trait> Module<T> {
 
         // When calculating when first payout occurs, add minimum of one block interval to ensure rewards module
         // has a chance to execute its on_finalize routine.
-        let next_payout_at = frame_system::Module::<T>::block_number()
+        let next_payout_at = frame_system::Pallet::<T>::block_number()
             + Self::first_payout_after_reward_created()
             + T::BlockNumber::one();
 
@@ -121,7 +121,8 @@ impl<T: Trait> Module<T> {
         ) {
             RewardRelationships::<T>::insert(destination, relationship_id);
         } else {
-            debug::warn!("Failed to create a reward relationship for council seat");
+            let msg = "Failed to create a reward relationship for council seat";
+            debug(&msg);
         }
     }
 
@@ -149,7 +150,7 @@ impl<T: Trait> Module<T> {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         fn on_finalize(now: T::BlockNumber) {
@@ -229,7 +230,7 @@ decl_module! {
         #[weight = 10_000_000] // TODO: adjust weight
         fn set_term_ends_at(origin, ends_at: T::BlockNumber) {
             ensure_root(origin)?;
-            ensure!(ends_at > <frame_system::Module<T>>::block_number(), "must set future block number");
+            ensure!(ends_at > <frame_system::Pallet<T>>::block_number(), "must set future block number");
             <TermEndsAt<T>>::put(ends_at);
         }
 
@@ -281,7 +282,7 @@ mod tests {
     use frame_support::*;
 
     fn add_council_member_as_root(
-        account: <Test as frame_system::Trait>::AccountId,
+        account: <Test as frame_system::Config>::AccountId,
     ) -> DispatchResult {
         Council::add_council_member(frame_system::RawOrigin::Root.into(), account)
             .map_err(|e| e.into())
@@ -359,7 +360,7 @@ mod tests {
                         backers: vec![],
                     },
                 ],
-                50 as u64, // <Test as frame_system::Trait>::BlockNumber::from(50)
+                50 as u64, // <Test as frame_system::Config>::BlockNumber::from(50)
             );
 
             assert!(Council::is_councilor(&5));

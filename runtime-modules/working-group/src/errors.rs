@@ -1,11 +1,11 @@
 #![warn(missing_docs)]
 
-use crate::{Instance, Module, Trait};
+use crate::{Config, Instance, Module};
 use frame_support::decl_error;
 
 decl_error! {
     /// Discussion module predefined errors
-    pub enum Error for Module<T: Trait<I>, I: Instance>{
+    pub enum Error for Module<T: Config<I>, I: Instance>{
         /// Provided stake balance cannot be zero.
         StakeBalanceCannotBeZero,
 
@@ -331,7 +331,7 @@ macro_rules! ensure_on_wrapped_error {
     }};
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<hiring::BeginAcceptingApplicationsError>> for Error<T, I>
 {
     fn from(wrapper: WrappedError<hiring::BeginAcceptingApplicationsError>) -> Self {
@@ -346,7 +346,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::AddOpeningError>>
+impl<T: Config<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::AddOpeningError>>
     for Error<T, I>
 {
     fn from(wrapper: WrappedError<hiring::AddOpeningError>) -> Self {
@@ -375,7 +375,7 @@ impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::AddOpe
     }
 }
 
-impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::BeginReviewError>>
+impl<T: Config<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::BeginReviewError>>
     for Error<T, I>
 {
     fn from(wrapper: WrappedError<hiring::BeginReviewError>) -> Self {
@@ -390,7 +390,7 @@ impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::BeginR
     }
 }
 
-impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::FillOpeningError<T>>>
+impl<T: Config<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::FillOpeningError<T>>>
     for Error<T, I>
 {
     fn from(wrapper: WrappedError<hiring::FillOpeningError<T>>) -> Self {
@@ -456,7 +456,7 @@ impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::FillOp
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<hiring::DeactivateApplicationError>> for Error<T, I>
 {
     fn from(wrapper: WrappedError<hiring::DeactivateApplicationError>) -> Self {
@@ -480,7 +480,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::AddApplicationError>>
+impl<T: Config<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::AddApplicationError>>
     for Error<T, I>
 {
     fn from(wrapper: WrappedError<hiring::AddApplicationError>) -> Self {
@@ -507,7 +507,7 @@ impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<hiring::AddApp
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<membership::MemberControllerAccountDidNotSign>>
     for Error<T, I>
 {
@@ -526,7 +526,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<recurringrewards::RewardsError>>
+impl<T: Config<I>, I: Instance> sp_std::convert::From<WrappedError<recurringrewards::RewardsError>>
     for Error<T, I>
 {
     fn from(wrapper: WrappedError<recurringrewards::RewardsError>) -> Self {
@@ -547,7 +547,7 @@ impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<recurringrewar
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<stake::StakeActionError<stake::InitiateUnstakingError>>>
     for Error<T, I>
 {
@@ -576,7 +576,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<
         WrappedError<stake::StakeActionError<stake::IncreasingStakeFromAccountError>>,
     > for Error<T, I>
@@ -608,7 +608,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<stake::StakeActionError<stake::IncreasingStakeError>>>
     for Error<T, I>
 {
@@ -630,7 +630,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<stake::StakeActionError<stake::DecreasingStakeError>>>
     for Error<T, I>
 {
@@ -658,7 +658,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance>
+impl<T: Config<I>, I: Instance>
     sp_std::convert::From<WrappedError<stake::StakeActionError<stake::ImmediateSlashingError>>>
     for Error<T, I>
 {
@@ -675,7 +675,7 @@ impl<T: Trait<I>, I: Instance>
     }
 }
 
-impl<T: Trait<I>, I: Instance> sp_std::convert::From<WrappedError<minting::GeneralError>>
+impl<T: Config<I>, I: Instance> sp_std::convert::From<WrappedError<minting::GeneralError>>
     for Error<T, I>
 {
     fn from(wrapper: WrappedError<minting::GeneralError>) -> Self {

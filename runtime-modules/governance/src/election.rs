@@ -53,10 +53,10 @@ pub use common::currency::{BalanceOf, GovernanceCurrency};
 
 use crate::DispatchResult;
 
-pub trait Trait:
-    frame_system::Trait + council::Trait + GovernanceCurrency + membership::Trait
+pub trait Config:
+    frame_system::Config + council::Config + GovernanceCurrency + membership::Config
 {
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     type CouncilElected: CouncilElected<Seats<Self::AccountId, BalanceOf<Self>>, Self::BlockNumber>;
 }
@@ -137,7 +137,7 @@ pub struct TransferableStake<Balance> {
 pub type ElectionStake<T> = Stake<BalanceOf<T>>;
 
 decl_storage! {
-    trait Store for Module<T: Trait> as CouncilElection {
+    trait Store for Module<T: Config> as CouncilElection {
         // Flag for wether to automatically start an election after a council term ends
         AutoStart get(fn auto_start) config() : bool = true;
 
@@ -186,9 +186,9 @@ decl_storage! {
 // Event for this module.
 decl_event!(
     pub enum Event<T> where
-    <T as frame_system::Trait>::BlockNumber,
-    <T as frame_system::Trait>::AccountId,
-    <T as frame_system::Trait>::Hash  {
+    <T as frame_system::Config>::BlockNumber,
+    <T as frame_system::Config>::AccountId,
+    <T as frame_system::Config>::Hash  {
         /// A new election started
         ElectionStarted(),
         AnnouncingStarted(u32),
@@ -204,7 +204,7 @@ decl_event!(
     }
 );
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     // HELPERS - IMMUTABLES
 
     fn council_size_usize() -> usize {
@@ -216,7 +216,7 @@ impl<T: Trait> Module<T> {
     }
 
     fn current_block_number_plus(length: T::BlockNumber) -> T::BlockNumber {
-        <frame_system::Module<T>>::block_number() + length
+        <frame_system::Pallet<T>>::block_number() + length
     }
 
     fn can_participate(sender: &T::AccountId) -> bool {
@@ -398,7 +398,7 @@ impl<T: Trait> Module<T> {
         T::CouncilElected::council_elected(new_council, Self::new_term_duration());
 
         Self::deposit_event(RawEvent::CouncilElected(
-            <frame_system::Module<T>>::block_number(),
+            <frame_system::Pallet<T>>::block_number(),
         ));
     }
 
@@ -793,7 +793,7 @@ impl<T: Trait> Module<T> {
         sealed_vote.unseal(
             vote_for,
             &mut salt,
-            <T as frame_system::Trait>::Hashing::hash,
+            <T as frame_system::Config>::Hashing::hash,
         )?;
 
         // Update the revealed vote
@@ -815,7 +815,7 @@ impl<T: Trait> Module<T> {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         fn deposit_event() = default;
 
         // No origin so this is a priviledged call
@@ -890,21 +890,21 @@ decl_module! {
         #[weight = 10_000_000] // TODO: adjust weight
         fn set_stage_announcing(origin, ends_at: T::BlockNumber) {
             ensure_root(origin)?;
-            ensure!(ends_at > <frame_system::Module<T>>::block_number(), "must end at future block number");
+            ensure!(ends_at > <frame_system::Pallet<T>>::block_number(), "must end at future block number");
             <Stage<T>>::put(ElectionStage::Announcing(ends_at));
         }
 
         #[weight = 10_000_000] // TODO: adjust weight
         fn set_stage_revealing(origin, ends_at: T::BlockNumber) {
             ensure_root(origin)?;
-            ensure!(ends_at > <frame_system::Module<T>>::block_number(), "must end at future block number");
+            ensure!(ends_at > <frame_system::Pallet<T>>::block_number(), "must end at future block number");
             <Stage<T>>::put(ElectionStage::Revealing(ends_at));
         }
 
         #[weight = 10_000_000] // TODO: adjust weight
         fn set_stage_voting(origin, ends_at: T::BlockNumber) {
             ensure_root(origin)?;
-            ensure!(ends_at > <frame_system::Module<T>>::block_number(), "must end at future block number");
+            ensure!(ends_at > <frame_system::Pallet<T>>::block_number(), "must end at future block number");
             <Stage<T>>::put(ElectionStage::Voting(ends_at));
         }
 
@@ -955,7 +955,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> council::CouncilTermEnded for Module<T> {
+impl<T: Config> council::CouncilTermEnded for Module<T> {
     fn council_term_ended() {
         if Self::auto_start() {
             let _ = Self::start_election(<council::Module<T>>::active_council());
@@ -1031,7 +1031,7 @@ mod tests {
         });
     }
 
-    fn assert_announcing_period(expected_period: <Test as frame_system::Trait>::BlockNumber) {
+    fn assert_announcing_period(expected_period: <Test as frame_system::Config>::BlockNumber) {
         assert!(
             Election::is_election_running(),
             "Election Stage was not set"
@@ -1397,7 +1397,7 @@ mod tests {
         initial_test_ext().execute_with(|| {
             let _ = Balances::deposit_creating(&20, 1000);
             let payload = vec![10u8];
-            let commitment = <Test as frame_system::Trait>::Hashing::hash(&payload[..]);
+            let commitment = <Test as frame_system::Config>::Hashing::hash(&payload[..]);
 
             assert!(Election::try_add_vote(20, 100, commitment).is_ok());
 
@@ -1433,7 +1433,7 @@ mod tests {
             );
 
             let payload = vec![10u8];
-            let commitment = <Test as frame_system::Trait>::Hashing::hash(&payload[..]);
+            let commitment = <Test as frame_system::Config>::Hashing::hash(&payload[..]);
 
             assert!(Election::try_add_vote(20, 100, commitment).is_ok());
 
@@ -1465,7 +1465,7 @@ mod tests {
             );
 
             let payload = vec![10u8];
-            let commitment = <Test as frame_system::Trait>::Hashing::hash(&payload[..]);
+            let commitment = <Test as frame_system::Config>::Hashing::hash(&payload[..]);
 
             assert!(Election::try_add_vote(20, 1000, commitment).is_err());
             assert_eq!(Election::commitments(), vec![]);
@@ -1488,7 +1488,7 @@ mod tests {
             );
 
             let payload = vec![10u8];
-            let commitment = <Test as frame_system::Trait>::Hashing::hash(&payload[..]);
+            let commitment = <Test as frame_system::Config>::Hashing::hash(&payload[..]);
 
             assert!(Election::try_add_vote(20, 100, commitment).is_ok());
 
@@ -1509,12 +1509,12 @@ mod tests {
     }
 
     fn make_commitment_for_applicant(
-        applicant: <Test as frame_system::Trait>::AccountId,
+        applicant: <Test as frame_system::Config>::AccountId,
         salt: &mut Vec<u8>,
-    ) -> <Test as frame_system::Trait>::Hash {
+    ) -> <Test as frame_system::Config>::Hash {
         let mut payload = applicant.encode();
         payload.append(salt);
-        <Test as frame_system::Trait>::Hashing::hash(&payload[..])
+        <Test as frame_system::Config>::Hashing::hash(&payload[..])
     }
 
     #[test]
@@ -2001,7 +2001,7 @@ mod tests {
                 .into_iter()
                 .map(|(_, seat)| seat.clone())
                 .collect();
-            <Test as election::Trait>::CouncilElected::council_elected(new_council, 10);
+            <Test as election::Config>::CouncilElected::council_elected(new_council, 10);
 
             assert_eq!(Council::active_council().len(), 2);
         });

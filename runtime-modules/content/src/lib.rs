@@ -75,8 +75,8 @@ pub trait NumericIdentifier:
 impl NumericIdentifier for u64 {}
 
 /// Module configuration trait for Content Directory Module
-pub trait Trait:
-    frame_system::Trait
+pub trait Config:
+    frame_system::Config
     + ContentActorAuthenticator
     + Clone
     + StorageOwnership
@@ -84,7 +84,7 @@ pub trait Trait:
     + GovernanceCurrency
 {
     /// The overarching event type.
-    type Event: From<Event<Self>> + Into<<Self as frame_system::Trait>::Event>;
+    type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 
     /// Channel Transfer Payments Escrow Account seed for ModuleId to compute deterministic AccountId
     type ChannelOwnershipPaymentEscrowId: Get<[u8; 8]>;
@@ -210,10 +210,10 @@ pub type Channel<T> = ChannelRecord<
     <T as MembershipTypes>::MemberId,
     <T as ContentActorAuthenticator>::CuratorGroupId,
     <T as StorageOwnership>::DAOId,
-    <T as frame_system::Trait>::AccountId,
-    <T as Trait>::VideoId,
-    <T as Trait>::PlaylistId,
-    <T as Trait>::SeriesId,
+    <T as frame_system::Config>::AccountId,
+    <T as Config>::VideoId,
+    <T as Config>::PlaylistId,
+    <T as Config>::SeriesId,
 >;
 
 /// A request to buy a channel by a new ChannelOwner.
@@ -240,7 +240,7 @@ pub type ChannelOwnershipTransferRequest<T> = ChannelOwnershipTransferRequestRec
     <T as ContentActorAuthenticator>::CuratorGroupId,
     <T as StorageOwnership>::DAOId,
     BalanceOf<T>,
-    <T as frame_system::Trait>::AccountId,
+    <T as frame_system::Config>::AccountId,
 >;
 
 /// Information about channel being created.
@@ -457,7 +457,7 @@ pub struct Person<MemberId> {
 }
 
 decl_storage! {
-    trait Store for Module<T: Trait> as Content {
+    trait Store for Module<T: Config> as Content {
         pub ChannelById get(fn channel_by_id): map hasher(blake2_128_concat) T::ChannelId => Channel<T>;
 
         pub ChannelCategoryById get(fn channel_category_by_id): map hasher(blake2_128_concat) T::ChannelCategoryId => ChannelCategory;
@@ -499,7 +499,7 @@ decl_storage! {
 }
 
 decl_module! {
-    pub struct Module<T: Trait> for enum Call where origin: T::Origin {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
         /// Predefined errors
         type Error = Error<T>;
 
@@ -1262,7 +1262,7 @@ decl_module! {
     }
 }
 
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     /// Ensure `CuratorGroup` under given id exists
     fn ensure_curator_group_under_given_id_exists(
         curator_group_id: &T::CuratorGroupId,
@@ -1364,7 +1364,7 @@ impl<T: Trait> Module<T> {
 }
 
 // Some initial config for the module on runtime upgrade
-impl<T: Trait> Module<T> {
+impl<T: Config> Module<T> {
     pub fn on_runtime_upgrade() {
         <NextChannelCategoryId<T>>::put(T::ChannelCategoryId::one());
         <NextVideoCategoryId<T>>::put(T::VideoCategoryId::one());
@@ -1387,20 +1387,20 @@ decl_event!(
         >,
         CuratorGroupId = <T as ContentActorAuthenticator>::CuratorGroupId,
         CuratorId = <T as ContentActorAuthenticator>::CuratorId,
-        VideoId = <T as Trait>::VideoId,
-        VideoCategoryId = <T as Trait>::VideoCategoryId,
+        VideoId = <T as Config>::VideoId,
+        VideoCategoryId = <T as Config>::VideoCategoryId,
         ChannelId = <T as StorageOwnership>::ChannelId,
         NewAsset = NewAsset<ContentParameters<T>>,
-        ChannelCategoryId = <T as Trait>::ChannelCategoryId,
-        ChannelOwnershipTransferRequestId = <T as Trait>::ChannelOwnershipTransferRequestId,
-        PlaylistId = <T as Trait>::PlaylistId,
-        SeriesId = <T as Trait>::SeriesId,
-        PersonId = <T as Trait>::PersonId,
+        ChannelCategoryId = <T as Config>::ChannelCategoryId,
+        ChannelOwnershipTransferRequestId = <T as Config>::ChannelOwnershipTransferRequestId,
+        PlaylistId = <T as Config>::PlaylistId,
+        SeriesId = <T as Config>::SeriesId,
+        PersonId = <T as Config>::PersonId,
         ChannelOwnershipTransferRequest = ChannelOwnershipTransferRequest<T>,
-        Series = Series<<T as StorageOwnership>::ChannelId, <T as Trait>::VideoId>,
+        Series = Series<<T as StorageOwnership>::ChannelId, <T as Config>::VideoId>,
         Channel = Channel<T>,
         ContentParameters = ContentParameters<T>,
-        AccountId = <T as frame_system::Trait>::AccountId,
+        AccountId = <T as frame_system::Config>::AccountId,
         ContentId = ContentId<T>,
         IsCensored = bool,
     {

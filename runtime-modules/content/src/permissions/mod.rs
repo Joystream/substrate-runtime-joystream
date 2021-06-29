@@ -15,7 +15,7 @@ use sp_runtime::traits::{MaybeSerializeDeserialize, Member};
 // use frame_system::ensure_root;
 
 /// Model of authentication manager.
-pub trait ContentActorAuthenticator: frame_system::Trait + MembershipTypes {
+pub trait ContentActorAuthenticator: frame_system::Config + MembershipTypes {
     /// Curator identifier
     type CuratorId: Parameter
         + Member
@@ -55,7 +55,7 @@ pub trait ContentActorAuthenticator: frame_system::Trait + MembershipTypes {
     fn is_member(member_id: &Self::MemberId, account_id: &Self::AccountId) -> bool;
 }
 
-pub fn ensure_is_valid_curator_id<T: Trait>(curator_id: &T::CuratorId) -> DispatchResult {
+pub fn ensure_is_valid_curator_id<T: Config>(curator_id: &T::CuratorId) -> DispatchResult {
     ensure!(
         T::is_valid_curator_id(curator_id),
         Error::<T>::CuratorIdInvalid
@@ -64,7 +64,7 @@ pub fn ensure_is_valid_curator_id<T: Trait>(curator_id: &T::CuratorId) -> Dispat
 }
 
 /// Ensure curator authorization performed succesfully
-pub fn ensure_curator_auth_success<T: Trait>(
+pub fn ensure_curator_auth_success<T: Config>(
     curator_id: &T::CuratorId,
     account_id: &T::AccountId,
 ) -> DispatchResult {
@@ -76,7 +76,7 @@ pub fn ensure_curator_auth_success<T: Trait>(
 }
 
 /// Ensure member authorization performed succesfully
-pub fn ensure_member_auth_success<T: Trait>(
+pub fn ensure_member_auth_success<T: Config>(
     member_id: &T::MemberId,
     account_id: &T::AccountId,
 ) -> DispatchResult {
@@ -88,18 +88,18 @@ pub fn ensure_member_auth_success<T: Trait>(
 }
 
 /// Ensure lead authorization performed succesfully
-pub fn ensure_lead_auth_success<T: Trait>(account_id: &T::AccountId) -> DispatchResult {
+pub fn ensure_lead_auth_success<T: Config>(account_id: &T::AccountId) -> DispatchResult {
     ensure!(T::is_lead(account_id), Error::<T>::LeadAuthFailed);
     Ok(())
 }
 
 /// Ensure given `Origin` is lead
-pub fn ensure_is_lead<T: Trait>(origin: T::Origin) -> DispatchResult {
+pub fn ensure_is_lead<T: Config>(origin: T::Origin) -> DispatchResult {
     let account_id = ensure_signed(origin)?;
     ensure_lead_auth_success::<T>(&account_id)
 }
 
-pub fn ensure_actor_authorized_to_create_channel<T: Trait>(
+pub fn ensure_actor_authorized_to_create_channel<T: Config>(
     origin: T::Origin,
     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
 ) -> DispatchResult {
@@ -129,7 +129,7 @@ pub fn ensure_actor_authorized_to_create_channel<T: Trait>(
 }
 
 // Enure actor can update channels and videos in the channel
-pub fn ensure_actor_authorized_to_update_channel<T: Trait>(
+pub fn ensure_actor_authorized_to_update_channel<T: Config>(
     origin: T::Origin,
     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
     owner: &ChannelOwner<T::MemberId, T::CuratorGroupId, T::DAOId>,
@@ -183,7 +183,7 @@ pub fn ensure_actor_authorized_to_update_channel<T: Trait>(
 }
 
 // Enure actor can update or delete channels and videos
-pub fn ensure_actor_authorized_to_set_featured_videos<T: Trait>(
+pub fn ensure_actor_authorized_to_set_featured_videos<T: Config>(
     origin: T::Origin,
     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
 ) -> DispatchResult {
@@ -196,7 +196,7 @@ pub fn ensure_actor_authorized_to_set_featured_videos<T: Trait>(
     }
 }
 
-pub fn ensure_actor_authorized_to_censor<T: Trait>(
+pub fn ensure_actor_authorized_to_censor<T: Config>(
     origin: T::Origin,
     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
     owner: &ChannelOwner<T::MemberId, T::CuratorGroupId, T::DAOId>,
@@ -234,7 +234,7 @@ pub fn ensure_actor_authorized_to_censor<T: Trait>(
     }
 }
 
-pub fn ensure_actor_authorized_to_manage_categories<T: Trait>(
+pub fn ensure_actor_authorized_to_manage_categories<T: Config>(
     origin: T::Origin,
     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
 ) -> DispatchResult {
@@ -263,7 +263,7 @@ pub fn ensure_actor_authorized_to_manage_categories<T: Trait>(
     }
 }
 
-// pub fn ensure_actor_authorized_to_delete_stale_assets<T: Trait>(
+// pub fn ensure_actor_authorized_to_delete_stale_assets<T: Config>(
 //     origin: T::Origin,
 //     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
 // ) -> DispatchResult {

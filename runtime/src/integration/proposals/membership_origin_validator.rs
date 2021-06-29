@@ -6,26 +6,26 @@ use common::origin::ActorOriginValidator;
 use frame_system::ensure_signed;
 
 /// Member of the Joystream organization
-pub type MemberId<T> = <T as membership::Trait>::MemberId;
+pub type MemberId<T> = <T as membership::Config>::MemberId;
 
 /// Default membership actor origin validator.
 pub struct MembershipOriginValidator<T> {
     marker: PhantomData<T>,
 }
 
-impl<T: membership::Trait>
+impl<T: membership::Config>
     ActorOriginValidator<
-        <T as frame_system::Trait>::Origin,
+        <T as frame_system::Config>::Origin,
         MemberId<T>,
-        <T as frame_system::Trait>::AccountId,
+        <T as frame_system::Config>::AccountId,
     > for MembershipOriginValidator<T>
 {
     /// Check for valid combination of origin and actor_id. Actor_id should be valid member_id of
     /// the membership module
     fn ensure_actor_origin(
-        origin: <T as frame_system::Trait>::Origin,
+        origin: <T as frame_system::Config>::Origin,
         actor_id: MemberId<T>,
-    ) -> Result<<T as frame_system::Trait>::AccountId, &'static str> {
+    ) -> Result<<T as frame_system::Config>::AccountId, &'static str> {
         // check valid signed account_id
         let account_id = ensure_signed(origin)?;
 

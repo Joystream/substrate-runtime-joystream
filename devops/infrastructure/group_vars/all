@@ -16,3 +16,5 @@ remote_code_path: "/home/ubuntu/joystream"
 remote_chain_spec_path: "{{ remote_code_path }}/chainspec.json"
 run_on_admin_server: true
 build_local_code: false
+
+bucket_name: s3-bucket-joystream

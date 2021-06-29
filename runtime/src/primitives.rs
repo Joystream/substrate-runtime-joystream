@@ -8,9 +8,6 @@ use sp_runtime::{
     MultiSignature,
 };
 
-/// Priority for a transaction. Additive. Higher is better.
-pub type TransactionPriority = u64;
-
 /// Alias for ContentId, used in various places.
 pub type ContentId = sp_core::H256;
 
@@ -72,7 +69,7 @@ pub type ChannelOwnershipTransferRequestId = u64;
 
 /// Represents a thread identifier for both Forum and Proposals Discussion
 ///
-/// Note: Both modules expose type names ThreadId and PostId (which are defined on their Trait) and
+/// Note: Both modules expose type names ThreadId and PostId (which are defined on their Config) and
 /// used in state storage and dispatchable method's argument types,
 /// and are therefore part of the public API/metadata of the runtime.
 /// In the current version the polkadot-js/api that is used and is compatible with the runtime,

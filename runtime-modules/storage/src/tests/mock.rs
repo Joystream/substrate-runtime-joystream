@@ -1,13 +1,12 @@
 #![cfg(test)]
 
+use frame_support::parameter_types;
 use frame_support::storage::StorageMap;
 use frame_support::traits::{OnFinalize, OnInitialize};
-use frame_support::{impl_outer_event, impl_outer_origin, parameter_types};
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
-    Perbill,
 };
 
 use crate::data_directory::ContentIdExists;
@@ -25,31 +24,6 @@ pub use crate::data_directory::{
     DEFAULT_GLOBAL_VOUCHER, DEFAULT_UPLOADING_BLOCKED_STATUS, DEFAULT_VOUCHER,
     DEFAULT_VOUCHER_OBJECTS_LIMIT_UPPER_BOUND, DEFAULT_VOUCHER_SIZE_LIMIT_UPPER_BOUND,
 };
-
-mod working_group_mod {
-    pub use super::StorageWorkingGroupInstance;
-    pub use working_group::Event;
-}
-
-mod members {
-    pub use membership::Event;
-}
-
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
-
-impl_outer_event! {
-    pub enum MetaEvent for Test {
-        data_object_type_registry<T>,
-        data_directory<T>,
-        data_object_storage_registry<T>,
-        balances<T>,
-        members<T>,
-        working_group_mod StorageWorkingGroupInstance <T>,
-        frame_system<T>,
-    }
-}
 
 pub const DEFAULT_LEADER_ACCOUNT_ID: u64 = 1;
 pub const DEFAULT_LEADER_MEMBER_ID: u64 = 1;
@@ -85,7 +59,7 @@ pub const TEST_MOCK_LIAISON_STORAGE_PROVIDER_ID: u32 = 1;
 pub const TEST_MOCK_EXISTING_CID: u64 = 42;
 
 pub struct AnyDataObjectTypeIsActive {}
-impl<T: data_object_type_registry::Trait> IsActiveDataObjectType<T> for AnyDataObjectTypeIsActive {
+impl<T: data_object_type_registry::Config> IsActiveDataObjectType<T> for AnyDataObjectTypeIsActive {
     fn is_active_data_object_type(_which: &T::DataObjectTypeId) -> bool {
         true
     }
@@ -118,46 +92,65 @@ impl ContentIdExists<Test> for MockContent {
     }
 }
 
-// Workaround for https://github.com/rust-lang/rust/issues/26925 . Remove when sorted.
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Test;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
+
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Balances: balances::{Pallet, Call, Storage, Event<T>},
+        Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
+        Rewards: recurringrewards::{Pallet, Call, Storage},
+        Minting: minting::{Pallet, Call, Storage},
+        DataObjectTypeRegistry: data_object_type_registry::{Pallet, Call, Storage, Event<T>, Config<T>},
+        DataDirectory: data_directory::{Pallet, Call, Storage, Event<T>, Config<T>},
+        DataObjectStorageRegistry: data_object_storage_registry::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Members: membership::{Pallet, Call, Storage, Event<T>, Config<T>},
+        StorageWorkingGroup: working_group::<Instance2>::{Pallet, Call, Storage, Config<T>, Event<T>},
+    }
+);
+
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
     pub const MaximumBlockWeight: u32 = 1024;
     pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
-    pub const MinimumPeriod: u64 = 5;
 }
 
-impl frame_system::Trait for Test {
+impl frame_system::Config for Test {
     type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
     type Origin = Origin;
-    type Call = ();
     type Index = u64;
     type BlockNumber = u64;
+    type Call = Call;
     type Hash = H256;
     type Hashing = BlakeTwo256;
     type AccountId = u64;
     type Lookup = IdentityLookup<Self::AccountId>;
     type Header = Header;
-    type Event = MetaEvent;
+    type Event = Event;
     type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
     type Version = ();
-    type AccountData = balances::AccountData<u64>;
+    type PalletInfo = PalletInfo;
+    type AccountData = balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type PalletInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
 }
 
-impl pallet_timestamp::Trait for Test {
+parameter_types! {
+    pub const MinimumPeriod: u64 = 5;
+}
+
+impl pallet_timestamp::Config for Test {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
@@ -181,10 +174,12 @@ parameter_types! {
     pub const StakePoolId: [u8; 8] = *b"joystake";
 }
 
-impl balances::Trait for Test {
-    type Balance = u64;
+type Balance = u64;
+
+impl balances::Config for Test {
+    type Balance = Balance;
     type DustRemoval = ();
-    type Event = MetaEvent;
+    type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
     type AccountStore = System;
     type WeightInfo = ();
@@ -192,24 +187,24 @@ impl balances::Trait for Test {
 }
 
 impl GovernanceCurrency for Test {
-    type Currency = balances::Module<Self>;
+    type Currency = balances::Pallet<Self>;
 }
 
 parameter_types! {
     pub const MaxWorkerNumberLimit: u32 = 3;
 }
 
-impl working_group::Trait<StorageWorkingGroupInstance> for Test {
-    type Event = MetaEvent;
+impl working_group::Config<StorageWorkingGroupInstance> for Test {
+    type Event = Event;
     type MaxWorkerNumberLimit = MaxWorkerNumberLimit;
 }
 
-impl data_object_type_registry::Trait for Test {
-    type Event = MetaEvent;
+impl data_object_type_registry::Config for Test {
+    type Event = Event;
 }
 
-impl data_directory::Trait for Test {
-    type Event = MetaEvent;
+impl data_directory::Config for Test {
+    type Event = Event;
     type IsActiveDataObjectType = AnyDataObjectTypeIsActive;
     type MemberOriginValidator = ();
 }
@@ -222,8 +217,8 @@ impl common::origin::ActorOriginValidator<Origin, u64, u64> for () {
     }
 }
 
-impl data_object_storage_registry::Trait for Test {
-    type Event = MetaEvent;
+impl data_object_storage_registry::Config for Test {
+    type Event = Event;
     type DataObjectStorageRelationshipId = u64;
     type ContentIdExists = MockContent;
 }
@@ -232,8 +227,8 @@ parameter_types! {
     pub const ScreenedMemberMaxInitialBalance: u64 = 500;
 }
 
-impl membership::Trait for Test {
-    type Event = MetaEvent;
+impl membership::Config for Test {
+    type Event = Event;
     type MemberId = u64;
     type SubscriptionId = u32;
     type PaidTermId = u32;
@@ -241,7 +236,7 @@ impl membership::Trait for Test {
     type ScreenedMemberMaxInitialBalance = ScreenedMemberMaxInitialBalance;
 }
 
-impl stake::Trait for Test {
+impl stake::Config for Test {
     type Currency = Balances;
     type StakePoolId = StakePoolId;
     type StakingEventsHandler = ();
@@ -249,18 +244,18 @@ impl stake::Trait for Test {
     type SlashId = u64;
 }
 
-impl minting::Trait for Test {
+impl minting::Config for Test {
     type Currency = Balances;
     type MintId = u64;
 }
 
-impl recurringrewards::Trait for Test {
+impl recurringrewards::Config for Test {
     type PayoutStatusHandler = ();
     type RecipientId = u64;
     type RewardRelationshipId = u64;
 }
 
-impl hiring::Trait for Test {
+impl hiring::Config for Test {
     type OpeningId = u64;
     type ApplicationId = u64;
     type ApplicationDeactivatedHandler = ();
@@ -363,8 +358,6 @@ impl ExtBuilder {
 
 pub type TestDataObjectType = data_object_type_registry::DataObjectType;
 
-pub type Balances = balances::Module<Test>;
-pub type System = frame_system::Module<Test>;
 pub type TestDataObjectTypeRegistry = data_object_type_registry::Module<Test>;
 pub type TestDataDirectory = data_directory::Module<Test>;
 pub type TestDataObjectStorageRegistry = data_object_storage_registry::Module<Test>;

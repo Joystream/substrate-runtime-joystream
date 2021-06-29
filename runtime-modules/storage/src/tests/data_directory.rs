@@ -416,7 +416,7 @@ fn accept_and_reject_content_fail_with_invalid_storage_provider() {
         assert!(res.is_ok());
 
         let content_id = match &System::events().last().unwrap().event {
-            MetaEvent::data_directory(data_directory::RawEvent::ContentAdded(content, _)) => {
+            Event::data_directory(data_directory::RawEvent::ContentAdded(content, _)) => {
                 content[0].content_id
             }
             _ => 0u64,
@@ -460,7 +460,7 @@ fn accept_content_as_liaison() {
 
         // An appropriate event should have been fired.
         let (content_id, creator) = match &System::events().last().unwrap().event {
-            MetaEvent::data_directory(data_directory::RawEvent::ContentAdded(content, creator)) => {
+            Event::data_directory(data_directory::RawEvent::ContentAdded(content, creator)) => {
                 (content[0].content_id, creator.clone())
             }
             _ => (0u64, StorageObjectOwner::Member(0xdeadbeefu64)), // invalid value, unlikely to match
@@ -506,7 +506,7 @@ fn set_global_voucher_limits() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::data_directory(data_directory::RawEvent::GlobalVoucherSizeLimitUpdated(
+            Event::data_directory(data_directory::RawEvent::GlobalVoucherSizeLimitUpdated(
                 expected_new_size_limit
             ))
         );
@@ -527,7 +527,7 @@ fn set_global_voucher_limits() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::data_directory(data_directory::RawEvent::GlobalVoucherObjectsLimitUpdated(
+            Event::data_directory(data_directory::RawEvent::GlobalVoucherObjectsLimitUpdated(
                 expected_new_objects_limit
             ))
         );
@@ -561,7 +561,7 @@ fn set_limit_upper_bounds() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::data_directory(data_directory::RawEvent::VoucherSizeLimitUpperBoundUpdated(
+            Event::data_directory(data_directory::RawEvent::VoucherSizeLimitUpperBoundUpdated(
                 expected_new_size_limit_upper_bound
             ))
         );
@@ -583,7 +583,7 @@ fn set_limit_upper_bounds() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::data_directory(
+            Event::data_directory(
                 data_directory::RawEvent::VoucherObjectsLimitUpperBoundUpdated(
                     expected_new_objects_limit_upper_bound
                 )
@@ -622,7 +622,7 @@ fn set_default_voucher() {
 
         assert_eq!(
             System::events().last().unwrap().event,
-            MetaEvent::data_directory(data_directory::RawEvent::DefaultVoucherUpdated(
+            Event::data_directory(data_directory::RawEvent::DefaultVoucherUpdated(
                 new_size_limit,
                 new_objects_limit
             ))

@@ -3,7 +3,7 @@ use super::*;
 /// A group, that consists of `curators` set
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Encode, Decode, Eq, PartialEq, Clone, Debug)]
-pub struct CuratorGroup<T: Trait> {
+pub struct CuratorGroup<T: Config> {
     /// Curators set, associated with a iven curator group
     curators: BTreeSet<T::CuratorId>,
 
@@ -11,7 +11,7 @@ pub struct CuratorGroup<T: Trait> {
     active: bool,
 }
 
-impl<T: Trait> Default for CuratorGroup<T> {
+impl<T: Config> Default for CuratorGroup<T> {
     fn default() -> Self {
         Self {
             curators: BTreeSet::new(),
@@ -21,7 +21,7 @@ impl<T: Trait> Default for CuratorGroup<T> {
     }
 }
 
-impl<T: Trait> CuratorGroup<T> {
+impl<T: Config> CuratorGroup<T> {
     /// Check if `CuratorGroup` contains curator under given `curator_id`
     pub fn has_curator(&self, curator_id: &T::CuratorId) -> bool {
         self.curators.contains(curator_id)

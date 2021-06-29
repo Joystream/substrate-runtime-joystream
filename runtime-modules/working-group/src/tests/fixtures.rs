@@ -4,7 +4,7 @@ use frame_system::{EventRecord, Phase, RawOrigin};
 use std::collections::BTreeSet;
 
 use super::mock::{
-    Balances, Membership, System, Test, TestEvent, TestWorkingGroup, TestWorkingGroupInstance,
+    Balances, Event, Membership, System, Test, TestWorkingGroup, TestWorkingGroupInstance,
 };
 use crate::tests::fill_worker_position;
 use crate::types::{
@@ -820,12 +820,12 @@ impl EventFixture {
             TestWorkingGroupInstance,
         >,
     ) {
-        let converted_event = TestEvent::working_group_TestWorkingGroupInstance(expected_raw_event);
+        let converted_event = Event::working_group_Instance1(expected_raw_event);
 
         Self::assert_last_global_event(converted_event)
     }
 
-    pub fn assert_last_global_event(expected_event: TestEvent) {
+    pub fn assert_last_global_event(expected_event: Event) {
         let expected_event = EventRecord {
             phase: Phase::Initialization,
             event: expected_event,

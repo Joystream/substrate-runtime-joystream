@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 
 use super::{BalanceOf, CurrencyOf, NegativeImbalance};
-use crate::Trait;
+use crate::Config;
 use frame_support::traits::{Currency, ExistenceRequirement, WithdrawReasons};
 use sp_std::convert::From;
 use sp_std::marker::PhantomData;
@@ -14,7 +14,7 @@ use mockall::predicate::*;
 use mockall::*;
 
 /// Returns registered stake handler. This is scaffolds for the mocking of the stake module.
-pub trait StakeHandlerProvider<T: Trait> {
+pub trait StakeHandlerProvider<T: Config> {
     /// Returns stake logic handler
     fn stakes() -> Rc<dyn StakeHandler<T>>;
 }
@@ -22,7 +22,7 @@ pub trait StakeHandlerProvider<T: Trait> {
 /// Default implementation of the stake module logic provider. Returns actual implementation
 /// dependent on the stake module.
 pub struct DefaultStakeHandlerProvider;
-impl<T: Trait> StakeHandlerProvider<T> for DefaultStakeHandlerProvider {
+impl<T: Config> StakeHandlerProvider<T> for DefaultStakeHandlerProvider {
     /// Returns stake logic handler
     fn stakes() -> Rc<dyn StakeHandler<T>> {
         Rc::new(DefaultStakeHandler {
@@ -33,7 +33,7 @@ impl<T: Trait> StakeHandlerProvider<T> for DefaultStakeHandlerProvider {
 
 /// Stake logic handler.
 #[cfg_attr(test, automock)] // attributes creates mocks in testing environment
-pub trait StakeHandler<T: Trait> {
+pub trait StakeHandler<T: Config> {
     /// Creates a stake. Returns created stake id or an error.
     fn create_stake(&self) -> Result<T::StakeId, &'static str>;
 
@@ -62,21 +62,21 @@ pub trait StakeHandler<T: Trait> {
 }
 
 /// Default implementation of the stake logic. Uses actual stake module.
-/// 'marker' responsible for the 'Trait' binding.
+/// 'marker' responsible for the 'Config' binding.
 pub(crate) struct DefaultStakeHandler<T> {
     pub marker: PhantomData<T>,
 }
 
-impl<T: Trait> StakeHandler<T> for DefaultStakeHandler<T> {
+impl<T: Config> StakeHandler<T> for DefaultStakeHandler<T> {
     /// Creates a stake. Returns created stake id or an error.
-    fn create_stake(&self) -> Result<<T as stake::Trait>::StakeId, &'static str> {
+    fn create_stake(&self) -> Result<<T as stake::Config>::StakeId, &'static str> {
         Ok(stake::Module::<T>::create_stake())
     }
 
     /// Stake the imbalance
     fn stake(
         &self,
-        stake_id: &<T as stake::Trait>::StakeId,
+        stake_id: &<T as stake::Config>::StakeId,
         stake_imbalance: NegativeImbalance<T>,
     ) -> Result<(), &'static str> {
         stake::Module::<T>::stake(&stake_id, stake_imbalance).map_err(WrappedError)?;
@@ -85,14 +85,14 @@ impl<T: Trait> StakeHandler<T> for DefaultStakeHandler<T> {
     }
 
     /// Removes stake
-    fn remove_stake(&self, stake_id: <T as stake::Trait>::StakeId) -> Result<(), &'static str> {
+    fn remove_stake(&self, stake_id: <T as stake::Config>::StakeId) -> Result<(), &'static str> {
         stake::Module::<T>::remove_stake(&stake_id).map_err(WrappedError)?;
 
         Ok(())
     }
 
     /// Execute unstaking
-    fn unstake(&self, stake_id: <T as stake::Trait>::StakeId) -> Result<(), &'static str> {
+    fn unstake(&self, stake_id: <T as stake::Config>::StakeId) -> Result<(), &'static str> {
         stake::Module::<T>::initiate_unstaking(&stake_id, None).map_err(WrappedError)?;
 
         Ok(())
@@ -101,7 +101,7 @@ impl<T: Trait> StakeHandler<T> for DefaultStakeHandler<T> {
     /// Slash balance from the existing stake
     fn slash(
         &self,
-        stake_id: <T as stake::Trait>::StakeId,
+        stake_id: <T as stake::Config>::StakeId,
         slash_balance: BalanceOf<T>,
     ) -> Result<(), &'static str> {
         let _ignored_successful_result =
@@ -128,12 +128,12 @@ impl<T: Trait> StakeHandler<T> for DefaultStakeHandler<T> {
 }
 
 /// Proposal implementation of the stake logic.
-/// 'marker' responsible for the 'Trait' binding.
+/// 'marker' responsible for the 'Config' binding.
 pub(crate) struct ProposalStakeManager<T> {
     pub marker: PhantomData<T>,
 }
 
-impl<T: Trait> ProposalStakeManager<T> {
+impl<T: Config> ProposalStakeManager<T> {
     /// Creates a stake using stake balance and source account.
     /// Returns created stake id or an error.
     pub fn create_stake(

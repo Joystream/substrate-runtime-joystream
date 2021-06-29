@@ -1,20 +1,25 @@
 #![cfg(test)]
 
+use crate as content;
 use crate::*;
 
+use frame_support::parameter_types;
 use frame_support::traits::{OnFinalize, OnInitialize};
-use frame_support::{impl_outer_event, impl_outer_origin, parameter_types};
+use frame_support::weights::Weight;
+
 use sp_core::H256;
 use sp_runtime::{
     testing::Header,
     traits::{BlakeTwo256, IdentityLookup},
-    Perbill,
 };
 
+use crate::Config;
 use crate::ContentActorAuthenticator;
-use crate::Trait;
 use common::currency::GovernanceCurrency;
 use common::storage::StorageSystem;
+
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
 pub type CuratorId = <Test as ContentActorAuthenticator>::CuratorId;
 pub type CuratorGroupId = <Test as ContentActorAuthenticator>::CuratorGroupId;
@@ -24,14 +29,14 @@ pub type ChannelId = <Test as StorageOwnership>::ChannelId;
 
 /// Origins
 
-pub const LEAD_ORIGIN: u64 = 1;
+pub const LEAD_ORIGIN: u128 = 1;
 
-pub const FIRST_CURATOR_ORIGIN: u64 = 2;
-pub const SECOND_CURATOR_ORIGIN: u64 = 3;
+pub const FIRST_CURATOR_ORIGIN: u128 = 2;
+pub const SECOND_CURATOR_ORIGIN: u128 = 3;
 
-pub const FIRST_MEMBER_ORIGIN: u64 = 4;
-pub const SECOND_MEMBER_ORIGIN: u64 = 5;
-pub const UNKNOWN_ORIGIN: u64 = 7777;
+pub const FIRST_MEMBER_ORIGIN: u128 = 4;
+pub const SECOND_MEMBER_ORIGIN: u128 = 5;
+pub const UNKNOWN_ORIGIN: u128 = 7777;
 
 // Members range from MemberId 1 to 10
 pub const MEMBERS_COUNT: MemberId = 10;
@@ -47,62 +52,55 @@ pub const FIRST_CURATOR_GROUP_ID: CuratorGroupId = 1;
 pub const FIRST_MEMBER_ID: MemberId = 1;
 pub const SECOND_MEMBER_ID: MemberId = 2;
 
-impl_outer_origin! {
-    pub enum Origin for Test {}
-}
-
-mod content {
-    pub use crate::Event;
-}
-
-impl_outer_event! {
-    pub enum MetaEvent for Test {
-        content<T>,
-        frame_system<T>,
-        balances<T>,
+frame_support::construct_runtime!(
+    pub enum Test where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic,
+    {
+        System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
+        Content: content::{Pallet, Call, Storage, Event<T>, Config<T>},
+        Balances: balances::{Pallet, Call, Storage, Event<T>},
     }
-}
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Test;
+);
 
 parameter_types! {
     pub const BlockHashCount: u64 = 250;
-    pub const MaximumBlockWeight: u32 = 1024;
+    pub const MaximumBlockWeight: Weight = 1024;
     pub const MaximumBlockLength: u32 = 2 * 1024;
-    pub const AvailableBlockRatio: Perbill = Perbill::one();
+}
+
+impl frame_system::Config for Test {
+    type BaseCallFilter = ();
+    type BlockWeights = ();
+    type BlockLength = ();
+    type DbWeight = ();
+    type Origin = Origin;
+    type Index = u64;
+    type BlockNumber = u64;
+    type Call = Call;
+    type Hash = H256;
+    type Hashing = BlakeTwo256;
+    type AccountId = u128;
+    type Lookup = IdentityLookup<Self::AccountId>;
+    type Header = Header;
+    type Event = Event;
+    type BlockHashCount = BlockHashCount;
+    type Version = ();
+    type PalletInfo = PalletInfo;
+    type AccountData = balances::AccountData<Balance>;
+    type OnNewAccount = ();
+    type OnKilledAccount = ();
+    type SystemWeightInfo = ();
+    type SS58Prefix = ();
+    type OnSetCode = ();
+}
+
+parameter_types! {
     pub const MinimumPeriod: u64 = 5;
 }
 
-impl frame_system::Trait for Test {
-    type BaseCallFilter = ();
-    type Origin = Origin;
-    type Call = ();
-    type Index = u64;
-    type BlockNumber = u64;
-    type Hash = H256;
-    type Hashing = BlakeTwo256;
-    type AccountId = u64;
-    type Lookup = IdentityLookup<Self::AccountId>;
-    type Header = Header;
-    type Event = MetaEvent;
-    type BlockHashCount = BlockHashCount;
-    type MaximumBlockWeight = MaximumBlockWeight;
-    type DbWeight = ();
-    type BlockExecutionWeight = ();
-    type ExtrinsicBaseWeight = ();
-    type MaximumExtrinsicWeight = ();
-    type MaximumBlockLength = MaximumBlockLength;
-    type AvailableBlockRatio = AvailableBlockRatio;
-    type Version = ();
-    type AccountData = balances::AccountData<u64>;
-    type OnNewAccount = ();
-    type OnKilledAccount = ();
-    type PalletInfo = ();
-    type SystemWeightInfo = ();
-}
-
-impl pallet_timestamp::Trait for Test {
+impl pallet_timestamp::Config for Test {
     type Moment = u64;
     type OnTimestampSet = ();
     type MinimumPeriod = MinimumPeriod;
@@ -125,18 +123,20 @@ parameter_types! {
     pub const ExistentialDeposit: u32 = 0;
 }
 
-impl balances::Trait for Test {
-    type Balance = u64;
+type Balance = u64;
+
+impl balances::Config for Test {
+    type Balance = Balance;
     type DustRemoval = ();
-    type Event = MetaEvent;
+    type Event = Event;
     type ExistentialDeposit = ExistentialDeposit;
-    type AccountStore = System;
+    type AccountStore = frame_system::Pallet<Test>;
     type WeightInfo = ();
     type MaxLocks = ();
 }
 
 impl GovernanceCurrency for Test {
-    type Currency = balances::Module<Self>;
+    type Currency = balances::Pallet<Self>;
 }
 
 impl ContentActorAuthenticator for Test {
@@ -204,9 +204,9 @@ parameter_types! {
     pub const ChannelOwnershipPaymentEscrowId: [u8; 8] = *b"12345678";
 }
 
-impl Trait for Test {
+impl Config for Test {
     /// The overarching event type.
-    type Event = MetaEvent;
+    type Event = Event;
 
     /// Channel Transfer Payments Escrow Account seed for ModuleId to compute deterministic AccountId
     type ChannelOwnershipPaymentEscrowId = ChannelOwnershipPaymentEscrowId;
@@ -239,8 +239,6 @@ impl Trait for Test {
     type StorageSystem = MockStorageSystem;
 }
 
-pub type System = frame_system::Module<Test>;
-pub type Content = Module<Test>;
 // #[derive (Default)]
 pub struct ExtBuilder {
     next_channel_category_id: u64,
@@ -276,7 +274,7 @@ impl ExtBuilder {
             .build_storage::<Test>()
             .unwrap();
 
-        GenesisConfig::<Test> {
+        content::GenesisConfig::<Test> {
             next_channel_category_id: self.next_channel_category_id,
             next_channel_id: self.next_channel_id,
             next_video_category_id: self.next_video_category_id,

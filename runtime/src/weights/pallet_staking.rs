@@ -152,15 +152,20 @@ impl pallet_staking::WeightInfo for WeightInfo {
             .saturating_add(DbWeight::get().writes(8 as Weight))
             .saturating_add(DbWeight::get().writes((3 as Weight).saturating_mul(v as Weight)))
     }
-    fn submit_solution_better(v: u32, n: u32, a: u32, w: u32) -> Weight {
-        (0 as Weight)
-            .saturating_add((964000 as Weight).saturating_mul(v as Weight))
-            .saturating_add((432000 as Weight).saturating_mul(n as Weight))
-            .saturating_add((204294000 as Weight).saturating_mul(a as Weight))
-            .saturating_add((9546000 as Weight).saturating_mul(w as Weight))
-            .saturating_add(DbWeight::get().reads(6 as Weight))
-            .saturating_add(DbWeight::get().reads((4 as Weight).saturating_mul(a as Weight)))
-            .saturating_add(DbWeight::get().reads((1 as Weight).saturating_mul(w as Weight)))
-            .saturating_add(DbWeight::get().writes(2 as Weight))
+    fn kick(_: u32) -> u64 {
+        todo!()
+    }
+
+    fn get_npos_voters(_: u32, _: u32, _: u32) -> u64 {
+        todo!()
+    }
+    fn get_npos_targets(_: u32) -> u64 {
+        todo!()
+    }
+    fn update_staking_limits() -> u64 {
+        todo!()
+    }
+    fn chill_other() -> u64 {
+        todo!()
     }
 }

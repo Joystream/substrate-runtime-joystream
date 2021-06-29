@@ -15,7 +15,7 @@
 // along with Substrate.  If not, see <http://www.gnu.org/licenses/>.
 
 use std::{env, process::Command, string::String};
-use wasm_builder_runner::WasmBuilder;
+use substrate_wasm_builder::WasmBuilder;
 
 fn main() {
     if !in_real_cargo_environment() {
@@ -25,7 +25,6 @@ fn main() {
 
     WasmBuilder::new()
         .with_current_project()
-        .with_wasm_builder_from_crates("2.0.0")
         .export_heap_base()
         .import_memory()
         .build()
