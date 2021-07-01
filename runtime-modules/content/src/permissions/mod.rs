@@ -263,6 +263,46 @@ pub fn ensure_actor_authorized_to_manage_categories<T: Trait>(
     }
 }
 
+// Enure actor can create post: same rules as if he is trying to update channel
+pub fn ensure_actor_authorized_to_create_post<T: Trait>(
+    origin: T::Origin,
+    actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
+    owner: &ChannelOwner<T::MemberId, T::CuratorGroupId, T::DAOId>,
+) -> DispatchResult {
+    ensure_actor_authorized_to_update_channel::<T>(origin, actor, owner)
+}
+
+// Ensure member can create reply
+pub fn ensure_member_authorized_to_create_reply<T: Trait>(
+    origin: T::Origin,
+    member: &ParticipantId<T>,
+) -> DispatchResult {
+    let sender = &ensure_signed(origin)?;
+    ensure_member_auth_success::<T>(member, sender)
+}
+
+// Ensure member can edit the reply:
+// ensure sender is a member account and it coincides with the reply owner
+pub fn ensure_member_authorized_to_edit_reply<T: Trait>(
+    origin: T::Origin,
+    member: &ParticipantId<T>,
+    owner: &ParticipantId<T>,
+) -> DispatchResult {
+    let sender = &ensure_signed(origin)?;
+    ensure_member_auth_success::<T>(member, sender)?;
+    ensure!(*owner == *member, Error::<T>::MemberAuthFailed);
+    Ok(())
+}
+
+// Enure actor can edit post
+pub fn ensure_actor_authorized_to_edit_post<T: Trait>(
+    origin: T::Origin,
+    actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
+    owner: &ChannelOwner<T::MemberId, T::CuratorGroupId, T::DAOId>,
+) -> DispatchResult {
+    ensure_actor_authorized_to_update_channel::<T>(origin, actor, owner)
+}
+
 // pub fn ensure_actor_authorized_to_delete_stale_assets<T: Trait>(
 //     origin: T::Origin,
 //     actor: &ContentActor<T::CuratorGroupId, T::CuratorId, T::MemberId>,
