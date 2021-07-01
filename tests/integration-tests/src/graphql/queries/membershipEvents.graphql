@@ -131,8 +131,8 @@ fragment StakingAccountAddedEventFields on StakingAccountAddedEvent {
   account
 }
 
-query getStakingAccountAddedEventsByMemberId($memberId: ID!) {
-  stakingAccountAddedEvents(where: { member: { id_eq: $memberId } }) {
+query getStakingAccountAddedEventsByEventIds($ids: [ID!]) {
+  stakingAccountAddedEvents(where: { id_in: $ids }) {
     ...StakingAccountAddedEventFields
   }
 }
@@ -150,8 +150,8 @@ fragment StakingAccountConfirmedEventFields on StakingAccountConfirmedEvent {
   account
 }
 
-query getStakingAccountConfirmedEventsByMemberId($memberId: ID!) {
-  stakingAccountConfirmedEvents(where: { member: { id_eq: $memberId } }) {
+query getStakingAccountConfirmedEventsByEventIds($ids: [ID!]) {
+  stakingAccountConfirmedEvents(where: { id_in: $ids }) {
     ...StakingAccountConfirmedEventFields
   }
 }

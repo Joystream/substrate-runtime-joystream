@@ -6,6 +6,9 @@ import fs from 'fs'
 import { decodeAddress } from '@polkadot/keyring'
 import { Bytes } from '@polkadot/types'
 import { createType } from '@joystream/types'
+import Debugger from 'debug'
+import { BLOCKTIME } from './consts'
+import { MetadataInput } from './types'
 
 export type AnyMessage<T> = T & {
   toJSON(): Record<string, unknown>
@@ -66,9 +69,70 @@ export class Utils {
     return metaClass.toObject(metaClass.decode(bytes.toU8a(true))) as T
   }
 
+  public static getDeserializedMetadataFormInput<T>(
+    metadataClass: AnyMetadataClass<T>,
+    input: MetadataInput<T>
+  ): T | null {
+    if (typeof input.value === 'string') {
+      try {
+        return Utils.metadataFromBytes(metadataClass, createType('Bytes', input.value))
+      } catch (e) {
+        if (!input.expectFailure) {
+          throw e
+        }
+        return null
+      }
+    }
+
+    return input.value
+  }
+
+  public static getMetadataBytesFromInput<T>(metadataClass: AnyMetadataClass<T>, input: MetadataInput<T>): Bytes {
+    return typeof input.value === 'string'
+      ? createType('Bytes', input.value)
+      : Utils.metadataToBytes(metadataClass, input.value)
+  }
+
+  public static bytesToString(b: Bytes): string {
+    return (
+      Buffer.from(b.toU8a(true))
+        .toString()
+        // eslint-disable-next-line no-control-regex
+        .replace(/\u0000/g, '')
+    )
+  }
+
+  public static asText(textOrHex: string): string {
+    return Utils.bytesToString(createType('Bytes', textOrHex))
+  }
+
   public static assert(condition: any, msg?: string): asserts condition {
     if (!condition) {
       throw new Error(msg || 'Assertion failed')
     }
+  }
+
+  public static async until(
+    name: string,
+    conditionFunc: (props: { debug: Debugger.Debugger }) => Promise<boolean>,
+    intervalMs = BLOCKTIME,
+    timeoutMs = 10 * 60 * 1000
+  ): Promise<void> {
+    const debug = Debugger(`awaiting:${name}`)
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error(`Awaiting ${name} - timoeut reached`)), timeoutMs)
+      const check = async () => {
+        if (await conditionFunc({ debug })) {
+          clearInterval(interval)
+          clearTimeout(timeout)
+          debug('Condition satisfied!')
+          resolve()
+          return
+        }
+        debug('Condition not satisfied, waiting...')
+      }
+      const interval = setInterval(check, intervalMs)
+      check()
+    })
   }
 }

@@ -1,5 +1,5 @@
 import { ApolloClient, DocumentNode, NormalizedCacheObject } from '@apollo/client'
-import { MemberId } from '@joystream/types/common'
+import { MemberId, PostId } from '@joystream/types/common'
 import Debugger from 'debug'
 import { ApplicationId, OpeningId, WorkerId } from '@joystream/types/working-group'
 import { EventDetails, WorkingGroupModuleName } from './types'
@@ -16,12 +16,6 @@ import {
   GetInvitesTransferredEventsBySourceMemberIdQuery,
   GetInvitesTransferredEventsBySourceMemberIdQueryVariables,
   GetInvitesTransferredEventsBySourceMemberId,
-  GetStakingAccountAddedEventsByMemberIdQuery,
-  GetStakingAccountAddedEventsByMemberIdQueryVariables,
-  GetStakingAccountAddedEventsByMemberId,
-  GetStakingAccountConfirmedEventsByMemberIdQuery,
-  GetStakingAccountConfirmedEventsByMemberIdQueryVariables,
-  GetStakingAccountConfirmedEventsByMemberId,
   GetStakingAccountRemovedEventsByMemberIdQuery,
   GetStakingAccountRemovedEventsByMemberIdQueryVariables,
   GetStakingAccountRemovedEventsByMemberId,
@@ -175,9 +169,53 @@ import {
   GetMemberInvitedEventsByEventIdsQuery,
   GetMemberInvitedEventsByEventIdsQueryVariables,
   GetMemberInvitedEventsByEventIds,
+  ProposalFieldsFragment,
+  GetProposalsByIdsQuery,
+  GetProposalsByIdsQueryVariables,
+  GetProposalsByIds,
+  GetStakingAccountConfirmedEventsByEventIdsQuery,
+  GetStakingAccountConfirmedEventsByEventIdsQueryVariables,
+  GetStakingAccountConfirmedEventsByEventIds,
+  GetStakingAccountAddedEventsByEventIdsQuery,
+  GetStakingAccountAddedEventsByEventIdsQueryVariables,
+  GetStakingAccountAddedEventsByEventIds,
+  ProposalVotedEventFieldsFragment,
+  GetProposalVotedEventsByEventIdsQuery,
+  GetProposalVotedEventsByEventIdsQueryVariables,
+  GetProposalVotedEventsByEventIds,
+  ProposalCancelledEventFieldsFragment,
+  GetProposalCancelledEventsByEventIdsQuery,
+  GetProposalCancelledEventsByEventIdsQueryVariables,
+  GetProposalCancelledEventsByEventIds,
+  ProposalDiscussionPostCreatedEventFieldsFragment,
+  GetProposalDiscussionPostCreatedEventsQuery,
+  GetProposalDiscussionPostCreatedEventsQueryVariables,
+  GetProposalDiscussionPostCreatedEvents,
+  ProposalDiscussionPostUpdatedEventFieldsFragment,
+  GetProposalDiscussionPostUpdatedEventsQuery,
+  GetProposalDiscussionPostUpdatedEventsQueryVariables,
+  GetProposalDiscussionPostUpdatedEvents,
+  ProposalDiscussionThreadModeChangedEventFieldsFragment,
+  GetProposalDiscussionThreadModeChangedEventsQuery,
+  GetProposalDiscussionThreadModeChangedEventsQueryVariables,
+  GetProposalDiscussionThreadModeChangedEvents,
+  ProposalDiscussionPostDeletedEventFieldsFragment,
+  GetProposalDiscussionPostDeletedEventsQuery,
+  GetProposalDiscussionPostDeletedEventsQueryVariables,
+  GetProposalDiscussionPostDeletedEvents,
+  ProposalDiscussionPostFieldsFragment,
+  GetProposalDiscussionPostsByIdsQuery,
+  GetProposalDiscussionPostsByIdsQueryVariables,
+  GetProposalDiscussionPostsByIds,
+  ProposalDiscussionThreadFieldsFragment,
+  GetProposalDiscussionThreadsByIdsQuery,
+  GetProposalDiscussionThreadsByIdsQueryVariables,
+  GetProposalDiscussionThreadsByIds,
 } from './graphql/generated/queries'
 import { Maybe } from './graphql/generated/schema'
 import { OperationDefinitionNode } from 'graphql'
+import { ProposalId } from '@joystream/types/proposals'
+import { BLOCKTIME } from './consts'
 import { Utils } from './utils'
 export class QueryNodeApi {
   private readonly queryNodeProvider: ApolloClient<NormalizedCacheObject>
@@ -195,8 +233,8 @@ export class QueryNodeApi {
   public async tryQueryWithTimeout<QueryResultT>(
     query: () => Promise<QueryResultT>,
     assertResultIsValid: (res: QueryResultT) => void,
-    retryTimeMs = 15000,
-    retries = 3
+    retryTimeMs = BLOCKTIME * 3,
+    retries = 6
   ): Promise<QueryResultT> {
     const label = query.toString().replace(/^.*\.([A-za-z0-9]+\(.*\))$/g, '$1')
     const debug = this.tryDebug.extend(label)
@@ -333,20 +371,22 @@ export class QueryNodeApi {
     )
   }
 
-  public async getStakingAccountAddedEvents(memberId: MemberId): Promise<StakingAccountAddedEventFieldsFragment[]> {
+  public async getStakingAccountAddedEvents(events: EventDetails[]): Promise<StakingAccountAddedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
     return this.multipleEntitiesQuery<
-      GetStakingAccountAddedEventsByMemberIdQuery,
-      GetStakingAccountAddedEventsByMemberIdQueryVariables
-    >(GetStakingAccountAddedEventsByMemberId, { memberId: memberId.toString() }, 'stakingAccountAddedEvents')
+      GetStakingAccountAddedEventsByEventIdsQuery,
+      GetStakingAccountAddedEventsByEventIdsQueryVariables
+    >(GetStakingAccountAddedEventsByEventIds, { ids: eventIds }, 'stakingAccountAddedEvents')
   }
 
   public async getStakingAccountConfirmedEvents(
-    memberId: MemberId
+    events: EventDetails[]
   ): Promise<StakingAccountConfirmedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
     return this.multipleEntitiesQuery<
-      GetStakingAccountConfirmedEventsByMemberIdQuery,
-      GetStakingAccountConfirmedEventsByMemberIdQueryVariables
-    >(GetStakingAccountConfirmedEventsByMemberId, { memberId: memberId.toString() }, 'stakingAccountConfirmedEvents')
+      GetStakingAccountConfirmedEventsByEventIdsQuery,
+      GetStakingAccountConfirmedEventsByEventIdsQueryVariables
+    >(GetStakingAccountConfirmedEventsByEventIds, { ids: eventIds }, 'stakingAccountConfirmedEvents')
   }
 
   public async getStakingAccountRemovedEvents(memberId: MemberId): Promise<StakingAccountRemovedEventFieldsFragment[]> {
@@ -673,5 +713,87 @@ export class QueryNodeApi {
       { eventIds: [eventId] },
       'leaderUnsetEvents'
     )
+  }
+
+  public async getProposalsByIds(ids: (ProposalId | string)[]): Promise<ProposalFieldsFragment[]> {
+    return this.multipleEntitiesQuery<GetProposalsByIdsQuery, GetProposalsByIdsQueryVariables>(
+      GetProposalsByIds,
+      { ids: ids.map((id) => id.toString()) },
+      'proposals'
+    )
+  }
+
+  public async getProposalVotedEvents(events: EventDetails[]): Promise<ProposalVotedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
+    return this.multipleEntitiesQuery<
+      GetProposalVotedEventsByEventIdsQuery,
+      GetProposalVotedEventsByEventIdsQueryVariables
+    >(GetProposalVotedEventsByEventIds, { eventIds }, 'proposalVotedEvents')
+  }
+
+  public async getProposalCancelledEvents(events: EventDetails[]): Promise<ProposalCancelledEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
+    return this.multipleEntitiesQuery<
+      GetProposalCancelledEventsByEventIdsQuery,
+      GetProposalCancelledEventsByEventIdsQueryVariables
+    >(GetProposalCancelledEventsByEventIds, { eventIds }, 'proposalCancelledEvents')
+  }
+
+  public async getProposalDiscussionPostCreatedEvents(
+    events: EventDetails[]
+  ): Promise<ProposalDiscussionPostCreatedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
+    return this.multipleEntitiesQuery<
+      GetProposalDiscussionPostCreatedEventsQuery,
+      GetProposalDiscussionPostCreatedEventsQueryVariables
+    >(GetProposalDiscussionPostCreatedEvents, { eventIds }, 'proposalDiscussionPostCreatedEvents')
+  }
+
+  public async getProposalDiscussionPostUpdatedEvents(
+    events: EventDetails[]
+  ): Promise<ProposalDiscussionPostUpdatedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
+    return this.multipleEntitiesQuery<
+      GetProposalDiscussionPostUpdatedEventsQuery,
+      GetProposalDiscussionPostUpdatedEventsQueryVariables
+    >(GetProposalDiscussionPostUpdatedEvents, { eventIds }, 'proposalDiscussionPostUpdatedEvents')
+  }
+
+  public async getProposalDiscussionThreadModeChangedEvents(
+    events: EventDetails[]
+  ): Promise<ProposalDiscussionThreadModeChangedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
+    return this.multipleEntitiesQuery<
+      GetProposalDiscussionThreadModeChangedEventsQuery,
+      GetProposalDiscussionThreadModeChangedEventsQueryVariables
+    >(GetProposalDiscussionThreadModeChangedEvents, { eventIds }, 'proposalDiscussionThreadModeChangedEvents')
+  }
+
+  public async getProposalDiscussionPostDeletedEvents(
+    events: EventDetails[]
+  ): Promise<ProposalDiscussionPostDeletedEventFieldsFragment[]> {
+    const eventIds = events.map((e) => this.getQueryNodeEventId(e.blockNumber, e.indexInBlock))
+    return this.multipleEntitiesQuery<
+      GetProposalDiscussionPostDeletedEventsQuery,
+      GetProposalDiscussionPostDeletedEventsQueryVariables
+    >(GetProposalDiscussionPostDeletedEvents, { eventIds }, 'proposalDiscussionPostDeletedEvents')
+  }
+
+  public async getProposalDiscussionPostsByIds(
+    ids: (PostId | number)[]
+  ): Promise<ProposalDiscussionPostFieldsFragment[]> {
+    return this.multipleEntitiesQuery<
+      GetProposalDiscussionPostsByIdsQuery,
+      GetProposalDiscussionPostsByIdsQueryVariables
+    >(GetProposalDiscussionPostsByIds, { ids: ids.map((id) => id.toString()) }, 'proposalDiscussionPosts')
+  }
+
+  public async getProposalDiscussionThreadsByIds(
+    ids: (PostId | number)[]
+  ): Promise<ProposalDiscussionThreadFieldsFragment[]> {
+    return this.multipleEntitiesQuery<
+      GetProposalDiscussionThreadsByIdsQuery,
+      GetProposalDiscussionThreadsByIdsQueryVariables
+    >(GetProposalDiscussionThreadsByIds, { ids: ids.map((id) => id.toString()) }, 'proposalDiscussionThreads')
   }
 }

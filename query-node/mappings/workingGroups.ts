@@ -151,9 +151,9 @@ function parseQuestionInputType(
   return InputTypeToApplicationFormQuestionType[validType]
 }
 
-async function createOpeningMeta(
+export async function createWorkingGroupOpeningMetadata(
   store: DatabaseManager,
-  event: SubstrateEvent,
+  eventTime: Date,
   originalMeta: Bytes | IOpeningMetadata
 ): Promise<WorkingGroupOpeningMetadata> {
   let originallyValid: boolean
@@ -166,7 +166,6 @@ async function createOpeningMeta(
     metadata = originalMeta
     originallyValid = true
   }
-  const eventTime = new Date(event.blockTimestamp)
 
   const {
     applicationFormQuestions,
@@ -245,7 +244,11 @@ async function handleAddUpcomingOpeningAction(
   const upcomingOpeningMeta = action.metadata || {}
   const group = await getWorkingGroup(store, event)
   const eventTime = new Date(event.blockTimestamp)
-  const openingMeta = await createOpeningMeta(store, event, upcomingOpeningMeta.metadata || {})
+  const openingMeta = await await createWorkingGroupOpeningMetadata(
+    store,
+    eventTime,
+    upcomingOpeningMeta.metadata || {}
+  )
   const { rewardPerBlock, expectedStart, minApplicationStake } = upcomingOpeningMeta
   const upcomingOpening = new UpcomingWorkingGroupOpening({
     createdAt: eventTime,
@@ -403,7 +406,7 @@ export async function workingGroups_OpeningAdded({ store, event }: EventContext 
     type: openingType.isLeader ? WorkingGroupOpeningType.LEADER : WorkingGroupOpeningType.REGULAR,
   })
 
-  const metadata = await createOpeningMeta(store, event, metadataBytes)
+  const metadata = await createWorkingGroupOpeningMetadata(store, eventTime, metadataBytes)
   opening.metadata = metadata
 
   await store.save<WorkingGroupOpening>(opening)
@@ -751,7 +754,7 @@ export async function workingGroups_RewardPaid({ store, event }: EventContext & 
     worker,
     amount,
     rewardAccount: rewardAccountId.toString(),
-    type: rewardPaymentType.isRegularReward ? RewardPaymentType.REGULAR : RewardPaymentType.MISSED,
+    paymentType: rewardPaymentType.isRegularReward ? RewardPaymentType.REGULAR : RewardPaymentType.MISSED,
   })
 
   await store.save<RewardPaidEvent>(rewardPaidEvent)
@@ -816,7 +819,7 @@ export async function workingGroups_WorkerExited({ store, event }: EventContext 
 }
 
 export async function workingGroups_LeaderUnset({ store, event }: EventContext & StoreContext): Promise<void> {
-  const group = await getWorkingGroup(store, event)
+  const group = await getWorkingGroup(store, event, ['leader'])
   const eventTime = new Date(event.blockTimestamp)
 
   const leaderUnsetEvent = new LeaderUnsetEvent({

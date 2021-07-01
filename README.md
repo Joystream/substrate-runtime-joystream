@@ -12,7 +12,7 @@ functionality to support the [various roles](https://www.joystream.org/roles) th
 The following tools are required for building, testing and contributing to this repo:
 
 - [Rust](https://www.rust-lang.org/tools/install) toolchain - _required_
-- [nodejs](https://nodejs.org/) v12.x - _required_
+- [nodejs](https://nodejs.org/) v14.x - _required_
 - [yarn classic](https://classic.yarnpkg.com/en/docs/install) package manager v1.22.x- _required_
 - [docker](https://www.docker.com/get-started) and docker-compose - _optional_
 - [ansible](https://www.ansible.com/) - _optional_

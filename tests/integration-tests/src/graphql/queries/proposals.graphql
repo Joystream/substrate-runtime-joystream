@@ -1,0 +1,284 @@
+fragment ProposalStatusFields on ProposalStatus {
+  __typename
+  ... on ProposalStatusDeciding {
+    proposalStatusUpdatedEvent {
+      id
+      newStatus {
+        __typename
+      }
+    }
+  }
+  ... on ProposalStatusGracing {
+    proposalStatusUpdatedEvent {
+      id
+      newStatus {
+        __typename
+      }
+    }
+  }
+  ... on ProposalStatusDormant {
+    proposalStatusUpdatedEvent {
+      id
+      newStatus {
+        __typename
+      }
+    }
+  }
+  ... on ProposalStatusVetoed {
+    proposalDecisionMadeEvent {
+      id
+      decisionStatus {
+        __typename
+      }
+    }
+  }
+  ... on ProposalStatusExecuted {
+    proposalExecutedEvent {
+      id
+      executionStatus {
+        __typename
+      }
+    }
+  }
+
+  ... on ProposalStatusExecutionFailed {
+    proposalExecutedEvent {
+      id
+      executionStatus {
+        __typename
+      }
+    }
+    errorMessage
+  }
+  ... on ProposalStatusSlashed {
+    proposalDecisionMadeEvent {
+      id
+      decisionStatus {
+        __typename
+      }
+    }
+  }
+
+  ... on ProposalStatusRejected {
+    proposalDecisionMadeEvent {
+      id
+      decisionStatus {
+        __typename
+      }
+    }
+  }
+
+  ... on ProposalStatusExpired {
+    proposalDecisionMadeEvent {
+      id
+      decisionStatus {
+        __typename
+      }
+    }
+  }
+
+  ... on ProposalStatusCancelled {
+    cancelledInEvent {
+      id
+    }
+  }
+
+  ... on ProposalStatusCanceledByRuntime {
+    proposalDecisionMadeEvent {
+      id
+      decisionStatus {
+        __typename
+      }
+    }
+  }
+}
+
+fragment ProposalDetailsFields on ProposalDetails {
+  __typename
+  ... on SignalProposalDetails {
+    text
+  }
+  ... on RuntimeUpgradeProposalDetails {
+    newRuntimeBytecode {
+      id
+      bytecode
+    }
+  }
+  ... on FundingRequestProposalDetails {
+    destinationsList {
+      destinations {
+        amount
+        account
+      }
+    }
+  }
+  ... on SetMaxValidatorCountProposalDetails {
+    newMaxValidatorCount
+  }
+
+  ... on CreateWorkingGroupLeadOpeningProposalDetails {
+    metadata {
+      ...OpeningMetadataFields
+    }
+    stakeAmount
+    unstakingPeriod
+    rewardPerBlock
+    group {
+      id
+    }
+  }
+  ... on FillWorkingGroupLeadOpeningProposalDetails {
+    opening {
+      id
+    }
+    application {
+      id
+    }
+  }
+  ... on UpdateWorkingGroupBudgetProposalDetails {
+    amount
+    group {
+      id
+    }
+  }
+  ... on DecreaseWorkingGroupLeadStakeProposalDetails {
+    lead {
+      id
+    }
+    amount
+  }
+
+  ... on SlashWorkingGroupLeadProposalDetails {
+    lead {
+      id
+    }
+    amount
+  }
+  ... on SetWorkingGroupLeadRewardProposalDetails {
+    lead {
+      id
+    }
+    newRewardPerBlock
+  }
+
+  ... on TerminateWorkingGroupLeadProposalDetails {
+    lead {
+      id
+    }
+    slashingAmount
+  }
+
+  ... on AmendConstitutionProposalDetails {
+    text
+  }
+
+  ... on CancelWorkingGroupLeadOpeningProposalDetails {
+    opening {
+      id
+    }
+  }
+
+  ... on SetMembershipPriceProposalDetails {
+    newPrice
+  }
+
+  ... on SetCouncilBudgetIncrementProposalDetails {
+    newAmount
+  }
+
+  ... on SetCouncilorRewardProposalDetails {
+    newRewardPerBlock
+  }
+
+  ... on SetInitialInvitationBalanceProposalDetails {
+    newInitialInvitationBalance
+  }
+
+  ... on SetInitialInvitationCountProposalDetails {
+    newInitialInvitationsCount
+  }
+
+  ... on SetMembershipLeadInvitationQuotaProposalDetails {
+    newLeadInvitationQuota
+  }
+
+  ... on SetReferralCutProposalDetails {
+    newReferralCut
+  }
+
+  ... on SetReferralCutProposalDetails {
+    newReferralCut
+  }
+
+  ... on CreateBlogPostProposalDetails {
+    title
+    body
+  }
+
+  ... on EditBlogPostProposalDetails {
+    blogPost
+    newTitle
+    newBody
+  }
+
+  ... on LockBlogPostProposalDetails {
+    blogPost
+  }
+
+  ... on UnlockBlogPostProposalDetails {
+    blogPost
+  }
+
+  ... on VetoProposalDetails {
+    proposal {
+      id
+    }
+  }
+}
+
+fragment ProposalFields on Proposal {
+  id
+  title
+  description
+  details {
+    ...ProposalDetailsFields
+  }
+  stakingAccount
+  creator {
+    id
+  }
+  exactExecutionBlock
+  councilApprovals
+  proposalStatusUpdates {
+    id
+    inBlock
+    newStatus {
+      __typename
+    }
+  }
+  votes {
+    id
+  }
+  status {
+    ...ProposalStatusFields
+  }
+  statusSetAtBlock
+  statusSetAtTime
+  createdInEvent {
+    id
+    inBlock
+    inExtrinsic
+  }
+  discussionThread {
+    id
+    mode {
+      ...ProposalDiscussionThreadModeFields
+    }
+  }
+}
+
+query getProposalsByIds($ids: [ID!]) {
+  proposals(where: { id_in: $ids }) {
+    ...ProposalFields
+  }
+}

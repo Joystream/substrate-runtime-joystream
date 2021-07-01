@@ -1,0 +1,372 @@
+"The final proposal status is not yet decided, the council can still submit votes that may impact the outcome."
+type ProposalStatusDeciding @variant {
+  "Related ProposalStatusUpdatedEvent"
+  proposalStatusUpdatedEvent: ProposalStatusUpdatedEvent
+}
+
+"The proposal is awaiting execution until the specified trigger block, or GRACING_LIMIT blocks since start of period if no trigger was provided."
+type ProposalStatusGracing @variant {
+  "Related ProposalStatusUpdatedEvent"
+  proposalStatusUpdatedEvent: ProposalStatusUpdatedEvent
+}
+
+"The proposal was approved by current council, but requires further approvals to satisfy CONSTITUTIONALITY requirement. Transitions to Deciding stage when next council is elected."
+type ProposalStatusDormant @variant {
+  "Related ProposalStatusUpdatedEvent"
+  proposalStatusUpdatedEvent: ProposalStatusUpdatedEvent
+}
+
+"Was halted by sudo or by council through veto-proposal. "
+type ProposalStatusVetoed @variant {
+  "Related ProposalDecisionMadeEvent event"
+  proposalDecisionMadeEvent: ProposalDecisionMadeEvent
+}
+
+"The proposal was successfully executed"
+type ProposalStatusExecuted @variant {
+  "Related ProposalExecutedEvent"
+  proposalExecutedEvent: ProposalExecutedEvent
+}
+
+"The proposal executution has failed."
+type ProposalStatusExecutionFailed @variant {
+  "Related ProposalExecutedEvent"
+  proposalExecutedEvent: ProposalExecutedEvent
+
+  "The runtime execution error message"
+  errorMessage: String!
+}
+
+"The proposal was rejected and the associated stake was slashed."
+type ProposalStatusSlashed @variant {
+  "Related ProposalDecisionMadeEvent"
+  proposalDecisionMadeEvent: ProposalDecisionMadeEvent
+}
+
+"The proposal was rejected."
+type ProposalStatusRejected @variant {
+  "Related ProposalDecisionMadeEvent"
+  proposalDecisionMadeEvent: ProposalDecisionMadeEvent
+}
+
+"The proposal didn't recieve enough votes and the voting period has expired."
+type ProposalStatusExpired @variant {
+  "Related ProposalDecisionMadeEvent"
+  proposalDecisionMadeEvent: ProposalDecisionMadeEvent
+}
+
+"The proposal was cancelled by the original proposer."
+type ProposalStatusCancelled @variant {
+  "The related ProposalCancelledEvent"
+  cancelledInEvent: ProposalCancelledEvent
+}
+
+"The proposal was canceled by the runtime (for example, due to runtime upgrade). No cancellation fee was applied."
+type ProposalStatusCanceledByRuntime @variant {
+  "Related ProposalDecisionMadeEvent"
+  proposalDecisionMadeEvent: ProposalDecisionMadeEvent
+}
+
+"Intermediate / pending proposal status, the final status is still to be determined"
+union ProposalIntermediateStatus = ProposalStatusDeciding | ProposalStatusGracing | ProposalStatusDormant
+
+"Proposal status after the voting stage has finished for the current council."
+union ProposalDecisionStatus = # Approved:
+    ProposalStatusDormant
+  | ProposalStatusGracing # Not approved:
+  | ProposalStatusVetoed
+  | ProposalStatusSlashed
+  | ProposalStatusRejected
+  | ProposalStatusExpired
+  | ProposalStatusCancelled
+  | ProposalStatusCanceledByRuntime
+
+"Statuses representing approved proposal post-execution result"
+union ProposalExecutionStatus = ProposalStatusExecuted | ProposalStatusExecutionFailed
+
+"All valid proposal statuses"
+union ProposalStatus = # Intermediate statuses:
+    ProposalStatusDeciding
+  | ProposalStatusGracing
+  | ProposalStatusDormant # Final statuses:
+  | ProposalStatusVetoed
+  | ProposalStatusExecuted
+  | ProposalStatusExecutionFailed
+  | ProposalStatusSlashed
+  | ProposalStatusRejected
+  | ProposalStatusExpired
+  | ProposalStatusCancelled
+  | ProposalStatusCanceledByRuntime
+
+type Proposal @entity {
+  "Proposal's runtime id"
+  id: ID!
+
+  "Proposal title"
+  title: String! @fulltext(query: "proposalsByTitle")
+
+  "Proposal description"
+  description: String! @fulltext(query: "proposalsByDescription")
+
+  "Proposal details depending on proposal type"
+  details: ProposalDetails!
+
+  "Staking account with proposal stake (in case a stake is required)"
+  stakingAccount: String
+
+  "Proposal creator"
+  creator: Membership!
+
+  "The event the proposal was created in"
+  createdInEvent: ProposalCreatedEvent! @derivedFrom(field: "proposal")
+
+  "Exact block number the proposal is supposed to be executed at (if specified)"
+  exactExecutionBlock: Int
+
+  "Proposal's discussion thread"
+  discussionThread: ProposalDiscussionThread! @derivedFrom(field: "proposal")
+
+  "How many prior councils have already approved the proposal (starts with 0)"
+  councilApprovals: Int!
+
+  "List of proposal (intermediate) status update events (to Deciding, Dormant or Gracing status)"
+  proposalStatusUpdates: [ProposalStatusUpdatedEvent!] @derivedFrom(field: "proposal")
+
+  "List of proposal votes (in form of ProposalVotedEvents)"
+  votes: [ProposalVotedEvent!] @derivedFrom(field: "proposal")
+
+  "Current proposal status"
+  status: ProposalStatus!
+
+  # Additional fileds to avoid the need for complex filtering through status variant relations:
+
+  "Number of the block the current status was set at"
+  statusSetAtBlock: Int!
+
+  "Time the current status was set at (based on block timestamp)"
+  statusSetAtTime: DateTime!
+}
+
+type SignalProposalDetails @variant {
+  "Signal proposal content"
+  text: String!
+}
+
+type RuntimeWasmBytecode @entity {
+  "Blake2b hash of the runtime bytecode"
+  id: ID!
+
+  "The bytecode itself"
+  bytecode: Bytes!
+}
+
+type RuntimeUpgradeProposalDetails @variant {
+  "Runtime upgrade WASM bytecode"
+  newRuntimeBytecode: RuntimeWasmBytecode!
+}
+
+type FundingRequestDestination @entity {
+  "Amount of funds requested"
+  amount: BigInt!
+
+  "Destination account"
+  account: String!
+
+  "The list that this funding request destination is part of"
+  list: FundingRequestDestinationsList!
+}
+
+# We need to have additional intermediate FundingRequestDestinationsList entity,
+# because varaints don't directly support One-to-Many relationships
+type FundingRequestDestinationsList @entity {
+  # Prevents "GraphQLError: Input Object type FundingRequestDestinationsListUpdateInput must define one or more fields."
+  _phantom: Int
+
+  "List of funding request destinations"
+  destinations: [FundingRequestDestination!] @derivedFrom(field: "list")
+}
+
+type FundingRequestProposalDetails @variant {
+  # Workaround for lack of direct One-to-Many relationships
+  "Related list of funding request destinations"
+  destinationsList: FundingRequestDestinationsList!
+}
+
+type SetMaxValidatorCountProposalDetails @variant {
+  "The new (propsed) max. number of active validators"
+  newMaxValidatorCount: Int!
+}
+
+type CreateWorkingGroupLeadOpeningProposalDetails @variant {
+  "The opening metadata"
+  metadata: WorkingGroupOpeningMetadata!
+
+  "Min. application / role stake amount"
+  stakeAmount: BigInt!
+
+  "Role stake unstaking period in blocks"
+  unstakingPeriod: Int!
+
+  "Initial workers' reward per block"
+  rewardPerBlock: BigInt!
+
+  "Related working group"
+  group: WorkingGroup!
+}
+
+type FillWorkingGroupLeadOpeningProposalDetails @variant {
+  "Lead opening to to be filled"
+  opening: WorkingGroupOpening!
+
+  "Selected successful application"
+  application: WorkingGroupApplication!
+}
+
+type UpdateWorkingGroupBudgetProposalDetails @variant {
+  "Amount to increase / decrease the working group budget by (will be decudted from / appended to council budget accordingly)"
+  amount: BigInt!
+
+  "Related working group"
+  group: WorkingGroup!
+}
+
+type DecreaseWorkingGroupLeadStakeProposalDetails @variant {
+  "The lead that should be affected"
+  lead: Worker!
+
+  "Amount to decrease the stake by"
+  amount: BigInt!
+}
+
+type SlashWorkingGroupLeadProposalDetails @variant {
+  "The lead that should be affected"
+  lead: Worker!
+
+  "Amount to slash the stake by"
+  amount: BigInt!
+}
+
+type SetWorkingGroupLeadRewardProposalDetails @variant {
+  "The lead that should be affected"
+  lead: Worker!
+
+  "Lead's new (proposed) reward per block"
+  newRewardPerBlock: BigInt!
+}
+
+type TerminateWorkingGroupLeadProposalDetails @variant {
+  "Lead that's supposed to be terminated"
+  lead: Worker!
+
+  "Optionally - the amount to slash the lead's stake by"
+  slashingAmount: BigInt
+}
+
+type AmendConstitutionProposalDetails @variant {
+  "New (proposed) constitution text (md-formatted)"
+  text: String!
+}
+
+type CancelWorkingGroupLeadOpeningProposalDetails @variant {
+  "Opening to be cancelled"
+  opening: WorkingGroupOpening!
+}
+
+type SetMembershipPriceProposalDetails @variant {
+  "New (proposed) membership price"
+  newPrice: BigInt!
+}
+
+type SetCouncilBudgetIncrementProposalDetails @variant {
+  "New (proposed) amount the council budget should be increased by per each budget period"
+  newAmount: BigInt!
+}
+
+type SetCouncilorRewardProposalDetails @variant {
+  "New (proposed) council members' reward per block"
+  newRewardPerBlock: BigInt!
+}
+
+type SetInitialInvitationBalanceProposalDetails @variant {
+  "The new (proposed) initial balance credited to controller account of an invitee (locked for transaction fee payments only)"
+  newInitialInvitationBalance: BigInt!
+}
+
+type SetInitialInvitationCountProposalDetails @variant {
+  "The new (proposed) initial invitations count for paid memberships"
+  newInitialInvitationsCount: Int!
+}
+
+type SetMembershipLeadInvitationQuotaProposalDetails @variant {
+  "The new (proposed) membership working group lead invitation quota"
+  newLeadInvitationQuota: Int!
+}
+
+type SetReferralCutProposalDetails @variant {
+  "The new (proposed) percentage of tokens diverted to referrer (from referred member's membership price)."
+  newReferralCut: Int!
+}
+
+type CreateBlogPostProposalDetails @variant {
+  "Blog post title"
+  title: String!
+
+  "Blog post content (md-formatted)"
+  body: String!
+}
+
+type EditBlogPostProposalDetails @variant {
+  "The related blog post"
+  # TODO: Change to relationship once Blog module is supported
+  blogPost: ID!
+
+  "The new blog post title (if should be updated)"
+  newTitle: String
+
+  "The new blog post body (if should be updated)"
+  newBody: String
+}
+
+type LockBlogPostProposalDetails @variant {
+  "The blog post that should be locked"
+  # TODO: Change to relationship once Blog module is supported
+  blogPost: ID!
+}
+
+type UnlockBlogPostProposalDetails @variant {
+  "The blog post that should be unlocked"
+  # TODO: Change to relationship once Blog module is supported
+  blogPost: ID!
+}
+
+type VetoProposalDetails @variant {
+  "Proposal to be vetoed"
+  proposal: Proposal!
+}
+
+union ProposalDetails =
+    SignalProposalDetails
+  | RuntimeUpgradeProposalDetails
+  | FundingRequestProposalDetails
+  | SetMaxValidatorCountProposalDetails
+  | CreateWorkingGroupLeadOpeningProposalDetails
+  | FillWorkingGroupLeadOpeningProposalDetails
+  | UpdateWorkingGroupBudgetProposalDetails
+  | DecreaseWorkingGroupLeadStakeProposalDetails
+  | SlashWorkingGroupLeadProposalDetails
+  | SetWorkingGroupLeadRewardProposalDetails
+  | TerminateWorkingGroupLeadProposalDetails
+  | AmendConstitutionProposalDetails
+  | CancelWorkingGroupLeadOpeningProposalDetails
+  | SetMembershipPriceProposalDetails
+  | SetCouncilBudgetIncrementProposalDetails
+  | SetCouncilorRewardProposalDetails
+  | SetInitialInvitationBalanceProposalDetails
+  | SetInitialInvitationCountProposalDetails
+  | SetMembershipLeadInvitationQuotaProposalDetails
+  | SetReferralCutProposalDetails
+  | CreateBlogPostProposalDetails
+  | EditBlogPostProposalDetails
+  | LockBlogPostProposalDetails
+  | UnlockBlogPostProposalDetails
+  | VetoProposalDetails

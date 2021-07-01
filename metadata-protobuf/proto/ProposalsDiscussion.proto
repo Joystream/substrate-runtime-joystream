@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message ProposalsDiscussionPostMetadata {
+  optional string text = 1; // Post text content (md-formatted)
+  optional uint32 repliesTo = 2; // Id of the post that given post replies to (if any)
+}

@@ -3,17 +3,19 @@ import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { ISubmittableResult, AnyJson } from '@polkadot/types/types/'
 import { AccountId, EventRecord } from '@polkadot/types/interfaces'
 import { DispatchError, DispatchResult } from '@polkadot/types/interfaces/system'
-import { TypeRegistry } from '@polkadot/types'
 import { KeyringPair } from '@polkadot/keyring/types'
 import Debugger from 'debug'
 import AsyncLock from 'async-lock'
 import { assert } from 'chai'
+import BN from 'bn.js'
 
 export enum LogLevel {
   None,
   Debug,
   Verbose,
 }
+
+const nonceCacheByAccount = new Map<string, number>()
 
 export class Sender {
   private readonly api: ApiPromise
@@ -64,7 +66,7 @@ export class Sender {
         process.exit(-1)
       }
 
-      if (!result.status.isInBlock) {
+      if (!(result.status.isInBlock || result.status.isFinalized)) {
         return
       }
 
@@ -127,18 +129,29 @@ export class Sender {
     // of call to signAndSend. Otherwise it raises chance of race conditions.
     // It happens in rare cases and has lead some tests to fail occasionally in the past
     await Sender.asyncLock.acquire('tx-queue', async () => {
-      const nonce = await this.api.rpc.system.accountNextIndex(senderKeyPair.address)
+      // The node sometimes returns invalid account nonce at the exact time a new block is produced
+      // For a split second the node will then not take "pending" transactions into account,
+      // that's why we must partialy rely on cached nonce
+      const nodeNonce = await this.api.rpc.system.accountNextIndex(senderKeyPair.address)
+      const cachedNonce = nonceCacheByAccount.get(senderKeyPair.address)
+      const nonce = BN.max(nodeNonce, new BN(cachedNonce || 0))
       const signedTx = tx.sign(senderKeyPair, { nonce })
       sentTx = signedTx.toHuman()
       const { method, section } = signedTx.method
       try {
         await signedTx.send(handleEvents)
         if (this.logs === LogLevel.Verbose) {
-          this.debug('Submitted tx:', `${section}.${method}`)
+          this.debug('Submitted tx:', `${section}.${method} (nonce: ${nonce})`)
         }
+        nonceCacheByAccount.set(account.toString(), nonce.toNumber() + 1)
       } catch (err) {
-        if (this.logs === LogLevel.Debug) {
-          this.debug('Submitting tx failed:', sentTx, err)
+        if (this.logs === LogLevel.Debug || this.logs === LogLevel.Verbose) {
+          this.debug(
+            'Submitting tx failed:',
+            sentTx,
+            err,
+            signedTx.method.args.map((a) => a.toHuman())
+          )
         }
         throw err
       }

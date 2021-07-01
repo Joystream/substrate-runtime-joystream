@@ -1,5 +1,4 @@
 import { Api } from '../../Api'
-import { BaseCreateOpeningFixture } from './BaseCreateOpeningFixture'
 import { QueryNodeApi } from '../../QueryNodeApi'
 import { EventDetails, WorkingGroupModuleName } from '../../types'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
@@ -17,6 +16,8 @@ import { Bytes } from '@polkadot/types'
 import moment from 'moment'
 import { DEFAULT_OPENING_PARAMS } from './CreateOpeningsFixture'
 import { createType } from '@joystream/types'
+import { assertQueriedOpeningMetadataIsValid } from './utils'
+import { BaseWorkingGroupFixture } from './BaseWorkingGroupFixture'
 
 export const DEFAULT_UPCOMING_OPENING_META: IUpcomingOpeningMetadata = {
   minApplicationStake: Long.fromString(DEFAULT_OPENING_PARAMS.stake.toString()),
@@ -30,7 +31,7 @@ export type UpcomingOpeningParams = {
   expectMetadataFailure?: boolean
 }
 
-export class CreateUpcomingOpeningsFixture extends BaseCreateOpeningFixture {
+export class CreateUpcomingOpeningsFixture extends BaseWorkingGroupFixture {
   protected upcomingOpeningsParams: UpcomingOpeningParams[]
   protected createdUpcomingOpeningIds: string[] = []
 
@@ -117,7 +118,7 @@ export class CreateUpcomingOpeningsFixture extends BaseCreateOpeningFixture {
         )
         Utils.assert(qEvent.result.__typename === 'UpcomingOpeningAdded')
         assert.equal(qEvent.result.upcomingOpeningId, qUpcomingOpening.id)
-        this.assertQueriedOpeningMetadataIsValid(qUpcomingOpening.metadata, expectedMeta.metadata)
+        assertQueriedOpeningMetadataIsValid(qUpcomingOpening.metadata, expectedMeta.metadata)
       } else {
         assert.isUndefined(qUpcomingOpening)
       }

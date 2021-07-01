@@ -1,0 +1,124 @@
+fragment ProposalCreatedEventFields on ProposalCreatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  proposal {
+    id
+  }
+}
+
+query getProposalCreatedEventsByEventIds($eventIds: [ID!]) {
+  proposalCreatedEvents(where: { id_in: $eventIds }) {
+    ...ProposalCreatedEventFields
+  }
+}
+
+fragment ProposalStatusUpdatedEventFields on ProposalStatusUpdatedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  proposal {
+    id
+  }
+  newStatus {
+    __typename
+  }
+}
+
+query getProposalStatusUpdatedEventsByEventIds($eventIds: [ID!]) {
+  proposalStatusUpdatedEvents(where: { id_in: $eventIds }) {
+    ...ProposalStatusUpdatedEventFields
+  }
+}
+
+fragment ProposalDecisionMadeEventFields on ProposalDecisionMadeEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  proposal {
+    id
+  }
+  decisionStatus {
+    __typename
+  }
+}
+
+query getProposalDecisionMadeEventsByEventIds($eventIds: [ID!]) {
+  proposalDecisionMadeEvents(where: { id_in: $eventIds }) {
+    ...ProposalDecisionMadeEventFields
+  }
+}
+
+fragment ProposalExecutedEventFields on ProposalExecutedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  proposal {
+    id
+  }
+  executionStatus {
+    ... on ProposalStatusExecutionFailed {
+      errorMessage
+    }
+  }
+}
+
+query getProposalExecutedEventsByEventIds($eventIds: [ID!]) {
+  proposalExecutedEvents(where: { id_in: $eventIds }) {
+    ...ProposalExecutedEventFields
+  }
+}
+
+fragment ProposalVotedEventFields on ProposalVotedEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  voter {
+    id
+  }
+  voteKind
+  proposal {
+    id
+  }
+  rationale
+  votingRound
+}
+
+query getProposalVotedEventsByEventIds($eventIds: [ID!]) {
+  proposalVotedEvents(where: { id_in: $eventIds }) {
+    ...ProposalVotedEventFields
+  }
+}
+
+fragment ProposalCancelledEventFields on ProposalCancelledEvent {
+  id
+  createdAt
+  inBlock
+  network
+  inExtrinsic
+  indexInBlock
+  proposal {
+    id
+  }
+}
+
+query getProposalCancelledEventsByEventIds($eventIds: [ID!]) {
+  proposalCancelledEvents(where: { id_in: $eventIds }) {
+    ...ProposalCancelledEventFields
+  }
+}

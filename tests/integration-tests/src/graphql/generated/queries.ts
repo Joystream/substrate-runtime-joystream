@@ -172,11 +172,11 @@ export type StakingAccountAddedEventFieldsFragment = {
   member: { id: string }
 }
 
-export type GetStakingAccountAddedEventsByMemberIdQueryVariables = Types.Exact<{
-  memberId: Types.Scalars['ID']
+export type GetStakingAccountAddedEventsByEventIdsQueryVariables = Types.Exact<{
+  ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
 }>
 
-export type GetStakingAccountAddedEventsByMemberIdQuery = {
+export type GetStakingAccountAddedEventsByEventIdsQuery = {
   stakingAccountAddedEvents: Array<StakingAccountAddedEventFieldsFragment>
 }
 
@@ -191,11 +191,11 @@ export type StakingAccountConfirmedEventFieldsFragment = {
   member: { id: string }
 }
 
-export type GetStakingAccountConfirmedEventsByMemberIdQueryVariables = Types.Exact<{
-  memberId: Types.Scalars['ID']
+export type GetStakingAccountConfirmedEventsByEventIdsQueryVariables = Types.Exact<{
+  ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
 }>
 
-export type GetStakingAccountConfirmedEventsByMemberIdQuery = {
+export type GetStakingAccountConfirmedEventsByEventIdsQuery = {
   stakingAccountConfirmedEvents: Array<StakingAccountConfirmedEventFieldsFragment>
 }
 
@@ -288,6 +288,663 @@ export type GetInitialInvitationCountUpdatedEventsByEventIdQueryVariables = Type
 
 export type GetInitialInvitationCountUpdatedEventsByEventIdQuery = {
   initialInvitationCountUpdatedEvents: Array<InitialInvitationCountUpdatedEventFieldsFragment>
+}
+
+type ProposalStatusFields_ProposalStatusDeciding_Fragment = {
+  __typename: 'ProposalStatusDeciding'
+  proposalStatusUpdatedEvent?: Types.Maybe<{
+    id: string
+    newStatus:
+      | { __typename: 'ProposalStatusDeciding' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusDormant' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusGracing_Fragment = {
+  __typename: 'ProposalStatusGracing'
+  proposalStatusUpdatedEvent?: Types.Maybe<{
+    id: string
+    newStatus:
+      | { __typename: 'ProposalStatusDeciding' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusDormant' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusDormant_Fragment = {
+  __typename: 'ProposalStatusDormant'
+  proposalStatusUpdatedEvent?: Types.Maybe<{
+    id: string
+    newStatus:
+      | { __typename: 'ProposalStatusDeciding' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusDormant' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusVetoed_Fragment = {
+  __typename: 'ProposalStatusVetoed'
+  proposalDecisionMadeEvent?: Types.Maybe<{
+    id: string
+    decisionStatus:
+      | { __typename: 'ProposalStatusDormant' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusVetoed' }
+      | { __typename: 'ProposalStatusSlashed' }
+      | { __typename: 'ProposalStatusRejected' }
+      | { __typename: 'ProposalStatusExpired' }
+      | { __typename: 'ProposalStatusCancelled' }
+      | { __typename: 'ProposalStatusCanceledByRuntime' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusExecuted_Fragment = {
+  __typename: 'ProposalStatusExecuted'
+  proposalExecutedEvent?: Types.Maybe<{
+    id: string
+    executionStatus: { __typename: 'ProposalStatusExecuted' } | { __typename: 'ProposalStatusExecutionFailed' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusExecutionFailed_Fragment = {
+  __typename: 'ProposalStatusExecutionFailed'
+  errorMessage: string
+  proposalExecutedEvent?: Types.Maybe<{
+    id: string
+    executionStatus: { __typename: 'ProposalStatusExecuted' } | { __typename: 'ProposalStatusExecutionFailed' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusSlashed_Fragment = {
+  __typename: 'ProposalStatusSlashed'
+  proposalDecisionMadeEvent?: Types.Maybe<{
+    id: string
+    decisionStatus:
+      | { __typename: 'ProposalStatusDormant' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusVetoed' }
+      | { __typename: 'ProposalStatusSlashed' }
+      | { __typename: 'ProposalStatusRejected' }
+      | { __typename: 'ProposalStatusExpired' }
+      | { __typename: 'ProposalStatusCancelled' }
+      | { __typename: 'ProposalStatusCanceledByRuntime' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusRejected_Fragment = {
+  __typename: 'ProposalStatusRejected'
+  proposalDecisionMadeEvent?: Types.Maybe<{
+    id: string
+    decisionStatus:
+      | { __typename: 'ProposalStatusDormant' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusVetoed' }
+      | { __typename: 'ProposalStatusSlashed' }
+      | { __typename: 'ProposalStatusRejected' }
+      | { __typename: 'ProposalStatusExpired' }
+      | { __typename: 'ProposalStatusCancelled' }
+      | { __typename: 'ProposalStatusCanceledByRuntime' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusExpired_Fragment = {
+  __typename: 'ProposalStatusExpired'
+  proposalDecisionMadeEvent?: Types.Maybe<{
+    id: string
+    decisionStatus:
+      | { __typename: 'ProposalStatusDormant' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusVetoed' }
+      | { __typename: 'ProposalStatusSlashed' }
+      | { __typename: 'ProposalStatusRejected' }
+      | { __typename: 'ProposalStatusExpired' }
+      | { __typename: 'ProposalStatusCancelled' }
+      | { __typename: 'ProposalStatusCanceledByRuntime' }
+  }>
+}
+
+type ProposalStatusFields_ProposalStatusCancelled_Fragment = {
+  __typename: 'ProposalStatusCancelled'
+  cancelledInEvent?: Types.Maybe<{ id: string }>
+}
+
+type ProposalStatusFields_ProposalStatusCanceledByRuntime_Fragment = {
+  __typename: 'ProposalStatusCanceledByRuntime'
+  proposalDecisionMadeEvent?: Types.Maybe<{
+    id: string
+    decisionStatus:
+      | { __typename: 'ProposalStatusDormant' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusVetoed' }
+      | { __typename: 'ProposalStatusSlashed' }
+      | { __typename: 'ProposalStatusRejected' }
+      | { __typename: 'ProposalStatusExpired' }
+      | { __typename: 'ProposalStatusCancelled' }
+      | { __typename: 'ProposalStatusCanceledByRuntime' }
+  }>
+}
+
+export type ProposalStatusFieldsFragment =
+  | ProposalStatusFields_ProposalStatusDeciding_Fragment
+  | ProposalStatusFields_ProposalStatusGracing_Fragment
+  | ProposalStatusFields_ProposalStatusDormant_Fragment
+  | ProposalStatusFields_ProposalStatusVetoed_Fragment
+  | ProposalStatusFields_ProposalStatusExecuted_Fragment
+  | ProposalStatusFields_ProposalStatusExecutionFailed_Fragment
+  | ProposalStatusFields_ProposalStatusSlashed_Fragment
+  | ProposalStatusFields_ProposalStatusRejected_Fragment
+  | ProposalStatusFields_ProposalStatusExpired_Fragment
+  | ProposalStatusFields_ProposalStatusCancelled_Fragment
+  | ProposalStatusFields_ProposalStatusCanceledByRuntime_Fragment
+
+type ProposalDetailsFields_SignalProposalDetails_Fragment = { __typename: 'SignalProposalDetails'; text: string }
+
+type ProposalDetailsFields_RuntimeUpgradeProposalDetails_Fragment = {
+  __typename: 'RuntimeUpgradeProposalDetails'
+  newRuntimeBytecode?: Types.Maybe<{ id: string; bytecode: any }>
+}
+
+type ProposalDetailsFields_FundingRequestProposalDetails_Fragment = {
+  __typename: 'FundingRequestProposalDetails'
+  destinationsList?: Types.Maybe<{ destinations: Array<{ amount: any; account: string }> }>
+}
+
+type ProposalDetailsFields_SetMaxValidatorCountProposalDetails_Fragment = {
+  __typename: 'SetMaxValidatorCountProposalDetails'
+  newMaxValidatorCount: number
+}
+
+type ProposalDetailsFields_CreateWorkingGroupLeadOpeningProposalDetails_Fragment = {
+  __typename: 'CreateWorkingGroupLeadOpeningProposalDetails'
+  stakeAmount: any
+  unstakingPeriod: number
+  rewardPerBlock: any
+  metadata?: Types.Maybe<OpeningMetadataFieldsFragment>
+  group?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_FillWorkingGroupLeadOpeningProposalDetails_Fragment = {
+  __typename: 'FillWorkingGroupLeadOpeningProposalDetails'
+  opening?: Types.Maybe<{ id: string }>
+  application?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_UpdateWorkingGroupBudgetProposalDetails_Fragment = {
+  __typename: 'UpdateWorkingGroupBudgetProposalDetails'
+  amount: any
+  group?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_DecreaseWorkingGroupLeadStakeProposalDetails_Fragment = {
+  __typename: 'DecreaseWorkingGroupLeadStakeProposalDetails'
+  amount: any
+  lead?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_SlashWorkingGroupLeadProposalDetails_Fragment = {
+  __typename: 'SlashWorkingGroupLeadProposalDetails'
+  amount: any
+  lead?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_SetWorkingGroupLeadRewardProposalDetails_Fragment = {
+  __typename: 'SetWorkingGroupLeadRewardProposalDetails'
+  newRewardPerBlock: any
+  lead?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_TerminateWorkingGroupLeadProposalDetails_Fragment = {
+  __typename: 'TerminateWorkingGroupLeadProposalDetails'
+  slashingAmount?: Types.Maybe<any>
+  lead?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_AmendConstitutionProposalDetails_Fragment = {
+  __typename: 'AmendConstitutionProposalDetails'
+  text: string
+}
+
+type ProposalDetailsFields_CancelWorkingGroupLeadOpeningProposalDetails_Fragment = {
+  __typename: 'CancelWorkingGroupLeadOpeningProposalDetails'
+  opening?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDetailsFields_SetMembershipPriceProposalDetails_Fragment = {
+  __typename: 'SetMembershipPriceProposalDetails'
+  newPrice: any
+}
+
+type ProposalDetailsFields_SetCouncilBudgetIncrementProposalDetails_Fragment = {
+  __typename: 'SetCouncilBudgetIncrementProposalDetails'
+  newAmount: any
+}
+
+type ProposalDetailsFields_SetCouncilorRewardProposalDetails_Fragment = {
+  __typename: 'SetCouncilorRewardProposalDetails'
+  newRewardPerBlock: any
+}
+
+type ProposalDetailsFields_SetInitialInvitationBalanceProposalDetails_Fragment = {
+  __typename: 'SetInitialInvitationBalanceProposalDetails'
+  newInitialInvitationBalance: any
+}
+
+type ProposalDetailsFields_SetInitialInvitationCountProposalDetails_Fragment = {
+  __typename: 'SetInitialInvitationCountProposalDetails'
+  newInitialInvitationsCount: number
+}
+
+type ProposalDetailsFields_SetMembershipLeadInvitationQuotaProposalDetails_Fragment = {
+  __typename: 'SetMembershipLeadInvitationQuotaProposalDetails'
+  newLeadInvitationQuota: number
+}
+
+type ProposalDetailsFields_SetReferralCutProposalDetails_Fragment = {
+  __typename: 'SetReferralCutProposalDetails'
+  newReferralCut: number
+}
+
+type ProposalDetailsFields_CreateBlogPostProposalDetails_Fragment = {
+  __typename: 'CreateBlogPostProposalDetails'
+  title: string
+  body: string
+}
+
+type ProposalDetailsFields_EditBlogPostProposalDetails_Fragment = {
+  __typename: 'EditBlogPostProposalDetails'
+  blogPost: string
+  newTitle?: Types.Maybe<string>
+  newBody?: Types.Maybe<string>
+}
+
+type ProposalDetailsFields_LockBlogPostProposalDetails_Fragment = {
+  __typename: 'LockBlogPostProposalDetails'
+  blogPost: string
+}
+
+type ProposalDetailsFields_UnlockBlogPostProposalDetails_Fragment = {
+  __typename: 'UnlockBlogPostProposalDetails'
+  blogPost: string
+}
+
+type ProposalDetailsFields_VetoProposalDetails_Fragment = {
+  __typename: 'VetoProposalDetails'
+  proposal?: Types.Maybe<{ id: string }>
+}
+
+export type ProposalDetailsFieldsFragment =
+  | ProposalDetailsFields_SignalProposalDetails_Fragment
+  | ProposalDetailsFields_RuntimeUpgradeProposalDetails_Fragment
+  | ProposalDetailsFields_FundingRequestProposalDetails_Fragment
+  | ProposalDetailsFields_SetMaxValidatorCountProposalDetails_Fragment
+  | ProposalDetailsFields_CreateWorkingGroupLeadOpeningProposalDetails_Fragment
+  | ProposalDetailsFields_FillWorkingGroupLeadOpeningProposalDetails_Fragment
+  | ProposalDetailsFields_UpdateWorkingGroupBudgetProposalDetails_Fragment
+  | ProposalDetailsFields_DecreaseWorkingGroupLeadStakeProposalDetails_Fragment
+  | ProposalDetailsFields_SlashWorkingGroupLeadProposalDetails_Fragment
+  | ProposalDetailsFields_SetWorkingGroupLeadRewardProposalDetails_Fragment
+  | ProposalDetailsFields_TerminateWorkingGroupLeadProposalDetails_Fragment
+  | ProposalDetailsFields_AmendConstitutionProposalDetails_Fragment
+  | ProposalDetailsFields_CancelWorkingGroupLeadOpeningProposalDetails_Fragment
+  | ProposalDetailsFields_SetMembershipPriceProposalDetails_Fragment
+  | ProposalDetailsFields_SetCouncilBudgetIncrementProposalDetails_Fragment
+  | ProposalDetailsFields_SetCouncilorRewardProposalDetails_Fragment
+  | ProposalDetailsFields_SetInitialInvitationBalanceProposalDetails_Fragment
+  | ProposalDetailsFields_SetInitialInvitationCountProposalDetails_Fragment
+  | ProposalDetailsFields_SetMembershipLeadInvitationQuotaProposalDetails_Fragment
+  | ProposalDetailsFields_SetReferralCutProposalDetails_Fragment
+  | ProposalDetailsFields_CreateBlogPostProposalDetails_Fragment
+  | ProposalDetailsFields_EditBlogPostProposalDetails_Fragment
+  | ProposalDetailsFields_LockBlogPostProposalDetails_Fragment
+  | ProposalDetailsFields_UnlockBlogPostProposalDetails_Fragment
+  | ProposalDetailsFields_VetoProposalDetails_Fragment
+
+export type ProposalFieldsFragment = {
+  id: string
+  title: string
+  description: string
+  stakingAccount?: Types.Maybe<string>
+  exactExecutionBlock?: Types.Maybe<number>
+  councilApprovals: number
+  statusSetAtBlock: number
+  statusSetAtTime: any
+  details:
+    | ProposalDetailsFields_SignalProposalDetails_Fragment
+    | ProposalDetailsFields_RuntimeUpgradeProposalDetails_Fragment
+    | ProposalDetailsFields_FundingRequestProposalDetails_Fragment
+    | ProposalDetailsFields_SetMaxValidatorCountProposalDetails_Fragment
+    | ProposalDetailsFields_CreateWorkingGroupLeadOpeningProposalDetails_Fragment
+    | ProposalDetailsFields_FillWorkingGroupLeadOpeningProposalDetails_Fragment
+    | ProposalDetailsFields_UpdateWorkingGroupBudgetProposalDetails_Fragment
+    | ProposalDetailsFields_DecreaseWorkingGroupLeadStakeProposalDetails_Fragment
+    | ProposalDetailsFields_SlashWorkingGroupLeadProposalDetails_Fragment
+    | ProposalDetailsFields_SetWorkingGroupLeadRewardProposalDetails_Fragment
+    | ProposalDetailsFields_TerminateWorkingGroupLeadProposalDetails_Fragment
+    | ProposalDetailsFields_AmendConstitutionProposalDetails_Fragment
+    | ProposalDetailsFields_CancelWorkingGroupLeadOpeningProposalDetails_Fragment
+    | ProposalDetailsFields_SetMembershipPriceProposalDetails_Fragment
+    | ProposalDetailsFields_SetCouncilBudgetIncrementProposalDetails_Fragment
+    | ProposalDetailsFields_SetCouncilorRewardProposalDetails_Fragment
+    | ProposalDetailsFields_SetInitialInvitationBalanceProposalDetails_Fragment
+    | ProposalDetailsFields_SetInitialInvitationCountProposalDetails_Fragment
+    | ProposalDetailsFields_SetMembershipLeadInvitationQuotaProposalDetails_Fragment
+    | ProposalDetailsFields_SetReferralCutProposalDetails_Fragment
+    | ProposalDetailsFields_CreateBlogPostProposalDetails_Fragment
+    | ProposalDetailsFields_EditBlogPostProposalDetails_Fragment
+    | ProposalDetailsFields_LockBlogPostProposalDetails_Fragment
+    | ProposalDetailsFields_UnlockBlogPostProposalDetails_Fragment
+    | ProposalDetailsFields_VetoProposalDetails_Fragment
+  creator: { id: string }
+  proposalStatusUpdates: Array<{
+    id: string
+    inBlock: number
+    newStatus:
+      | { __typename: 'ProposalStatusDeciding' }
+      | { __typename: 'ProposalStatusGracing' }
+      | { __typename: 'ProposalStatusDormant' }
+  }>
+  votes: Array<{ id: string }>
+  status:
+    | ProposalStatusFields_ProposalStatusDeciding_Fragment
+    | ProposalStatusFields_ProposalStatusGracing_Fragment
+    | ProposalStatusFields_ProposalStatusDormant_Fragment
+    | ProposalStatusFields_ProposalStatusVetoed_Fragment
+    | ProposalStatusFields_ProposalStatusExecuted_Fragment
+    | ProposalStatusFields_ProposalStatusExecutionFailed_Fragment
+    | ProposalStatusFields_ProposalStatusSlashed_Fragment
+    | ProposalStatusFields_ProposalStatusRejected_Fragment
+    | ProposalStatusFields_ProposalStatusExpired_Fragment
+    | ProposalStatusFields_ProposalStatusCancelled_Fragment
+    | ProposalStatusFields_ProposalStatusCanceledByRuntime_Fragment
+  createdInEvent: { id: string; inBlock: number; inExtrinsic?: Types.Maybe<string> }
+  discussionThread: {
+    id: string
+    mode:
+      | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment
+      | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment
+  }
+}
+
+export type GetProposalsByIdsQueryVariables = Types.Exact<{
+  ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalsByIdsQuery = { proposals: Array<ProposalFieldsFragment> }
+
+type ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment = {
+  __typename: 'ProposalDiscussionThreadModeOpen'
+}
+
+type ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment = {
+  __typename: 'ProposalDiscussionThreadModeClosed'
+  whitelist?: Types.Maybe<{ members: Array<{ id: string }> }>
+}
+
+export type ProposalDiscussionThreadModeFieldsFragment =
+  | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment
+  | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment
+
+type ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusActive_Fragment = {
+  __typename: 'ProposalDiscussionPostStatusActive'
+}
+
+type ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusLocked_Fragment = {
+  __typename: 'ProposalDiscussionPostStatusLocked'
+  deletedInEvent?: Types.Maybe<{ id: string }>
+}
+
+type ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusRemoved_Fragment = {
+  __typename: 'ProposalDiscussionPostStatusRemoved'
+  deletedInEvent?: Types.Maybe<{ id: string }>
+}
+
+export type ProposalDiscussionPostStatusFieldsFragment =
+  | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusActive_Fragment
+  | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusLocked_Fragment
+  | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusRemoved_Fragment
+
+export type ProposalDiscussionThreadFieldsFragment = {
+  id: string
+  proposal: { id: string }
+  posts: Array<{ id: string }>
+  mode:
+    | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment
+    | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment
+  modeChanges: Array<{ id: string }>
+}
+
+export type GetProposalDiscussionThreadsByIdsQueryVariables = Types.Exact<{
+  ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDiscussionThreadsByIdsQuery = {
+  proposalDiscussionThreads: Array<ProposalDiscussionThreadFieldsFragment>
+}
+
+export type ProposalDiscussionPostFieldsFragment = {
+  id: string
+  text: string
+  thread: { id: string }
+  author: { id: string }
+  status:
+    | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusActive_Fragment
+    | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusLocked_Fragment
+    | ProposalDiscussionPostStatusFields_ProposalDiscussionPostStatusRemoved_Fragment
+  repliesTo?: Types.Maybe<{ id: string }>
+  updates: Array<{ id: string }>
+  createdInEvent: { id: string }
+}
+
+export type GetProposalDiscussionPostsByIdsQueryVariables = Types.Exact<{
+  ids?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDiscussionPostsByIdsQuery = {
+  proposalDiscussionPosts: Array<ProposalDiscussionPostFieldsFragment>
+}
+
+export type ProposalDiscussionPostCreatedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inExtrinsic?: Types.Maybe<string>
+  inBlock: number
+  network: Types.Network
+  indexInBlock: number
+  text: string
+  post: { id: string }
+}
+
+export type GetProposalDiscussionPostCreatedEventsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDiscussionPostCreatedEventsQuery = {
+  proposalDiscussionPostCreatedEvents: Array<ProposalDiscussionPostCreatedEventFieldsFragment>
+}
+
+export type ProposalDiscussionPostUpdatedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inExtrinsic?: Types.Maybe<string>
+  inBlock: number
+  network: Types.Network
+  indexInBlock: number
+  text: string
+  post: { id: string }
+}
+
+export type GetProposalDiscussionPostUpdatedEventsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDiscussionPostUpdatedEventsQuery = {
+  proposalDiscussionPostUpdatedEvents: Array<ProposalDiscussionPostUpdatedEventFieldsFragment>
+}
+
+export type ProposalDiscussionThreadModeChangedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inExtrinsic?: Types.Maybe<string>
+  inBlock: number
+  network: Types.Network
+  indexInBlock: number
+  thread: { id: string }
+  newMode:
+    | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeOpen_Fragment
+    | ProposalDiscussionThreadModeFields_ProposalDiscussionThreadModeClosed_Fragment
+  actor: { id: string }
+}
+
+export type GetProposalDiscussionThreadModeChangedEventsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDiscussionThreadModeChangedEventsQuery = {
+  proposalDiscussionThreadModeChangedEvents: Array<ProposalDiscussionThreadModeChangedEventFieldsFragment>
+}
+
+export type ProposalDiscussionPostDeletedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inExtrinsic?: Types.Maybe<string>
+  inBlock: number
+  network: Types.Network
+  indexInBlock: number
+  post: { id: string }
+  actor: { id: string }
+}
+
+export type GetProposalDiscussionPostDeletedEventsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDiscussionPostDeletedEventsQuery = {
+  proposalDiscussionPostDeletedEvents: Array<ProposalDiscussionPostDeletedEventFieldsFragment>
+}
+
+export type ProposalCreatedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inBlock: number
+  network: Types.Network
+  inExtrinsic?: Types.Maybe<string>
+  indexInBlock: number
+  proposal: { id: string }
+}
+
+export type GetProposalCreatedEventsByEventIdsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalCreatedEventsByEventIdsQuery = {
+  proposalCreatedEvents: Array<ProposalCreatedEventFieldsFragment>
+}
+
+export type ProposalStatusUpdatedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inBlock: number
+  network: Types.Network
+  inExtrinsic?: Types.Maybe<string>
+  indexInBlock: number
+  proposal: { id: string }
+  newStatus:
+    | { __typename: 'ProposalStatusDeciding' }
+    | { __typename: 'ProposalStatusGracing' }
+    | { __typename: 'ProposalStatusDormant' }
+}
+
+export type GetProposalStatusUpdatedEventsByEventIdsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalStatusUpdatedEventsByEventIdsQuery = {
+  proposalStatusUpdatedEvents: Array<ProposalStatusUpdatedEventFieldsFragment>
+}
+
+export type ProposalDecisionMadeEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inBlock: number
+  network: Types.Network
+  inExtrinsic?: Types.Maybe<string>
+  indexInBlock: number
+  proposal: { id: string }
+  decisionStatus:
+    | { __typename: 'ProposalStatusDormant' }
+    | { __typename: 'ProposalStatusGracing' }
+    | { __typename: 'ProposalStatusVetoed' }
+    | { __typename: 'ProposalStatusSlashed' }
+    | { __typename: 'ProposalStatusRejected' }
+    | { __typename: 'ProposalStatusExpired' }
+    | { __typename: 'ProposalStatusCancelled' }
+    | { __typename: 'ProposalStatusCanceledByRuntime' }
+}
+
+export type GetProposalDecisionMadeEventsByEventIdsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalDecisionMadeEventsByEventIdsQuery = {
+  proposalDecisionMadeEvents: Array<ProposalDecisionMadeEventFieldsFragment>
+}
+
+export type ProposalExecutedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inBlock: number
+  network: Types.Network
+  inExtrinsic?: Types.Maybe<string>
+  indexInBlock: number
+  proposal: { id: string }
+  executionStatus: { errorMessage: string }
+}
+
+export type GetProposalExecutedEventsByEventIdsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalExecutedEventsByEventIdsQuery = {
+  proposalExecutedEvents: Array<ProposalExecutedEventFieldsFragment>
+}
+
+export type ProposalVotedEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inBlock: number
+  network: Types.Network
+  inExtrinsic?: Types.Maybe<string>
+  indexInBlock: number
+  voteKind: Types.ProposalVoteKind
+  rationale: string
+  votingRound: number
+  voter: { id: string }
+  proposal: { id: string }
+}
+
+export type GetProposalVotedEventsByEventIdsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalVotedEventsByEventIdsQuery = { proposalVotedEvents: Array<ProposalVotedEventFieldsFragment> }
+
+export type ProposalCancelledEventFieldsFragment = {
+  id: string
+  createdAt: any
+  inBlock: number
+  network: Types.Network
+  inExtrinsic?: Types.Maybe<string>
+  indexInBlock: number
+  proposal: { id: string }
+}
+
+export type GetProposalCancelledEventsByEventIdsQueryVariables = Types.Exact<{
+  eventIds?: Types.Maybe<Array<Types.Scalars['ID']> | Types.Scalars['ID']>
+}>
+
+export type GetProposalCancelledEventsByEventIdsQuery = {
+  proposalCancelledEvents: Array<ProposalCancelledEventFieldsFragment>
 }
 
 export type ApplicationBasicFieldsFragment = {
@@ -1075,6 +1732,518 @@ export const InitialInvitationCountUpdatedEventFields = gql`
     newInitialInvitationCount
   }
 `
+export const ApplicationFormQuestionFields = gql`
+  fragment ApplicationFormQuestionFields on ApplicationFormQuestion {
+    question
+    type
+    index
+  }
+`
+export const OpeningMetadataFields = gql`
+  fragment OpeningMetadataFields on WorkingGroupOpeningMetadata {
+    shortDescription
+    description
+    hiringLimit
+    expectedEnding
+    applicationDetails
+    applicationFormQuestions {
+      ...ApplicationFormQuestionFields
+    }
+  }
+  ${ApplicationFormQuestionFields}
+`
+export const ProposalDetailsFields = gql`
+  fragment ProposalDetailsFields on ProposalDetails {
+    __typename
+    ... on SignalProposalDetails {
+      text
+    }
+    ... on RuntimeUpgradeProposalDetails {
+      newRuntimeBytecode {
+        id
+        bytecode
+      }
+    }
+    ... on FundingRequestProposalDetails {
+      destinationsList {
+        destinations {
+          amount
+          account
+        }
+      }
+    }
+    ... on SetMaxValidatorCountProposalDetails {
+      newMaxValidatorCount
+    }
+    ... on CreateWorkingGroupLeadOpeningProposalDetails {
+      metadata {
+        ...OpeningMetadataFields
+      }
+      stakeAmount
+      unstakingPeriod
+      rewardPerBlock
+      group {
+        id
+      }
+    }
+    ... on FillWorkingGroupLeadOpeningProposalDetails {
+      opening {
+        id
+      }
+      application {
+        id
+      }
+    }
+    ... on UpdateWorkingGroupBudgetProposalDetails {
+      amount
+      group {
+        id
+      }
+    }
+    ... on DecreaseWorkingGroupLeadStakeProposalDetails {
+      lead {
+        id
+      }
+      amount
+    }
+    ... on SlashWorkingGroupLeadProposalDetails {
+      lead {
+        id
+      }
+      amount
+    }
+    ... on SetWorkingGroupLeadRewardProposalDetails {
+      lead {
+        id
+      }
+      newRewardPerBlock
+    }
+    ... on TerminateWorkingGroupLeadProposalDetails {
+      lead {
+        id
+      }
+      slashingAmount
+    }
+    ... on AmendConstitutionProposalDetails {
+      text
+    }
+    ... on CancelWorkingGroupLeadOpeningProposalDetails {
+      opening {
+        id
+      }
+    }
+    ... on SetMembershipPriceProposalDetails {
+      newPrice
+    }
+    ... on SetCouncilBudgetIncrementProposalDetails {
+      newAmount
+    }
+    ... on SetCouncilorRewardProposalDetails {
+      newRewardPerBlock
+    }
+    ... on SetInitialInvitationBalanceProposalDetails {
+      newInitialInvitationBalance
+    }
+    ... on SetInitialInvitationCountProposalDetails {
+      newInitialInvitationsCount
+    }
+    ... on SetMembershipLeadInvitationQuotaProposalDetails {
+      newLeadInvitationQuota
+    }
+    ... on SetReferralCutProposalDetails {
+      newReferralCut
+    }
+    ... on SetReferralCutProposalDetails {
+      newReferralCut
+    }
+    ... on CreateBlogPostProposalDetails {
+      title
+      body
+    }
+    ... on EditBlogPostProposalDetails {
+      blogPost
+      newTitle
+      newBody
+    }
+    ... on LockBlogPostProposalDetails {
+      blogPost
+    }
+    ... on UnlockBlogPostProposalDetails {
+      blogPost
+    }
+    ... on VetoProposalDetails {
+      proposal {
+        id
+      }
+    }
+  }
+  ${OpeningMetadataFields}
+`
+export const ProposalStatusFields = gql`
+  fragment ProposalStatusFields on ProposalStatus {
+    __typename
+    ... on ProposalStatusDeciding {
+      proposalStatusUpdatedEvent {
+        id
+        newStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusGracing {
+      proposalStatusUpdatedEvent {
+        id
+        newStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusDormant {
+      proposalStatusUpdatedEvent {
+        id
+        newStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusVetoed {
+      proposalDecisionMadeEvent {
+        id
+        decisionStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusExecuted {
+      proposalExecutedEvent {
+        id
+        executionStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusExecutionFailed {
+      proposalExecutedEvent {
+        id
+        executionStatus {
+          __typename
+        }
+      }
+      errorMessage
+    }
+    ... on ProposalStatusSlashed {
+      proposalDecisionMadeEvent {
+        id
+        decisionStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusRejected {
+      proposalDecisionMadeEvent {
+        id
+        decisionStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusExpired {
+      proposalDecisionMadeEvent {
+        id
+        decisionStatus {
+          __typename
+        }
+      }
+    }
+    ... on ProposalStatusCancelled {
+      cancelledInEvent {
+        id
+      }
+    }
+    ... on ProposalStatusCanceledByRuntime {
+      proposalDecisionMadeEvent {
+        id
+        decisionStatus {
+          __typename
+        }
+      }
+    }
+  }
+`
+export const ProposalDiscussionThreadModeFields = gql`
+  fragment ProposalDiscussionThreadModeFields on ProposalDiscussionThreadMode {
+    __typename
+    ... on ProposalDiscussionThreadModeClosed {
+      whitelist {
+        members {
+          id
+        }
+      }
+    }
+  }
+`
+export const ProposalFields = gql`
+  fragment ProposalFields on Proposal {
+    id
+    title
+    description
+    details {
+      ...ProposalDetailsFields
+    }
+    stakingAccount
+    creator {
+      id
+    }
+    exactExecutionBlock
+    councilApprovals
+    proposalStatusUpdates {
+      id
+      inBlock
+      newStatus {
+        __typename
+      }
+    }
+    votes {
+      id
+    }
+    status {
+      ...ProposalStatusFields
+    }
+    statusSetAtBlock
+    statusSetAtTime
+    createdInEvent {
+      id
+      inBlock
+      inExtrinsic
+    }
+    discussionThread {
+      id
+      mode {
+        ...ProposalDiscussionThreadModeFields
+      }
+    }
+  }
+  ${ProposalDetailsFields}
+  ${ProposalStatusFields}
+  ${ProposalDiscussionThreadModeFields}
+`
+export const ProposalDiscussionThreadFields = gql`
+  fragment ProposalDiscussionThreadFields on ProposalDiscussionThread {
+    id
+    proposal {
+      id
+    }
+    posts {
+      id
+    }
+    mode {
+      ...ProposalDiscussionThreadModeFields
+    }
+    modeChanges {
+      id
+    }
+  }
+  ${ProposalDiscussionThreadModeFields}
+`
+export const ProposalDiscussionPostStatusFields = gql`
+  fragment ProposalDiscussionPostStatusFields on ProposalDiscussionPostStatus {
+    __typename
+    ... on ProposalDiscussionPostStatusLocked {
+      deletedInEvent {
+        id
+      }
+    }
+    ... on ProposalDiscussionPostStatusRemoved {
+      deletedInEvent {
+        id
+      }
+    }
+  }
+`
+export const ProposalDiscussionPostFields = gql`
+  fragment ProposalDiscussionPostFields on ProposalDiscussionPost {
+    id
+    thread {
+      id
+    }
+    author {
+      id
+    }
+    status {
+      ...ProposalDiscussionPostStatusFields
+    }
+    text
+    repliesTo {
+      id
+    }
+    updates {
+      id
+    }
+    createdInEvent {
+      id
+    }
+  }
+  ${ProposalDiscussionPostStatusFields}
+`
+export const ProposalDiscussionPostCreatedEventFields = gql`
+  fragment ProposalDiscussionPostCreatedEventFields on ProposalDiscussionPostCreatedEvent {
+    id
+    createdAt
+    inExtrinsic
+    inBlock
+    network
+    indexInBlock
+    post {
+      id
+    }
+    text
+  }
+`
+export const ProposalDiscussionPostUpdatedEventFields = gql`
+  fragment ProposalDiscussionPostUpdatedEventFields on ProposalDiscussionPostUpdatedEvent {
+    id
+    createdAt
+    inExtrinsic
+    inBlock
+    network
+    indexInBlock
+    post {
+      id
+    }
+    text
+  }
+`
+export const ProposalDiscussionThreadModeChangedEventFields = gql`
+  fragment ProposalDiscussionThreadModeChangedEventFields on ProposalDiscussionThreadModeChangedEvent {
+    id
+    createdAt
+    inExtrinsic
+    inBlock
+    network
+    indexInBlock
+    thread {
+      id
+    }
+    newMode {
+      ...ProposalDiscussionThreadModeFields
+    }
+    actor {
+      id
+    }
+  }
+  ${ProposalDiscussionThreadModeFields}
+`
+export const ProposalDiscussionPostDeletedEventFields = gql`
+  fragment ProposalDiscussionPostDeletedEventFields on ProposalDiscussionPostDeletedEvent {
+    id
+    createdAt
+    inExtrinsic
+    inBlock
+    network
+    indexInBlock
+    post {
+      id
+    }
+    actor {
+      id
+    }
+  }
+`
+export const ProposalCreatedEventFields = gql`
+  fragment ProposalCreatedEventFields on ProposalCreatedEvent {
+    id
+    createdAt
+    inBlock
+    network
+    inExtrinsic
+    indexInBlock
+    proposal {
+      id
+    }
+  }
+`
+export const ProposalStatusUpdatedEventFields = gql`
+  fragment ProposalStatusUpdatedEventFields on ProposalStatusUpdatedEvent {
+    id
+    createdAt
+    inBlock
+    network
+    inExtrinsic
+    indexInBlock
+    proposal {
+      id
+    }
+    newStatus {
+      __typename
+    }
+  }
+`
+export const ProposalDecisionMadeEventFields = gql`
+  fragment ProposalDecisionMadeEventFields on ProposalDecisionMadeEvent {
+    id
+    createdAt
+    inBlock
+    network
+    inExtrinsic
+    indexInBlock
+    proposal {
+      id
+    }
+    decisionStatus {
+      __typename
+    }
+  }
+`
+export const ProposalExecutedEventFields = gql`
+  fragment ProposalExecutedEventFields on ProposalExecutedEvent {
+    id
+    createdAt
+    inBlock
+    network
+    inExtrinsic
+    indexInBlock
+    proposal {
+      id
+    }
+    executionStatus {
+      ... on ProposalStatusExecutionFailed {
+        errorMessage
+      }
+    }
+  }
+`
+export const ProposalVotedEventFields = gql`
+  fragment ProposalVotedEventFields on ProposalVotedEvent {
+    id
+    createdAt
+    inBlock
+    network
+    inExtrinsic
+    indexInBlock
+    voter {
+      id
+    }
+    voteKind
+    proposal {
+      id
+    }
+    rationale
+    votingRound
+  }
+`
+export const ProposalCancelledEventFields = gql`
+  fragment ProposalCancelledEventFields on ProposalCancelledEvent {
+    id
+    createdAt
+    inBlock
+    network
+    inExtrinsic
+    indexInBlock
+    proposal {
+      id
+    }
+  }
+`
 export const ApplicationBasicFields = gql`
   fragment ApplicationBasicFields on WorkingGroupApplication {
     id
@@ -1118,26 +2287,6 @@ export const OpeningStatusFields = gql`
       }
     }
   }
-`
-export const ApplicationFormQuestionFields = gql`
-  fragment ApplicationFormQuestionFields on ApplicationFormQuestion {
-    question
-    type
-    index
-  }
-`
-export const OpeningMetadataFields = gql`
-  fragment OpeningMetadataFields on WorkingGroupOpeningMetadata {
-    shortDescription
-    description
-    hiringLimit
-    expectedEnding
-    applicationDetails
-    applicationFormQuestions {
-      ...ApplicationFormQuestionFields
-    }
-  }
-  ${ApplicationFormQuestionFields}
 `
 export const OpeningFields = gql`
   fragment OpeningFields on WorkingGroupOpening {
@@ -1719,17 +2868,17 @@ export const GetInvitesTransferredEventsBySourceMemberId = gql`
   }
   ${InvitesTransferredEventFields}
 `
-export const GetStakingAccountAddedEventsByMemberId = gql`
-  query getStakingAccountAddedEventsByMemberId($memberId: ID!) {
-    stakingAccountAddedEvents(where: { member: { id_eq: $memberId } }) {
+export const GetStakingAccountAddedEventsByEventIds = gql`
+  query getStakingAccountAddedEventsByEventIds($ids: [ID!]) {
+    stakingAccountAddedEvents(where: { id_in: $ids }) {
       ...StakingAccountAddedEventFields
     }
   }
   ${StakingAccountAddedEventFields}
 `
-export const GetStakingAccountConfirmedEventsByMemberId = gql`
-  query getStakingAccountConfirmedEventsByMemberId($memberId: ID!) {
-    stakingAccountConfirmedEvents(where: { member: { id_eq: $memberId } }) {
+export const GetStakingAccountConfirmedEventsByEventIds = gql`
+  query getStakingAccountConfirmedEventsByEventIds($ids: [ID!]) {
+    stakingAccountConfirmedEvents(where: { id_in: $ids }) {
       ...StakingAccountConfirmedEventFields
     }
   }
@@ -1774,6 +2923,110 @@ export const GetInitialInvitationCountUpdatedEventsByEventId = gql`
     }
   }
   ${InitialInvitationCountUpdatedEventFields}
+`
+export const GetProposalsByIds = gql`
+  query getProposalsByIds($ids: [ID!]) {
+    proposals(where: { id_in: $ids }) {
+      ...ProposalFields
+    }
+  }
+  ${ProposalFields}
+`
+export const GetProposalDiscussionThreadsByIds = gql`
+  query getProposalDiscussionThreadsByIds($ids: [ID!]) {
+    proposalDiscussionThreads(where: { id_in: $ids }) {
+      ...ProposalDiscussionThreadFields
+    }
+  }
+  ${ProposalDiscussionThreadFields}
+`
+export const GetProposalDiscussionPostsByIds = gql`
+  query getProposalDiscussionPostsByIds($ids: [ID!]) {
+    proposalDiscussionPosts(where: { id_in: $ids }) {
+      ...ProposalDiscussionPostFields
+    }
+  }
+  ${ProposalDiscussionPostFields}
+`
+export const GetProposalDiscussionPostCreatedEvents = gql`
+  query getProposalDiscussionPostCreatedEvents($eventIds: [ID!]) {
+    proposalDiscussionPostCreatedEvents(where: { id_in: $eventIds }) {
+      ...ProposalDiscussionPostCreatedEventFields
+    }
+  }
+  ${ProposalDiscussionPostCreatedEventFields}
+`
+export const GetProposalDiscussionPostUpdatedEvents = gql`
+  query getProposalDiscussionPostUpdatedEvents($eventIds: [ID!]) {
+    proposalDiscussionPostUpdatedEvents(where: { id_in: $eventIds }) {
+      ...ProposalDiscussionPostUpdatedEventFields
+    }
+  }
+  ${ProposalDiscussionPostUpdatedEventFields}
+`
+export const GetProposalDiscussionThreadModeChangedEvents = gql`
+  query getProposalDiscussionThreadModeChangedEvents($eventIds: [ID!]) {
+    proposalDiscussionThreadModeChangedEvents(where: { id_in: $eventIds }) {
+      ...ProposalDiscussionThreadModeChangedEventFields
+    }
+  }
+  ${ProposalDiscussionThreadModeChangedEventFields}
+`
+export const GetProposalDiscussionPostDeletedEvents = gql`
+  query getProposalDiscussionPostDeletedEvents($eventIds: [ID!]) {
+    proposalDiscussionPostDeletedEvents(where: { id_in: $eventIds }) {
+      ...ProposalDiscussionPostDeletedEventFields
+    }
+  }
+  ${ProposalDiscussionPostDeletedEventFields}
+`
+export const GetProposalCreatedEventsByEventIds = gql`
+  query getProposalCreatedEventsByEventIds($eventIds: [ID!]) {
+    proposalCreatedEvents(where: { id_in: $eventIds }) {
+      ...ProposalCreatedEventFields
+    }
+  }
+  ${ProposalCreatedEventFields}
+`
+export const GetProposalStatusUpdatedEventsByEventIds = gql`
+  query getProposalStatusUpdatedEventsByEventIds($eventIds: [ID!]) {
+    proposalStatusUpdatedEvents(where: { id_in: $eventIds }) {
+      ...ProposalStatusUpdatedEventFields
+    }
+  }
+  ${ProposalStatusUpdatedEventFields}
+`
+export const GetProposalDecisionMadeEventsByEventIds = gql`
+  query getProposalDecisionMadeEventsByEventIds($eventIds: [ID!]) {
+    proposalDecisionMadeEvents(where: { id_in: $eventIds }) {
+      ...ProposalDecisionMadeEventFields
+    }
+  }
+  ${ProposalDecisionMadeEventFields}
+`
+export const GetProposalExecutedEventsByEventIds = gql`
+  query getProposalExecutedEventsByEventIds($eventIds: [ID!]) {
+    proposalExecutedEvents(where: { id_in: $eventIds }) {
+      ...ProposalExecutedEventFields
+    }
+  }
+  ${ProposalExecutedEventFields}
+`
+export const GetProposalVotedEventsByEventIds = gql`
+  query getProposalVotedEventsByEventIds($eventIds: [ID!]) {
+    proposalVotedEvents(where: { id_in: $eventIds }) {
+      ...ProposalVotedEventFields
+    }
+  }
+  ${ProposalVotedEventFields}
+`
+export const GetProposalCancelledEventsByEventIds = gql`
+  query getProposalCancelledEventsByEventIds($eventIds: [ID!]) {
+    proposalCancelledEvents(where: { id_in: $eventIds }) {
+      ...ProposalCancelledEventFields
+    }
+  }
+  ${ProposalCancelledEventFields}
 `
 export const GetOpeningById = gql`
   query getOpeningById($openingId: ID!) {

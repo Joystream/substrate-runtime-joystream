@@ -1,4 +1,4 @@
-import { Codec, RegistryTypes } from '@polkadot/types/types'
+import { Codec, ITuple, RegistryTypes } from '@polkadot/types/types'
 import common from './common'
 import members from './members'
 import council from './council'
@@ -13,7 +13,7 @@ import referendum from './referendum'
 import constitution from './constitution'
 import bounty from './bounty'
 import { InterfaceTypes } from '@polkadot/types/types/registry'
-import { TypeRegistry, Text, UInt, Null, bool, Option, Vec, BTreeSet, BTreeMap } from '@polkadot/types'
+import { TypeRegistry, Text, UInt, Null, bool, Option, Vec, BTreeSet, BTreeMap, Tuple } from '@polkadot/types'
 import { ExtendedEnum } from './JoyEnum'
 import { ExtendedStruct } from './JoyStruct'
 
@@ -68,19 +68,23 @@ type CreateInterface_NoOption<T extends Codec> =
       ? boolean
       : T extends Vec<infer S> | BTreeSet<infer S>
       ? CreateInterface<S>[]
+      : T extends ITuple<infer S>
+      ? S extends Tuple
+        ? any[]
+        : { [K in keyof S]: CreateInterface<T[K]> }
       : T extends BTreeMap<infer K, infer V>
       ? Map<K, V>
       : any)
 
 // Wrapper for CreateInterface_NoOption that includes resolving an Option
 // (nested Options like Option<Option<Codec>> will resolve to Option<any>, but there are very edge case)
-export type CreateInterface<T extends Codec> =
-  | T
-  | (T extends Option<infer S> ? undefined | null | S | CreateInterface_NoOption<S> : CreateInterface_NoOption<T>)
+export type CreateInterface<T> = T extends Codec
+  ? T | (T extends Option<infer S> ? undefined | null | S | CreateInterface_NoOption<S> : CreateInterface_NoOption<T>)
+  : any
 
 export function createType<TypeName extends keyof InterfaceTypes>(
   type: TypeName,
-  value: InterfaceTypes[TypeName] extends Codec ? CreateInterface<InterfaceTypes[TypeName]> : any
+  value: CreateInterface<InterfaceTypes[TypeName]>
 ): InterfaceTypes[TypeName] {
   return registry.createType(type, value)
 }

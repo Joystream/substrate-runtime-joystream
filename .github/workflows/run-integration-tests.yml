@@ -25,10 +25,12 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '14.x'
 
       - id: compute_shasum
         name: Compute runtime code shasum
+        env:
+          TEST_NODE: true
         run: |
           export RUNTIME_CODE_SHASUM=`scripts/runtime-code-shasum.sh`
           echo "::set-output name=shasum::${RUNTIME_CODE_SHASUM}"
@@ -66,7 +68,10 @@ jobs:
       - name: Build new joystream/node image
         run: |
           if ! [ -f joystream-node-docker-image.tar.gz ]; then
-            docker build . --file joystream-node.Dockerfile --tag joystream/node
+            docker build .\
+              --file joystream-node.Dockerfile\
+              --tag joystream/node\
+              --build-arg TEST_NODE=true
             docker save --output joystream-node-docker-image.tar joystream/node
             gzip joystream-node-docker-image.tar
             cp joystream-node-docker-image.tar.gz ~/docker-images/
@@ -86,7 +91,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '14.x'
       - name: Get artifacts
         uses: actions/download-artifact@v2
         with:

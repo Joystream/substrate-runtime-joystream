@@ -9,12 +9,14 @@ import { AnyQueryNodeEvent, EventDetails } from './types'
 
 export abstract class BaseFixture {
   protected readonly api: Api
+  protected debug: Debugger.Debugger
   private _executed = false
   // The reason of the "Unexpected" failure of running the fixture
   private _err: Error | undefined = undefined
 
   constructor(api: Api) {
     this.api = api
+    this.debug = Debugger(`fixture:${this.constructor.name}`)
   }
 
   // Derviced classes must not override this
@@ -89,12 +91,10 @@ export abstract class BaseFixture {
 
 export abstract class BaseQueryNodeFixture extends BaseFixture {
   protected readonly query: QueryNodeApi
-  protected debug: Debugger.Debugger
 
   constructor(api: Api, query: QueryNodeApi) {
     super(api)
     this.query = query
-    this.debug = Debugger(`fixture:${this.constructor.name}`)
   }
 
   public async runQueryNodeChecks(): Promise<void> {
@@ -121,10 +121,9 @@ export abstract class StandardizedFixture extends BaseQueryNodeFixture {
   protected extrinsics: SubmittableExtrinsic<'promise'>[] = []
   protected results: ISubmittableResult[] = []
   protected events: EventDetails[] = []
-  protected areExtrinsicsOrderSensitive = false
 
   protected abstract getSignerAccountOrAccounts(): Promise<string | string[]>
-  protected abstract getExtrinsics(): Promise<SubmittableExtrinsic<'promise'>[]>
+  protected abstract getExtrinsics(): Promise<SubmittableExtrinsic<'promise'>[] | SubmittableExtrinsic<'promise'>[][]>
   protected abstract getEventFromResult(result: ISubmittableResult): Promise<EventDetails>
   protected abstract assertQueryNodeEventIsValid(qEvent: AnyQueryNodeEvent, i: number): void
 
@@ -137,15 +136,20 @@ export abstract class StandardizedFixture extends BaseQueryNodeFixture {
     })
   }
 
+  private flattenExtrinsics(
+    extrinsics: SubmittableExtrinsic<'promise'>[] | SubmittableExtrinsic<'promise'>[][]
+  ): SubmittableExtrinsic<'promise'>[] {
+    return Array.isArray(extrinsics[0])
+      ? (extrinsics as SubmittableExtrinsic<'promise'>[][]).reduce((res, batch) => res.concat(batch), [])
+      : (extrinsics as SubmittableExtrinsic<'promise'>[])
+  }
+
   public async execute(): Promise<void> {
     const accountOrAccounts = await this.getSignerAccountOrAccounts()
-    this.extrinsics = await this.getExtrinsics()
+    const extrinsics = await this.getExtrinsics()
+    this.extrinsics = this.flattenExtrinsics(extrinsics)
     await this.api.prepareAccountsForFeeExpenses(accountOrAccounts, this.extrinsics)
-    this.results = await this.api.sendExtrinsicsAndGetResults(
-      this.extrinsics,
-      accountOrAccounts,
-      this.areExtrinsicsOrderSensitive
-    )
+    this.results = await this.api.sendExtrinsicsAndGetResults(extrinsics, accountOrAccounts)
     this.events = await Promise.all(this.results.map((r) => this.getEventFromResult(r)))
   }
 }

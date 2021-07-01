@@ -1,6 +1,6 @@
 import { Option } from '@polkadot/types/codec'
 import { BlockNumber, Balance } from '@polkadot/types/interfaces'
-import { u32, u64, u128 } from '@polkadot/types'
+import { u32, u64, u128, Null } from '@polkadot/types'
 import { RegistryTypes } from '@polkadot/types/types'
 import { JoyStructDecorated } from '../JoyStruct'
 import { JoyEnum } from '../JoyEnum'
@@ -30,7 +30,7 @@ export class CouncilStageElection
 export class CouncilStage extends JoyEnum({
   Announcing: CouncilStageAnnouncing,
   Election: CouncilStageElection,
-  Idle: u32,
+  Idle: Null,
 } as const) {}
 
 export type ICouncilStageUpdate = {

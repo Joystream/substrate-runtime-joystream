@@ -49,20 +49,16 @@ export class HireWorkersFixture extends BaseQueryNodeFixture {
     await new FixtureRunner(buyMembershipFixture).run()
     const memberIds = buyMembershipFixture.getCreatedMembers()
 
-    const applicantContexts = roleAccounts.map((account, i) => ({
-      account,
-      memberId: memberIds[i],
-    }))
-
-    await Promise.all(
-      applicantContexts.map((applicantContext, i) => {
-        const addStakingAccFixture = new AddStakingAccountsHappyCaseFixture(this.api, this.query, applicantContext, [
-          stakingAccounts[i],
-        ])
-        return new FixtureRunner(addStakingAccFixture).run()
-      })
+    const addStakingAccFixture = new AddStakingAccountsHappyCaseFixture(
+      this.api,
+      this.query,
+      memberIds.map((memberId, i) => ({
+        asMember: memberId,
+        account: stakingAccounts[i],
+        stakeAmount: openingStake,
+      }))
     )
-    await Promise.all(stakingAccounts.map((a) => this.api.treasuryTransferBalance(a, openingStake)))
+    await new FixtureRunner(addStakingAccFixture).run()
 
     const applicants: ApplicantDetails[] = memberIds.map((memberId, i) => ({
       memberId,

@@ -1,0 +1,84 @@
+type ProposalDiscussionThreadModeOpen @variant {
+  _phantom: Int
+}
+
+type ProposalDiscussionWhitelist @entity {
+  # Prevents "GraphQLError: Input Object type ProposalDiscussionWhitelistCreateInput must define one or more fields."
+  _phantom: Int
+
+  "List of members allowed to participate in the discussion"
+  members: [Membership!]
+}
+
+type ProposalDiscussionThreadModeClosed @variant {
+  # Sidesteps no direct One-to-Many varaint relationships issue
+  "Whitelist containing members allowed to participate in the discussion"
+  whitelist: ProposalDiscussionWhitelist!
+}
+
+union ProposalDiscussionThreadMode = ProposalDiscussionThreadModeOpen | ProposalDiscussionThreadModeClosed
+
+type ProposalDiscussionThread @entity {
+  "Proposal discussion thread runtime id"
+  id: ID!
+
+  "The proposal the thread is related to"
+  proposal: Proposal!
+
+  "List of posts in the the thread"
+  posts: [ProposalDiscussionPost!] @derivedFrom(field: "thread")
+
+  "Current thread mode"
+  mode: ProposalDiscussionThreadMode!
+
+  "List of related thread mode change events"
+  modeChanges: [ProposalDiscussionThreadModeChangedEvent!] @derivedFrom(field: "thread")
+}
+
+"The post is visible and editable"
+type ProposalDiscussionPostStatusActive @variant {
+  _phantom: Int
+}
+
+"The post is visible, but not editable"
+type ProposalDiscussionPostStatusLocked @variant {
+  "ProposalDiscussionPostDeletedEvent in case the post became locked through runtime removal"
+  deletedInEvent: ProposalDiscussionPostDeletedEvent
+}
+
+"The post is removed and hidden"
+type ProposalDiscussionPostStatusRemoved @variant {
+  "The event the post was removed in"
+  deletedInEvent: ProposalDiscussionPostDeletedEvent!
+}
+
+union ProposalDiscussionPostStatus =
+    ProposalDiscussionPostStatusActive
+  | ProposalDiscussionPostStatusLocked
+  | ProposalDiscussionPostStatusRemoved
+
+type ProposalDiscussionPost @entity {
+  "Proposal discussion post runtime id"
+  id: ID!
+
+  "Proposal discussion thread the post was created in"
+  thread: ProposalDiscussionThread!
+
+  "The author of the post"
+  author: Membership!
+
+  "Current post status"
+  status: ProposalDiscussionPostStatus!
+
+  "Post's md-formatted text"
+  text: String!
+
+  "The post that this post replies to (if any)"
+  repliesTo: ProposalDiscussionPost
+
+  "List of events the post text was updated in"
+  updates: [ProposalDiscussionPostUpdatedEvent!] @derivedFrom(field: "post")
+
+  "The event the post was created in"
+  createdInEvent: ProposalDiscussionPostCreatedEvent! @derivedFrom(field: "post")
+}

@@ -1,5 +1,6 @@
 import { Text, u32, Tuple, u8, u128, Vec, Option, Null, Bytes } from '@polkadot/types'
 import { BlockNumber, Balance } from '@polkadot/types/interfaces'
+import { Constructor, ITuple } from '@polkadot/types/types'
 import { AccountId, MemberId, WorkingGroup, JoyEnum, JoyStructDecorated, BalanceKind, PostId } from './common'
 import { ApplicationId, OpeningId, StakePolicy, WorkerId } from './working-group'
 
@@ -93,6 +94,7 @@ export class Approved extends ApprovedProposalDecision {}
 
 export const ProposalDecisionDef = {
   Canceled: Null,
+  CanceledByRuntime: Null,
   Vetoed: Null,
   Rejected: Null,
   Slashed: Null,
@@ -192,7 +194,7 @@ export class GeneralProposalParameters
   implements IGeneralProposalParameters {}
 
 export type ICreateOpeningParameters = {
-  description: Text
+  description: Bytes
   stake_policy: StakePolicy
   reward_per_block: Option<Balance>
   working_group: WorkingGroup
@@ -200,7 +202,7 @@ export type ICreateOpeningParameters = {
 
 export class CreateOpeningParameters
   extends JoyStructDecorated({
-    description: Text,
+    description: Bytes,
     stake_policy: StakePolicy,
     reward_per_block: Option.with(u128),
     working_group: WorkingGroup,
@@ -247,6 +249,27 @@ export class FundingRequestParameters
   })
   implements IFundingRequestParameters {}
 
+// Typesafe tuple workarounds
+const UpdateWorkingGroupBudget = (Tuple.with(['Balance', WorkingGroup, BalanceKind]) as unknown) as Constructor<
+  ITuple<[Balance, WorkingGroup, BalanceKind]>
+>
+const DecreaseWorkingGroupLeadStake = (Tuple.with([WorkerId, 'Balance', WorkingGroup]) as unknown) as Constructor<
+  ITuple<[WorkerId, Balance, WorkingGroup]>
+>
+const SlashWorkingGroupLead = (Tuple.with([WorkerId, 'Balance', WorkingGroup]) as unknown) as Constructor<
+  ITuple<[WorkerId, Balance, WorkingGroup]>
+>
+const SetWorkingGroupLeadReward = (Tuple.with([WorkerId, 'Option<Balance>', WorkingGroup]) as unknown) as Constructor<
+  ITuple<[WorkerId, Option<Balance>, WorkingGroup]>
+>
+const CancelWorkingGroupLeadOpening = (Tuple.with([OpeningId, WorkingGroup]) as unknown) as Constructor<
+  ITuple<[OpeningId, WorkingGroup]>
+>
+const CreateBlogPost = (Tuple.with([Text, Text]) as unknown) as Constructor<ITuple<[Text, Text]>>
+const EditBlogPost = (Tuple.with([PostId, 'Option<Text>', 'Option<Text>']) as unknown) as Constructor<
+  ITuple<[PostId, Option<Text>, Option<Text>]>
+>
+
 export class ProposalDetails extends JoyEnum({
   Signal: Text,
   RuntimeUpgrade: Bytes,
@@ -254,22 +277,22 @@ export class ProposalDetails extends JoyEnum({
   SetMaxValidatorCount: u32,
   CreateWorkingGroupLeadOpening: CreateOpeningParameters,
   FillWorkingGroupLeadOpening: FillOpeningParameters,
-  UpdateWorkingGroupBudget: Tuple.with(['Balance', WorkingGroup, BalanceKind]),
-  DecreaseWorkingGroupLeadStake: Tuple.with([WorkerId, 'Balance', WorkingGroup]),
-  SlashWorkingGroupLead: Tuple.with([WorkerId, 'Balance', WorkingGroup]),
-  SetWorkingGroupLeadReward: Tuple.with([WorkerId, 'Option<Balance>', WorkingGroup]),
+  UpdateWorkingGroupBudget,
+  DecreaseWorkingGroupLeadStake,
+  SlashWorkingGroupLead,
+  SetWorkingGroupLeadReward,
   TerminateWorkingGroupLead: TerminateRoleParameters,
   AmendConstitution: Text,
-  CancelWorkingGroupLeadOpening: Tuple.with([OpeningId, WorkingGroup]),
+  CancelWorkingGroupLeadOpening,
   SetMembershipPrice: u128,
   SetCouncilBudgetIncrement: u128,
   SetCouncilorReward: u128,
   SetInitialInvitationBalance: u128,
   SetInitialInvitationCount: u32,
   SetMembershipLeadInvitationQuota: u32,
-  SetReferralCut: u128,
-  CreateBlogPost: Tuple.with([Text, Text]),
-  EditBlogPost: Tuple.with([PostId, Option.with(Text), Option.with(Text)]),
+  SetReferralCut: u8,
+  CreateBlogPost,
+  EditBlogPost,
   LockBlogPost: PostId,
   UnlockBlogPost: PostId,
   VetoProposal: ProposalId,

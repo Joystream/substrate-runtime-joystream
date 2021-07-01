@@ -17,7 +17,6 @@ import { Bytes } from '@polkadot/types'
 
 export class UpdateGroupStatusFixture extends BaseWorkingGroupFixture {
   protected updates: IWorkingGroupMetadata[]
-  protected areExtrinsicsOrderSensitive = true
 
   public constructor(api: Api, query: QueryNodeApi, group: WorkingGroupModuleName, updates: IWorkingGroupMetadata[]) {
     super(api, query, group)
@@ -28,9 +27,9 @@ export class UpdateGroupStatusFixture extends BaseWorkingGroupFixture {
     return this.api.getLeadRoleKey(this.group)
   }
 
-  protected async getExtrinsics(): Promise<SubmittableExtrinsic<'promise'>[]> {
+  protected async getExtrinsics(): Promise<SubmittableExtrinsic<'promise'>[][]> {
     return this.updates.map((update) => {
-      return this.api.tx[this.group].setStatusText(this.getActionMetadataBytes(update))
+      return [this.api.tx[this.group].setStatusText(this.getActionMetadataBytes(update))]
     })
   }
 

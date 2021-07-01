@@ -67,7 +67,7 @@
         "_enum": {
             "Announcing": "CouncilStageAnnouncing",
             "Election": "CouncilStageElection",
-            "Idle": "u32"
+            "Idle": "Null"
         }
     },
     "Candidate": {
@@ -303,7 +303,7 @@
             "SetInitialInvitationBalance": "u128",
             "SetInitialInvitationCount": "u32",
             "SetMembershipLeadInvitationQuota": "u32",
-            "SetReferralCut": "u128",
+            "SetReferralCut": "u8",
             "CreateBlogPost": "(Text,Text)",
             "EditBlogPost": "(PostId,Option<Text>,Option<Text>)",
             "LockBlogPost": "PostId",
@@ -332,7 +332,7 @@
             "SetInitialInvitationBalance": "u128",
             "SetInitialInvitationCount": "u32",
             "SetMembershipLeadInvitationQuota": "u32",
-            "SetReferralCut": "u128",
+            "SetReferralCut": "u8",
             "CreateBlogPost": "(Text,Text)",
             "EditBlogPost": "(PostId,Option<Text>,Option<Text>)",
             "LockBlogPost": "PostId",
@@ -380,7 +380,7 @@
         "author_id": "u64"
     },
     "CreateOpeningParameters": {
-        "description": "Text",
+        "description": "Bytes",
         "stake_policy": "StakePolicy",
         "reward_per_block": "Option<u128>",
         "working_group": "WorkingGroup"
@@ -398,6 +398,7 @@
     "ProposalDecision": {
         "_enum": {
             "Canceled": "Null",
+            "CanceledByRuntime": "Null",
             "Vetoed": "Null",
             "Rejected": "Null",
             "Slashed": "Null",

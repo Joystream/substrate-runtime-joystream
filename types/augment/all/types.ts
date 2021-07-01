@@ -4,7 +4,7 @@
 import { ITuple } from '@polkadot/types/types';
 import { BTreeMap, BTreeSet, Enum, Option, Struct, U8aFixed, Vec } from '@polkadot/types/codec';
 import { GenericAccountId } from '@polkadot/types/generic';
-import { Bytes, Text, bool, i16, i32, i64, u128, u16, u32, u64 } from '@polkadot/types/primitive';
+import { Bytes, Text, bool, i16, i32, i64, u128, u16, u32, u64, u8 } from '@polkadot/types/primitive';
 import { AccountId, Balance, Hash } from '@polkadot/types/interfaces/runtime';
 
 /** @name Actor */
@@ -213,7 +213,6 @@ export interface CouncilStage extends Enum {
   readonly isElection: boolean;
   readonly asElection: CouncilStageElection;
   readonly isIdle: boolean;
-  readonly asIdle: u32;
 }
 
 /** @name CouncilStageAnnouncing */
@@ -239,7 +238,7 @@ export interface CreateEntityOperation extends Struct {
 
 /** @name CreateOpeningParameters */
 export interface CreateOpeningParameters extends Struct {
-  readonly description: Text;
+  readonly description: Bytes;
   readonly stake_policy: StakePolicy;
   readonly reward_per_block: Option<u128>;
   readonly working_group: WorkingGroup;
@@ -678,6 +677,7 @@ export interface PropertyTypeVector extends Struct {
 /** @name ProposalDecision */
 export interface ProposalDecision extends Enum {
   readonly isCanceled: boolean;
+  readonly isCanceledByRuntime: boolean;
   readonly isVetoed: boolean;
   readonly isRejected: boolean;
   readonly isSlashed: boolean;
@@ -727,7 +727,7 @@ export interface ProposalDetails extends Enum {
   readonly isSetMembershipLeadInvitationQuota: boolean;
   readonly asSetMembershipLeadInvitationQuota: u32;
   readonly isSetReferralCut: boolean;
-  readonly asSetReferralCut: u128;
+  readonly asSetReferralCut: u8;
   readonly isCreateBlogPost: boolean;
   readonly asCreateBlogPost: ITuple<[Text, Text]>;
   readonly isEditBlogPost: boolean;
@@ -781,7 +781,7 @@ export interface ProposalDetailsOf extends Enum {
   readonly isSetMembershipLeadInvitationQuota: boolean;
   readonly asSetMembershipLeadInvitationQuota: u32;
   readonly isSetReferralCut: boolean;
-  readonly asSetReferralCut: u128;
+  readonly asSetReferralCut: u8;
   readonly isCreateBlogPost: boolean;
   readonly asCreateBlogPost: ITuple<[Text, Text]>;
   readonly isEditBlogPost: boolean;

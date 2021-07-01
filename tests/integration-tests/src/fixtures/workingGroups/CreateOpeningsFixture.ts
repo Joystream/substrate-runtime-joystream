@@ -1,5 +1,4 @@
 import { Api } from '../../Api'
-import { BaseCreateOpeningFixture } from './BaseCreateOpeningFixture'
 import { QueryNodeApi } from '../../QueryNodeApi'
 import { OpeningAddedEventDetails, WorkingGroupModuleName } from '../../types'
 import { OpeningId } from '@joystream/types/working-group'
@@ -15,6 +14,8 @@ import BN from 'bn.js'
 import { IOpeningMetadata, OpeningMetadata } from '@joystream/metadata-protobuf'
 import { createType } from '@joystream/types'
 import { Bytes } from '@polkadot/types'
+import { BaseWorkingGroupFixture } from './BaseWorkingGroupFixture'
+import { assertQueriedOpeningMetadataIsValid } from './utils'
 
 export type OpeningParams = {
   stake: BN
@@ -41,7 +42,7 @@ export const DEFAULT_OPENING_PARAMS: Omit<OpeningParams, 'metadata'> & { metadat
   },
 }
 
-export class CreateOpeningsFixture extends BaseCreateOpeningFixture {
+export class CreateOpeningsFixture extends BaseWorkingGroupFixture {
   protected asSudo: boolean
   protected events: OpeningAddedEventDetails[] = []
 
@@ -127,7 +128,7 @@ export class CreateOpeningsFixture extends BaseCreateOpeningFixture {
       assert.equal(qOpening.stakeAmount, openingParams.stake.toString())
       assert.equal(qOpening.unstakingPeriod, openingParams.unstakingPeriod)
       // Metadata
-      this.assertQueriedOpeningMetadataIsValid(qOpening.metadata, this.getOpeningMetadata(openingParams))
+      assertQueriedOpeningMetadataIsValid(qOpening.metadata, this.getOpeningMetadata(openingParams))
     })
   }
 

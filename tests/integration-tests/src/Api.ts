@@ -2,7 +2,7 @@ import { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
 import { u32, BTreeMap } from '@polkadot/types'
 import { ISubmittableResult } from '@polkadot/types/types'
 import { KeyringPair } from '@polkadot/keyring/types'
-import { AccountId, MemberId } from '@joystream/types/common'
+import { AccountId, MemberId, PostId } from '@joystream/types/common'
 
 import { AccountInfo, Balance, EventRecord, BlockNumber, BlockHash } from '@polkadot/types/interfaces'
 import BN from 'bn.js'
@@ -24,6 +24,11 @@ import {
   WorkingGroupModuleName,
   AppliedOnOpeningEventDetails,
   OpeningFilledEventDetails,
+  ProposalsEngineEventName,
+  ProposalCreatedEventDetails,
+  ProposalType,
+  ProposalDiscussionPostCreatedEventDetails,
+  ProposalsDiscussionEventName,
 } from './types'
 import {
   ApplicationId,
@@ -35,13 +40,8 @@ import {
 } from '@joystream/types/working-group'
 import { DeriveAllSections } from '@polkadot/api/util/decorate'
 import { ExactDerive } from '@polkadot/api-derive'
-
-export enum WorkingGroups {
-  StorageWorkingGroup = 'storageWorkingGroup',
-  ContentDirectoryWorkingGroup = 'contentDirectoryWorkingGroup',
-  MembershipWorkingGroup = 'membershipWorkingGroup',
-  ForumWorkingGroup = 'forumWorkingGroup',
-}
+import { ProposalId, ProposalParameters } from '@joystream/types/proposals'
+import { BLOCKTIME, proposalTypeToProposalParamsKey } from './consts'
 
 export class ApiFactory {
   private readonly api: ApiPromise
@@ -125,6 +125,10 @@ export class Api {
     return this.api.derive
   }
 
+  public get createType(): ApiPromise['createType'] {
+    return this.api.createType.bind(this.api)
+  }
+
   public async signAndSend(
     tx: SubmittableExtrinsic<'promise'>,
     sender: AccountId | string
@@ -133,20 +137,20 @@ export class Api {
   }
 
   public async sendExtrinsicsAndGetResults(
-    txs: SubmittableExtrinsic<'promise'>[],
-    sender: AccountId | string | AccountId[] | string[],
-    preserveOrder = false
+    // Extrinsics can be separated into batches in order to makes sure they are processed in specified order
+    txs: SubmittableExtrinsic<'promise'>[] | SubmittableExtrinsic<'promise'>[][],
+    sender: AccountId | string | AccountId[] | string[]
   ): Promise<ISubmittableResult[]> {
     let results: ISubmittableResult[] = []
-    if (preserveOrder) {
-      for (const i in txs) {
-        const tx = txs[i]
-        const result = await this.sender.signAndSend(tx, Array.isArray(sender) ? sender[i] : sender)
-        results.push(result)
-      }
-    } else {
-      results = await Promise.all(
-        txs.map((tx, i) => this.sender.signAndSend(tx, Array.isArray(sender) ? sender[i] : sender))
+    const batches = (Array.isArray(txs[0]) ? txs : [txs]) as SubmittableExtrinsic<'promise'>[][]
+    for (const i in batches) {
+      const batch = batches[i]
+      results = results.concat(
+        await Promise.all(
+          batch.map((tx, j) =>
+            this.sender.signAndSend(tx, Array.isArray(sender) ? sender[parseInt(i) * batch.length + j] : sender)
+          )
+        )
       )
     }
     return results
@@ -179,22 +183,6 @@ export class Api {
       )
     }
     return nKeyPairs
-  }
-
-  // Well known WorkingGroup enum defined in runtime
-  public getWorkingGroupString(workingGroup: WorkingGroups): string {
-    switch (workingGroup) {
-      case WorkingGroups.StorageWorkingGroup:
-        return 'Storage'
-      case WorkingGroups.ContentDirectoryWorkingGroup:
-        return 'Content'
-      case WorkingGroups.ForumWorkingGroup:
-        return 'Forum'
-      case WorkingGroups.MembershipWorkingGroup:
-        return 'Membership'
-      default:
-        throw new Error(`Invalid working group string representation: ${workingGroup}`)
-    }
   }
 
   public getBlockDuration(): BN {
@@ -308,7 +296,7 @@ export class Api {
       return
     }
 
-    const blockHash = status.asInBlock.toString()
+    const blockHash = (status.isInBlock ? status.asInBlock : status.asFinalized).toString()
     const blockNumber = (await this.api.rpc.chain.getHeader(blockHash)).number.toNumber()
     const blockTimestamp = (await this.api.query.timestamp.now.at(blockHash)).toNumber()
     const blockEvents = await this.api.query.system.events.at(blockHash)
@@ -438,5 +426,126 @@ export class Api {
 
   public async getLeaderStakingKey(group: WorkingGroupModuleName): Promise<string> {
     return (await this.getLeader(group)).staking_account_id.toString()
+  }
+
+  public async retrieveProposalsEngineEventDetails(
+    result: ISubmittableResult,
+    eventName: ProposalsEngineEventName
+  ): Promise<EventDetails> {
+    const details = await this.retrieveEventDetails(result, 'proposalsEngine', eventName)
+    if (!details) {
+      throw new Error(`${eventName} event details not found in result: ${JSON.stringify(result.toHuman())}`)
+    }
+    return details
+  }
+
+  public async retrieveProposalCreatedEventDetails(result: ISubmittableResult): Promise<ProposalCreatedEventDetails> {
+    const details = await this.retrieveProposalsEngineEventDetails(result, 'ProposalCreated')
+    return {
+      ...details,
+      proposalId: details.event.data[1] as ProposalId,
+    }
+  }
+
+  public async retrieveProposalsDiscussionEventDetails(
+    result: ISubmittableResult,
+    eventName: ProposalsDiscussionEventName
+  ): Promise<EventDetails> {
+    const details = await this.retrieveEventDetails(result, 'proposalsDiscussion', eventName)
+    if (!details) {
+      throw new Error(`${eventName} event details not found in result: ${JSON.stringify(result.toHuman())}`)
+    }
+    return details
+  }
+
+  public async retrieveProposalDiscussionPostCreatedEventDetails(
+    result: ISubmittableResult
+  ): Promise<ProposalDiscussionPostCreatedEventDetails> {
+    const details = await this.retrieveProposalsDiscussionEventDetails(result, 'PostCreated')
+    return {
+      ...details,
+      postId: details.event.data[0] as PostId,
+    }
+  }
+
+  public async getMemberSigners(inputs: { asMember: MemberId }[]): Promise<string[]> {
+    return await Promise.all(
+      inputs.map(async ({ asMember }) => {
+        const membership = await this.query.members.membershipById(asMember)
+        return membership.controller_account.toString()
+      })
+    )
+  }
+
+  public async untilBlock(blockNumber: number, intervalMs = BLOCKTIME, timeoutMs = 180000): Promise<void> {
+    await Utils.until(
+      `blocknumber ${blockNumber}`,
+      async ({ debug }) => {
+        const best = await this.getBestBlock()
+        debug(`Current block: ${best.toNumber()}`)
+        return best.gten(blockNumber)
+      },
+      intervalMs,
+      timeoutMs
+    )
+  }
+
+  public async untilProposalsCanBeCreated(
+    numberOfProposals = 1,
+    intervalMs = BLOCKTIME,
+    timeoutMs = 180000
+  ): Promise<void> {
+    await Utils.until(
+      `${numberOfProposals} proposals can be created`,
+      async ({ debug }) => {
+        const { maxActiveProposalLimit } = this.consts.proposalsEngine
+        const activeProposalsN = await this.query.proposalsEngine.activeProposalCount()
+        debug(`Currently active proposals: ${activeProposalsN.toNumber()}/${maxActiveProposalLimit.toNumber()}`)
+        return maxActiveProposalLimit.sub(activeProposalsN).toNumber() >= numberOfProposals
+      },
+      intervalMs,
+      timeoutMs
+    )
+  }
+
+  public async untilCouncilStage(
+    targetStage: 'Announcing' | 'Voting' | 'Revealing' | 'Idle',
+    blocksReserve = 3,
+    intervalMs = BLOCKTIME
+  ): Promise<void> {
+    await Utils.until(
+      `council stage ${targetStage} (+${blocksReserve} blocks reserve)`,
+      async ({ debug }) => {
+        const currentCouncilStage = await this.query.council.stage()
+        const currentElectionStage = await this.query.referendum.stage()
+        const currentStage = currentCouncilStage.stage.isOfType('Election')
+          ? (currentElectionStage.type as 'Voting' | 'Revealing')
+          : (currentCouncilStage.stage.type as 'Announcing' | 'Idle')
+        const currentStageStartedAt = currentCouncilStage.stage.isOfType('Election')
+          ? currentElectionStage.asType(currentElectionStage.type as 'Voting' | 'Revealing').started
+          : currentCouncilStage.changed_at
+
+        const currentBlock = await this.getBestBlock()
+        const { announcingPeriodDuration, idlePeriodDuration } = this.consts.council
+        const { voteStageDuration, revealStageDuration } = this.consts.referendum
+        const durationByStage = {
+          'Announcing': announcingPeriodDuration,
+          'Voting': voteStageDuration,
+          'Revealing': revealStageDuration,
+          'Idle': idlePeriodDuration,
+        } as const
+
+        const currentStageEndsIn = currentStageStartedAt.add(durationByStage[currentStage]).sub(currentBlock)
+
+        debug(`Current stage: ${currentStage}, blocks left: ${currentStageEndsIn.toNumber()}`)
+
+        return currentStage === targetStage && currentStageEndsIn.gten(blocksReserve)
+      },
+      intervalMs
+    )
+  }
+
+  public proposalParametersByType(type: ProposalType): ProposalParameters {
+    return this.api.consts.proposalsCodex[proposalTypeToProposalParamsKey[type]]
   }
 }

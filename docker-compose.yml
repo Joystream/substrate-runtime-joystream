@@ -84,7 +84,7 @@ services:
 
   graphql-server-mnt:
     <<: *graphql-server
-    image: node:12
+    image: node:14
     build: .
     volumes:
       - type: bind
@@ -114,7 +114,7 @@ services:
 
   processor-mnt:
     <<: *processor
-    image: node:12
+    image: node:14
     build: .
     volumes:
       - type: bind
@@ -124,7 +124,7 @@ services:
     command: ["yarn", "workspace", "query-node-root", "processor:start"]
 
   indexer:
-    image: joystream/hydra-indexer:3.0.0-beta.6
+    image: joystream/hydra-indexer:3.0.0
     restart: unless-stopped
     env_file:
       # relative to working directory where docker-compose was run from
@@ -146,7 +146,7 @@ services:
       sh -c "yarn db:bootstrap && yarn start:prod"
 
   indexer-api-gateway:
-    image: joystream/hydra-indexer-gateway:3.0.0-beta.6
+    image: joystream/hydra-indexer-gateway:3.0.0
     restart: unless-stopped
     env_file:
       # relative to working directory where docker-compose was run from

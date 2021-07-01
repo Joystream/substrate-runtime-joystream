@@ -1,0 +1,75 @@
+fragment ProposalDiscussionThreadModeFields on ProposalDiscussionThreadMode {
+  __typename
+  ... on ProposalDiscussionThreadModeClosed {
+    whitelist {
+      members {
+        id
+      }
+    }
+  }
+}
+
+fragment ProposalDiscussionPostStatusFields on ProposalDiscussionPostStatus {
+  __typename
+  ... on ProposalDiscussionPostStatusLocked {
+    deletedInEvent {
+      id
+    }
+  }
+  ... on ProposalDiscussionPostStatusRemoved {
+    deletedInEvent {
+      id
+    }
+  }
+}
+
+fragment ProposalDiscussionThreadFields on ProposalDiscussionThread {
+  id
+  proposal {
+    id
+  }
+  posts {
+    id
+  }
+  mode {
+    ...ProposalDiscussionThreadModeFields
+  }
+  modeChanges {
+    id
+  }
+}
+
+query getProposalDiscussionThreadsByIds($ids: [ID!]) {
+  proposalDiscussionThreads(where: { id_in: $ids }) {
+    ...ProposalDiscussionThreadFields
+  }
+}
+
+fragment ProposalDiscussionPostFields on ProposalDiscussionPost {
+  id
+  thread {
+    id
+  }
+  author {
+    id
+  }
+  status {
+    ...ProposalDiscussionPostStatusFields
+  }
+  text
+  repliesTo {
+    id
+  }
+  updates {
+    id
+  }
+  createdInEvent {
+    id
+  }
+}
+
+query getProposalDiscussionPostsByIds($ids: [ID!]) {
+  proposalDiscussionPosts(where: { id_in: $ids }) {
+    ...ProposalDiscussionPostFields
+  }
+}

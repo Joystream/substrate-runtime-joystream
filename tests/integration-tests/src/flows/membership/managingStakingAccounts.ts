@@ -26,8 +26,7 @@ export default async function managingStakingAccounts({ api, query, env }: FlowP
   const addStakingAccountsHappyCaseFixture = new AddStakingAccountsHappyCaseFixture(
     api,
     query,
-    { account, memberId },
-    stakingAccounts
+    stakingAccounts.map((account) => ({ asMember: memberId, account }))
   )
   await new FixtureRunner(addStakingAccountsHappyCaseFixture).runWithQueryNodeChecks()
 

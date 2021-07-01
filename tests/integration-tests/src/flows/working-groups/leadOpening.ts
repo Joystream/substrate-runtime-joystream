@@ -30,10 +30,11 @@ export default async function leadOpening({ api, query, env }: FlowProps): Promi
       await new FixtureRunner(buyMembershipFixture).run()
       const [memberId] = buyMembershipFixture.getCreatedMembers()
 
-      const applicantContext = { account: roleAccount, memberId }
-
-      const addStakingAccFixture = new AddStakingAccountsHappyCaseFixture(api, query, applicantContext, [
-        stakingAccount,
+      const addStakingAccFixture = new AddStakingAccountsHappyCaseFixture(api, query, [
+        {
+          asMember: memberId,
+          account: stakingAccount,
+        },
       ])
       await new FixtureRunner(addStakingAccFixture).run()
       await api.treasuryTransferBalance(stakingAccount, openingStake)

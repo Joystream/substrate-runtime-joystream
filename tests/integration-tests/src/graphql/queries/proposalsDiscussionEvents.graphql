@@ -1,0 +1,82 @@
+fragment ProposalDiscussionPostCreatedEventFields on ProposalDiscussionPostCreatedEvent {
+  id
+  createdAt
+  inExtrinsic
+  inBlock
+  network
+  indexInBlock
+  post {
+    id
+  }
+  text
+}
+
+query getProposalDiscussionPostCreatedEvents($eventIds: [ID!]) {
+  proposalDiscussionPostCreatedEvents(where: { id_in: $eventIds }) {
+    ...ProposalDiscussionPostCreatedEventFields
+  }
+}
+
+fragment ProposalDiscussionPostUpdatedEventFields on ProposalDiscussionPostUpdatedEvent {
+  id
+  createdAt
+  inExtrinsic
+  inBlock
+  network
+  indexInBlock
+  post {
+    id
+  }
+  text
+}
+
+query getProposalDiscussionPostUpdatedEvents($eventIds: [ID!]) {
+  proposalDiscussionPostUpdatedEvents(where: { id_in: $eventIds }) {
+    ...ProposalDiscussionPostUpdatedEventFields
+  }
+}
+
+fragment ProposalDiscussionThreadModeChangedEventFields on ProposalDiscussionThreadModeChangedEvent {
+  id
+  createdAt
+  inExtrinsic
+  inBlock
+  network
+  indexInBlock
+  thread {
+    id
+  }
+  newMode {
+    ...ProposalDiscussionThreadModeFields
+  }
+  actor {
+    id
+  }
+}
+
+query getProposalDiscussionThreadModeChangedEvents($eventIds: [ID!]) {
+  proposalDiscussionThreadModeChangedEvents(where: { id_in: $eventIds }) {
+    ...ProposalDiscussionThreadModeChangedEventFields
+  }
+}
+
+fragment ProposalDiscussionPostDeletedEventFields on ProposalDiscussionPostDeletedEvent {
+  id
+  createdAt
+  inExtrinsic
+  inBlock
+  network
+  indexInBlock
+  post {
+    id
+  }
+  actor {
+    id
+  }
+}
+
+query getProposalDiscussionPostDeletedEvents($eventIds: [ID!]) {
+  proposalDiscussionPostDeletedEvents(where: { id_in: $eventIds }) {
+    ...ProposalDiscussionPostDeletedEventFields
+  }
+}

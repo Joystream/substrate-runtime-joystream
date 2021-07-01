@@ -184,7 +184,7 @@ export class InputParser {
       return createType('PropertyType', { Single: { Reference: [classId, sameOwner] } })
     }
     // Types other than reference are fully compatible
-    return createType('PropertyType', propertyType)
+    return createType('PropertyType', propertyType as any)
   }
 
   private includeEntityInputInUniqueQueryMap(entityInput: Record<string, any>, schema: AddClassSchema) {

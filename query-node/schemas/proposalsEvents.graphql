@@ -1,0 +1,172 @@
+type ProposalCreatedEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  # FIXME: https://github.com/Joystream/joystream/issues/2457
+  "The created proposal"
+  proposal: Proposal!
+}
+
+type ProposalStatusUpdatedEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The proposal which status got updated"
+  proposal: Proposal!
+
+  "The new proposal intermediate status (Deciding/Gracing/Dormant)"
+  newStatus: ProposalIntermediateStatus!
+}
+
+type ProposalDecisionMadeEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The proposal which voting decision status was determined"
+  proposal: Proposal!
+
+  "The voting decision status"
+  decisionStatus: ProposalDecisionStatus!
+}
+
+type ProposalExecutedEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The proposal that was executed"
+  proposal: Proposal!
+
+  "The execution status"
+  executionStatus: ProposalExecutionStatus!
+}
+
+enum ProposalVoteKind {
+  APPROVE
+  REJECT
+  SLASH
+  ABSTAIN
+}
+
+type ProposalVotedEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The voting member"
+  voter: Membership!
+
+  "The kind of the vote that was casted"
+  voteKind: ProposalVoteKind!
+
+  "The proposal beeing voted on"
+  proposal: Proposal!
+
+  "The rationale behind the vote"
+  rationale: String!
+
+  "The voting round - number representing which Deciding period the vote was casted in (starting with 1), useful when the proposal must be approved during multiple council terms (constitution > 1)"
+  votingRound: Int!
+}
+
+type ProposalCancelledEvent implements Event @entity {
+  ### GENERIC DATA ###
+
+  "(network}-{blockNumber}-{indexInBlock}"
+  id: ID!
+
+  "Hash of the extrinsic which caused the event to be emitted"
+  inExtrinsic: String
+
+  "Blocknumber of the block in which the event was emitted."
+  inBlock: Int!
+
+  "Network the block was produced in"
+  network: Network!
+
+  "Index of event in block from which it was emitted."
+  indexInBlock: Int!
+
+  ### SPECIFIC DATA ###
+
+  "The proposal that was cancelled"
+  proposal: Proposal!
+}

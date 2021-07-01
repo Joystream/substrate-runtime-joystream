@@ -48,9 +48,24 @@ typegen:
     - storageWorkingGroup.BudgetSpending
     - storageWorkingGroup.RewardPaid
     - storageWorkingGroup.NewMissedRewardLevelReached
+    # Proposals
+    - proposalsCodex.ProposalCreated
+    - proposalsEngine.ProposalCreated
+    - proposalsEngine.ProposalStatusUpdated
+    - proposalsEngine.ProposalDecisionMade
+    - proposalsEngine.ProposalExecuted
+    - proposalsEngine.Voted
+    - proposalsEngine.ProposalCancelled
+    # Proposals discussion
+    - proposalsDiscussion.ThreadCreated
+    - proposalsDiscussion.PostCreated
+    - proposalsDiscussion.PostUpdated
+    - proposalsDiscussion.ThreadModeChanged
+    - proposalsDiscussion.PostDeleted
   calls:
     - members.updateProfile
     - members.updateAccounts
+    - proposalsDiscussion.addPost
   outDir: ./mappings/generated/types
   customTypes:
     lib: '@joystream/types/augment/all/types'
@@ -272,6 +287,32 @@ mappings:
       handler: workingGroups_NewMissedRewardLevelReached
     - event: contentDirectoryWorkingGroup.WorkerStartedLeaving
       handler: workingGroups_WorkerStartedLeaving
+    # Proposals
+    - event: proposalsCodex.ProposalCreated
+      handler: proposalsCodex_ProposalCreated
+    - event: proposalsEngine.ProposalCreated
+      handler: proposalsEngine_ProposalCreated
+    - event: proposalsEngine.ProposalStatusUpdated
+      handler: proposalsEngine_ProposalStatusUpdated
+    - event: proposalsEngine.ProposalDecisionMade
+      handler: proposalsEngine_ProposalDecisionMade
+    - event: proposalsEngine.ProposalExecuted
+      handler: proposalsEngine_ProposalExecuted
+    - event: proposalsEngine.Voted
+      handler: proposalsEngine_Voted
+    - event: proposalsEngine.ProposalCancelled
+      handler: proposalsEngine_ProposalCancelled
+    # Proposals discussion
+    - event: proposalsDiscussion.ThreadCreated
+      handler: proposalsDiscussion_ThreadCreated
+    - event: proposalsDiscussion.PostCreated
+      handler: proposalsDiscussion_PostCreated
+    - event: proposalsDiscussion.PostUpdated
+      handler: proposalsDiscussion_PostUpdated
+    - event: proposalsDiscussion.ThreadModeChanged
+      handler: proposalsDiscussion_ThreadModeChanged
+    - event: proposalsDiscussion.PostDeleted
+      handler: proposalsDiscussion_PostDeleted
   extrinsicHandlers:
     # infer defaults here
     #- extrinsic: Balances.Transfer

@@ -11,11 +11,9 @@ import {
   U8aFixed,
   BTreeSet,
   UInt,
-  Compact,
 } from '@polkadot/types'
 import { BlockNumber, Hash as PolkadotHash, Moment } from '@polkadot/types/interfaces'
 import { Codec, Constructor, RegistryTypes } from '@polkadot/types/types'
-import { u8aConcat, u8aToHex } from '@polkadot/util'
 // we get 'moment' because it is a dependency of @polkadot/util, via @polkadot/keyring
 import moment from 'moment'
 import { JoyStructCustom, JoyStructDecorated } from './JoyStruct'
@@ -32,28 +30,13 @@ export interface ExtendedBTreeSet<V extends UInt> extends BTreeSet<V> {
 
 export function JoyBTreeSet<V extends UInt>(valType: Constructor<V>): Constructor<ExtendedBTreeSet<V>> {
   return class extends BTreeSet.with(valType) {
-    public toArray(): V[] {
-      return Array.from(this)
+    public forEach(callbackFn: (value: V, value2: V, set: Set<V>) => void, thisArg?: any): void {
+      const sorted = this.toArray()
+      return new Set(sorted).forEach(callbackFn, thisArg)
     }
 
-    public toU8a(isBare?: boolean): Uint8Array {
-      const encoded = new Array<Uint8Array>()
-
-      if (!isBare) {
-        encoded.push(Compact.encodeU8a(this.size))
-      }
-
-      const sorted = Array.from(this).sort((a, b) => (a.lt(b) ? -1 : 1))
-
-      sorted.forEach((v: V) => {
-        encoded.push(v.toU8a(isBare))
-      })
-
-      return u8aConcat(...encoded)
-    }
-
-    public toHex(): string {
-      return u8aToHex(this.toU8a())
+    public toArray() {
+      return Array.from(this).sort((a, b) => (a.lt(b) ? -1 : 1))
     }
   }
 }
