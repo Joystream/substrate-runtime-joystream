@@ -763,60 +763,6 @@ declare module '@polkadot/api/types/errors' {
        **/
       WorkerHasNoReward: AugmentedError<ApiType>;
     };
-    dataDirectory: {
-      /**
-       * Content with this ID not found.
-       **/
-      CidNotFound: AugmentedError<ApiType>;
-      /**
-       * "Data object already added under this content id".
-       **/
-      DataObjectAlreadyAdded: AugmentedError<ApiType>;
-      /**
-       * DataObject Injection Failed. Too Many DataObjects.
-       **/
-      DataObjectsInjectionExceededLimit: AugmentedError<ApiType>;
-      /**
-       * Cannot create content for inactive or missing data object type.
-       **/
-      DataObjectTypeMustBeActive: AugmentedError<ApiType>;
-      /**
-       * Only the liaison for the content may modify its status.
-       **/
-      LiaisonRequired: AugmentedError<ApiType>;
-      /**
-       * Require root origin in extrinsics.
-       **/
-      RequireRootOrigin: AugmentedError<ApiType>;
-    };
-    dataObjectStorageRegistry: {
-      /**
-       * Content with this ID not found.
-       **/
-      CidNotFound: AugmentedError<ApiType>;
-      /**
-       * No data object storage relationship found for this ID.
-       **/
-      DataObjectStorageRelationshipNotFound: AugmentedError<ApiType>;
-      /**
-       * Only the storage provider in a DOSR can decide whether they're ready.
-       **/
-      OnlyStorageProviderMayClaimReady: AugmentedError<ApiType>;
-      /**
-       * Require root origin in extrinsics
-       **/
-      RequireRootOrigin: AugmentedError<ApiType>;
-    };
-    dataObjectTypeRegistry: {
-      /**
-       * Data Object Type with the given ID not found.
-       **/
-      DataObjectTypeNotFound: AugmentedError<ApiType>;
-      /**
-       * Require root origin in extrinsics
-       **/
-      RequireRootOrigin: AugmentedError<ApiType>;
-    };
     finalityTracker: {
       /**
        * Final hint must be updated only once in the block
@@ -1201,6 +1147,156 @@ declare module '@polkadot/api/types/errors' {
        * The snapshot data of the current window is missing.
        **/
       SnapshotUnavailable: AugmentedError<ApiType>;
+    };
+    storage: {
+      /**
+       * Blacklist size limit exceeded.
+       **/
+      BlacklistSizeLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Cannot delete a non-empty storage bucket.
+       **/
+      CannotDeleteNonEmptyStorageBucket: AugmentedError<ApiType>;
+      /**
+       * Data object hash is part of the blacklist.
+       **/
+      DataObjectBlacklisted: AugmentedError<ApiType>;
+      /**
+       * Data object doesn't exist.
+       **/
+      DataObjectDoesntExist: AugmentedError<ApiType>;
+      /**
+       * Data object id collection is empty.
+       **/
+      DataObjectIdCollectionIsEmpty: AugmentedError<ApiType>;
+      /**
+       * The `data_object_ids` extrinsic parameter collection is empty.
+       **/
+      DataObjectIdParamsAreEmpty: AugmentedError<ApiType>;
+      /**
+       * Upload data error: data objects per bag limit exceeded.
+       **/
+      DataObjectsPerBagLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Invalid operation with invites: another storage provider was invited.
+       **/
+      DifferentStorageProviderInvited: AugmentedError<ApiType>;
+      /**
+       * Dynamic bag doesn't exist.
+       **/
+      DynamicBagDoesntExist: AugmentedError<ApiType>;
+      /**
+       * Cannot create the dynamic bag: dynamic bag exists.
+       **/
+      DynamicBagExists: AugmentedError<ApiType>;
+      /**
+       * Upload data error: empty content ID provided.
+       **/
+      EmptyContentId: AugmentedError<ApiType>;
+      /**
+       * Insufficient balance for an operation.
+       **/
+      InsufficientBalance: AugmentedError<ApiType>;
+      /**
+       * Insufficient module treasury balance for an operation.
+       **/
+      InsufficientTreasuryBalance: AugmentedError<ApiType>;
+      /**
+       * Upload data error: invalid deletion prize source account.
+       **/
+      InvalidDeletionPrizeSourceAccount: AugmentedError<ApiType>;
+      /**
+       * Invalid storage provider for bucket.
+       **/
+      InvalidStorageProvider: AugmentedError<ApiType>;
+      /**
+       * Invalid operation with invites: storage provider was already invited.
+       **/
+      InvitedStorageProvider: AugmentedError<ApiType>;
+      /**
+       * Max storage bucket number limit exceeded.
+       **/
+      MaxStorageBucketNumberLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Empty "data object creation" collection.
+       **/
+      NoObjectsOnUpload: AugmentedError<ApiType>;
+      /**
+       * Invalid operation with invites: there is no storage bucket invitation.
+       **/
+      NoStorageBucketInvitation: AugmentedError<ApiType>;
+      /**
+       * Cannot move objects within the same bag.
+       **/
+      SourceAndDestinationBagsAreEqual: AugmentedError<ApiType>;
+      /**
+       * The storage bucket doesn't accept new bags.
+       **/
+      StorageBucketDoesntAcceptNewBags: AugmentedError<ApiType>;
+      /**
+       * The requested storage bucket doesn't exist.
+       **/
+      StorageBucketDoesntExist: AugmentedError<ApiType>;
+      /**
+       * Storage bucket id collections are empty.
+       **/
+      StorageBucketIdCollectionsAreEmpty: AugmentedError<ApiType>;
+      /**
+       * The requested storage bucket is already bound to a bag.
+       **/
+      StorageBucketIsBoundToBag: AugmentedError<ApiType>;
+      /**
+       * The requested storage bucket is not bound to a bag.
+       **/
+      StorageBucketIsNotBoundToBag: AugmentedError<ApiType>;
+      /**
+       * Object number limit for the storage bucket reached.
+       **/
+      StorageBucketObjectNumberLimitReached: AugmentedError<ApiType>;
+      /**
+       * Objects total size limit for the storage bucket reached.
+       **/
+      StorageBucketObjectSizeLimitReached: AugmentedError<ApiType>;
+      /**
+       * `StorageBucketsPerBagLimit` was exceeded for a bag.
+       **/
+      StorageBucketPerBagLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * The new `StorageBucketsPerBagLimit` number is too high.
+       **/
+      StorageBucketsPerBagLimitTooHigh: AugmentedError<ApiType>;
+      /**
+       * The new `StorageBucketsPerBagLimit` number is too low.
+       **/
+      StorageBucketsPerBagLimitTooLow: AugmentedError<ApiType>;
+      /**
+       * Invalid operation with invites: storage provider was already set.
+       **/
+      StorageProviderAlreadySet: AugmentedError<ApiType>;
+      /**
+       * Storage provider must be set.
+       **/
+      StorageProviderMustBeSet: AugmentedError<ApiType>;
+      /**
+       * Storage provider operator doesn't exist.
+       **/
+      StorageProviderOperatorDoesntExist: AugmentedError<ApiType>;
+      /**
+       * Uploading of the new object is blocked.
+       **/
+      UploadingBlocked: AugmentedError<ApiType>;
+      /**
+       * Max object number limit exceeded for voucher.
+       **/
+      VoucherMaxObjectNumberLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Max object size limit exceeded for voucher.
+       **/
+      VoucherMaxObjectSizeLimitExceeded: AugmentedError<ApiType>;
+      /**
+       * Upload data error: zero object size.
+       **/
+      ZeroObjectSize: AugmentedError<ApiType>;
     };
     storageWorkingGroup: {
       /**

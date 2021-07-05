@@ -33,10 +33,9 @@ use sp_runtime::Perbill;
 use node_runtime::{
     membership, wasm_binary_unwrap, AuthorityDiscoveryConfig, BabeConfig, Balance, BalancesConfig,
     ContentDirectoryConfig, ContentDirectoryWorkingGroupConfig, ContentWorkingGroupConfig,
-    CouncilConfig, CouncilElectionConfig, DataDirectoryConfig, DataObjectStorageRegistryConfig,
-    DataObjectTypeRegistryConfig, ElectionParameters, ForumConfig, GrandpaConfig, ImOnlineConfig,
-    MembersConfig, Moment, ProposalsCodexConfig, SessionConfig, SessionKeys, Signature,
-    StakerStatus, StakingConfig, StorageWorkingGroupConfig, SudoConfig, SystemConfig,
+    CouncilConfig, CouncilElectionConfig, ElectionParameters, ForumConfig, GrandpaConfig,
+    ImOnlineConfig, MembersConfig, Moment, ProposalsCodexConfig, SessionConfig, SessionKeys,
+    Signature, StakerStatus, StakingConfig, StorageWorkingGroupConfig, SudoConfig, SystemConfig,
     VersionedStoreConfig, VersionedStorePermissionsConfig, DAYS,
 };
 
@@ -140,7 +139,6 @@ impl Alternative {
                         forum_config::empty(get_account_id_from_seed::<sr25519::Public>("Alice")),
                         content_config::empty_versioned_store_config(),
                         content_config::empty_versioned_store_permissions_config(),
-                        content_config::empty_data_directory_config(),
                         content_config::empty_content_working_group_config(),
                         vec![],
                     )
@@ -181,7 +179,6 @@ impl Alternative {
                         forum_config::empty(get_account_id_from_seed::<sr25519::Public>("Alice")),
                         content_config::empty_versioned_store_config(),
                         content_config::empty_versioned_store_permissions_config(),
-                        content_config::empty_data_directory_config(),
                         content_config::empty_content_working_group_config(),
                         vec![],
                     )
@@ -227,7 +224,6 @@ pub fn testnet_genesis(
     forum_config: ForumConfig,
     versioned_store_config: VersionedStoreConfig,
     versioned_store_permissions_config: VersionedStorePermissionsConfig,
-    data_directory_config: DataDirectoryConfig,
     content_working_group_config: ContentWorkingGroupConfig,
     initial_balances: Vec<(AccountId, Balance)>,
 ) -> GenesisConfig {
@@ -309,13 +305,6 @@ pub fn testnet_genesis(
             members,
         }),
         forum: Some(forum_config),
-        data_directory: Some(data_directory_config),
-        data_object_type_registry: Some(DataObjectTypeRegistryConfig {
-            first_data_object_type_id: 1,
-        }),
-        data_object_storage_registry: Some(DataObjectStorageRegistryConfig {
-            first_relationship_id: 1,
-        }),
         working_group_Instance2: Some(StorageWorkingGroupConfig {
             phantom: Default::default(),
             working_group_mint_capacity: 0,
@@ -410,7 +399,6 @@ pub(crate) mod tests {
             forum_config::empty(get_account_id_from_seed::<sr25519::Public>("Alice")),
             content_config::empty_versioned_store_config(),
             content_config::empty_versioned_store_permissions_config(),
-            content_config::empty_data_directory_config(),
             content_config::empty_content_working_group_config(),
             vec![],
         )
@@ -447,7 +435,6 @@ pub(crate) mod tests {
             forum_config::empty(get_account_id_from_seed::<sr25519::Public>("Alice")),
             content_config::empty_versioned_store_config(),
             content_config::empty_versioned_store_permissions_config(),
-            content_config::empty_data_directory_config(),
             content_config::empty_content_working_group_config(),
             vec![],
         )

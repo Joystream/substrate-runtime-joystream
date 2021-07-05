@@ -253,12 +253,16 @@ fn add_opening_fails_with_invalid_human_readable_text() {
 
         let add_opening_fixture = AddWorkerOpeningFixture::default().with_text(Vec::new());
 
-        add_opening_fixture.call_and_assert(Err(DispatchError::Other("OpeningTextTooShort")));
+        add_opening_fixture.call_and_assert(Err(
+            Error::<Test, TestWorkingGroupInstance>::OpeningTextTooShort.into(),
+        ));
 
         let add_opening_fixture =
             AddWorkerOpeningFixture::default().with_text(b"Long text".to_vec());
 
-        add_opening_fixture.call_and_assert(Err(DispatchError::Other("OpeningTextTooLong")));
+        add_opening_fixture.call_and_assert(Err(
+            Error::<Test, TestWorkingGroupInstance>::OpeningTextTooLong.into(),
+        ));
     });
 }
 
@@ -537,14 +541,16 @@ fn apply_on_opening_fails_with_invalid_text() {
 
         let apply_on_opening_fixture =
             ApplyOnWorkerOpeningFixture::default_for_opening_id(opening_id).with_text(Vec::new());
-        apply_on_opening_fixture
-            .call_and_assert(Err(DispatchError::Other("WorkerApplicationTextTooShort")));
+        apply_on_opening_fixture.call_and_assert(Err(
+            Error::<Test, TestWorkingGroupInstance>::WorkerApplicationTextTooShort.into(),
+        ));
 
         let apply_on_opening_fixture =
             ApplyOnWorkerOpeningFixture::default_for_opening_id(opening_id)
                 .with_text(b"Long text".to_vec());
-        apply_on_opening_fixture
-            .call_and_assert(Err(DispatchError::Other("WorkerApplicationTextTooLong")));
+        apply_on_opening_fixture.call_and_assert(Err(
+            Error::<Test, TestWorkingGroupInstance>::WorkerApplicationTextTooLong.into(),
+        ));
     });
 }
 
@@ -1748,14 +1754,16 @@ fn terminate_worker_role_fails_with_invalid_text() {
 
         let terminate_worker_role_fixture =
             TerminateWorkerRoleFixture::default_for_worker_id(worker_id).with_text(Vec::new());
-        terminate_worker_role_fixture
-            .call_and_assert(Err(DispatchError::Other("WorkerExitRationaleTextTooShort")));
+        terminate_worker_role_fixture.call_and_assert(Err(
+            Error::<Test, TestWorkingGroupInstance>::WorkerExitRationaleTextTooShort.into(),
+        ));
 
         let terminate_worker_role_fixture =
             TerminateWorkerRoleFixture::default_for_worker_id(worker_id)
                 .with_text(b"MSG_WORKER_EXIT_RATIONALE_TEXT_TOO_LONG".to_vec());
-        terminate_worker_role_fixture
-            .call_and_assert(Err(DispatchError::Other("WorkerExitRationaleTextTooLong")));
+        terminate_worker_role_fixture.call_and_assert(Err(
+            Error::<Test, TestWorkingGroupInstance>::WorkerExitRationaleTextTooLong.into(),
+        ));
     });
 }
 

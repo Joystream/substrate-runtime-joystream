@@ -3,7 +3,7 @@
 
 import type { BTreeMap, BTreeSet, Bytes, Compact, Option, Vec, bool, u16, u32, u64 } from '@polkadot/types';
 import type { AnyNumber, ITuple } from '@polkadot/types/types';
-import type { ActivateOpeningAt, Actor, AddOpeningParameters, ApplicationId, ApplicationIdSet, BalanceOfMint, CategoryId, ChannelContentType, ChannelCurationStatus, ChannelId, ChannelPublicationStatus, ClassId, ClassPermissions, ClassPermissionsType, ClassPropertyValue, ContentId, Credential, CredentialSet, CurationActor, CuratorApplicationId, CuratorApplicationIdSet, CuratorGroupId, CuratorId, CuratorOpeningId, DataObjectStorageRelationshipId, DataObjectType, DataObjectTypeId, DataObjectsMap, ElectionParameters, EntityController, EntityId, EntityPermissions, FillOpeningParameters, InputPropertyValue, InputValue, MemberId, MemoText, Nonce, OpeningId, OpeningPolicyCommitment, OpeningType, Operation, OperationType, OptionalText, PaidTermId, PostId, Property, PropertyId, ProposalId, ReferenceConstraint, RewardPolicy, SchemaId, StorageProviderId, TerminateRoleParameters, ThreadId, Url, VecMaxLength, VoteKind, WorkerId, WorkingGroup } from './all';
+import type { ActivateOpeningAt, Actor, AddOpeningParameters, ApplicationId, ApplicationIdSet, BagId, BalanceOfMint, CategoryId, ChannelContentType, ChannelCurationStatus, ChannelId, ChannelPublicationStatus, ClassId, ClassPermissions, ClassPermissionsType, ClassPropertyValue, ContentId, Credential, CredentialSet, CurationActor, CuratorApplicationId, CuratorApplicationIdSet, CuratorGroupId, CuratorId, CuratorOpeningId, DataObjectId, DynamicBagId, DynamicBagType, ElectionParameters, EntityController, EntityId, EntityPermissions, FillOpeningParameters, InputPropertyValue, InputValue, MemberId, MemoText, Nonce, OpeningId, OpeningPolicyCommitment, OpeningType, Operation, OperationType, OptionalText, PaidTermId, PostId, Property, PropertyId, ProposalId, ReferenceConstraint, RewardPolicy, SchemaId, StorageBucketId, TerminateRoleParameters, ThreadId, UploadParameters, VecMaxLength, VoteKind, WorkerId, WorkingGroup } from './all';
 import type { BabeEquivocationProof } from '@polkadot/types/interfaces/babe';
 import type { Extrinsic, Signature } from '@polkadot/types/interfaces/extrinsics';
 import type { GrandpaEquivocationProof, KeyOwnerProof } from '@polkadot/types/interfaces/grandpa';
@@ -429,90 +429,6 @@ declare module '@polkadot/api/types/submittable' {
       setStageRevealing: AugmentedSubmittable<(endsAt: BlockNumber | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [BlockNumber]>;
       setStageVoting: AugmentedSubmittable<(endsAt: BlockNumber | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [BlockNumber]>;
       vote: AugmentedSubmittable<(commitment: Hash | string | Uint8Array, stake: BalanceOf | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Hash, BalanceOf]>;
-    };
-    dataDirectory: {
-      /**
-       * Storage provider accepts a content. Requires signed storage provider account and its id.
-       * The LiaisonJudgement can be updated, but only by the liaison.
-       **/
-      acceptContent: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array, contentId: ContentId | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId, ContentId]>;
-      /**
-       * Adds the content to the frame_system. Member id should match its origin. The created DataObject
-       * awaits liaison to accept or reject it.
-       **/
-      addContent: AugmentedSubmittable<(memberId: MemberId | AnyNumber | Uint8Array, contentId: ContentId | string | Uint8Array, typeId: DataObjectTypeId | AnyNumber | Uint8Array, size: u64 | AnyNumber | Uint8Array, ipfsContentId: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [MemberId, ContentId, DataObjectTypeId, u64, Bytes]>;
-      /**
-       * Injects a set of data objects and their corresponding content id into the directory.
-       * The operation is "silent" - no events will be emitted as objects are added.
-       * The number of objects that can be added per call is limited to prevent the dispatch
-       * from causing the block production to fail if it takes too much time to process.
-       * Existing data objects will be overwritten.
-       **/
-      injectDataObjects: AugmentedSubmittable<(objects: DataObjectsMap) => SubmittableExtrinsic<ApiType>, [DataObjectsMap]>;
-      /**
-       * Storage provider rejects a content. Requires signed storage provider account and its id.
-       * The LiaisonJudgement can be updated, but only by the liaison.
-       **/
-      rejectContent: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array, contentId: ContentId | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId, ContentId]>;
-      /**
-       * Removes the content id from the list of known content ids. Requires root privileges.
-       **/
-      removeKnownContentId: AugmentedSubmittable<(contentId: ContentId | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [ContentId]>;
-    };
-    dataObjectStorageRegistry: {
-      /**
-       * Add storage provider-to-content relationship. The storage provider should be registered
-       * in the storage working group.
-       **/
-      addRelationship: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array, cid: ContentId | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId, ContentId]>;
-      /**
-       * Activates storage provider-to-content relationship. The storage provider should be registered
-       * in the storage working group. A storage provider may flip their own ready state, but nobody else.
-       **/
-      setRelationshipReady: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array, id: DataObjectStorageRelationshipId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId, DataObjectStorageRelationshipId]>;
-      /**
-       * Deactivates storage provider-to-content relationship. The storage provider should be registered
-       * in the storage working group. A storage provider may flip their own ready state, but nobody else.
-       **/
-      unsetRelationshipReady: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array, id: DataObjectStorageRelationshipId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId, DataObjectStorageRelationshipId]>;
-    };
-    dataObjectTypeRegistry: {
-      /**
-       * Activates existing data object type. Requires leader privileges.
-       **/
-      activateDataObjectType: AugmentedSubmittable<(id: DataObjectTypeId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [DataObjectTypeId]>;
-      /**
-       * Deactivates existing data object type. Requires leader privileges.
-       **/
-      deactivateDataObjectType: AugmentedSubmittable<(id: DataObjectTypeId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [DataObjectTypeId]>;
-      /**
-       * Registers the new data object type. Requires leader privileges.
-       **/
-      registerDataObjectType: AugmentedSubmittable<(dataObjectType: DataObjectType | { description?: any; active?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [DataObjectType]>;
-      /**
-       * Updates existing data object type. Requires leader privileges.
-       **/
-      updateDataObjectType: AugmentedSubmittable<(id: DataObjectTypeId | AnyNumber | Uint8Array, dataObjectType: DataObjectType | { description?: any; active?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [DataObjectTypeId, DataObjectType]>;
-    };
-    discovery: {
-      /**
-       * Sets bootstrap endpoints for the Colossus. Requires root privileges.
-       **/
-      setBootstrapEndpoints: AugmentedSubmittable<(endpoints: Vec<Url> | (Url | string)[]) => SubmittableExtrinsic<ApiType>, [Vec<Url>]>;
-      /**
-       * Sets default lifetime for storage providers accounts info. Requires root privileges.
-       **/
-      setDefaultLifetime: AugmentedSubmittable<(lifetime: BlockNumber | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [BlockNumber]>;
-      /**
-       * Creates the ServiceProviderRecord to save an IPNS identity for the storage provider.
-       * Requires signed storage provider credentials.
-       **/
-      setIpnsId: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array, id: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId, Bytes]>;
-      /**
-       * Deletes the ServiceProviderRecord with the IPNS identity for the storage provider.
-       * Requires signed storage provider credentials.
-       **/
-      unsetIpnsId: AugmentedSubmittable<(storageProviderId: StorageProviderId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageProviderId]>;
     };
     finalityTracker: {
       /**
@@ -1243,6 +1159,84 @@ declare module '@polkadot/api/types/submittable' {
        * # </weight>
        **/
       withdrawUnbonded: AugmentedSubmittable<(numSlashingSpans: u32 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u32]>;
+    };
+    storage: {
+      /**
+       * A storage provider signals that the data object was successfully uploaded to its storage.
+       **/
+      acceptPendingDataObjects: AugmentedSubmittable<(workerId: WorkerId | AnyNumber | Uint8Array, storageBucketId: StorageBucketId | AnyNumber | Uint8Array, bagId: BagId | { Static: any } | { Dynamic: any } | string | Uint8Array, dataObjects: BTreeSet<DataObjectId>) => SubmittableExtrinsic<ApiType>, [WorkerId, StorageBucketId, BagId, BTreeSet<DataObjectId>]>;
+      /**
+       * Accept the storage bucket invitation. An invitation must match the worker_id parameter.
+       **/
+      acceptStorageBucketInvitation: AugmentedSubmittable<(workerId: WorkerId | AnyNumber | Uint8Array, storageBucketId: StorageBucketId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [WorkerId, StorageBucketId]>;
+      /**
+       * Cancel pending storage bucket invite. An invitation must be pending.
+       **/
+      cancelStorageBucketOperatorInvite: AugmentedSubmittable<(storageBucketId: StorageBucketId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageBucketId]>;
+      /**
+       * Create storage bucket.
+       **/
+      createStorageBucket: AugmentedSubmittable<(inviteWorker: Option<WorkerId> | null | object | string | Uint8Array, acceptingNewBags: bool | boolean | Uint8Array, sizeLimit: u64 | AnyNumber | Uint8Array, objectsLimit: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [Option<WorkerId>, bool, u64, u64]>;
+      /**
+       * Delete storage bucket. Must be empty. Storage operator must be missing.
+       **/
+      deleteStorageBucket: AugmentedSubmittable<(storageBucketId: StorageBucketId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageBucketId]>;
+      /**
+       * Invite storage bucket operator. Must be missing.
+       **/
+      inviteStorageBucketOperator: AugmentedSubmittable<(storageBucketId: StorageBucketId | AnyNumber | Uint8Array, operatorId: WorkerId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageBucketId, WorkerId]>;
+      /**
+       * Removes storage bucket operator. Must be invited.
+       **/
+      removeStorageBucketOperator: AugmentedSubmittable<(storageBucketId: StorageBucketId | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [StorageBucketId]>;
+      /**
+       * Sets storage bucket voucher limits.
+       **/
+      setStorageBucketVoucherLimits: AugmentedSubmittable<(workerId: WorkerId | AnyNumber | Uint8Array, storageBucketId: StorageBucketId | AnyNumber | Uint8Array, newObjectsSizeLimit: u64 | AnyNumber | Uint8Array, newObjectsNumberLimit: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [WorkerId, StorageBucketId, u64, u64]>;
+      /**
+       * Sets storage operator metadata (eg.: storage node URL).
+       **/
+      setStorageOperatorMetadata: AugmentedSubmittable<(workerId: WorkerId | AnyNumber | Uint8Array, storageBucketId: StorageBucketId | AnyNumber | Uint8Array, metadata: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [WorkerId, StorageBucketId, Bytes]>;
+      /**
+       * Create a dynamic bag. Development mode.
+       **/
+      sudoCreateDynamicBag: AugmentedSubmittable<(bagId: DynamicBagId | { Member: any } | { Channel: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [DynamicBagId]>;
+      /**
+       * Upload new data objects. Development mode.
+       **/
+      sudoUploadDataObjects: AugmentedSubmittable<(params: UploadParameters | { authenticationKey?: any; bagId?: any; objectCreationList?: any; deletionPrizeSourceAccountId?: any } | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [UploadParameters]>;
+      /**
+       * Add and remove hashes to the current blacklist.
+       **/
+      updateBlacklist: AugmentedSubmittable<(removeHashes: BTreeSet<ContentId>, addHashes: BTreeSet<ContentId>) => SubmittableExtrinsic<ApiType>, [BTreeSet<ContentId>, BTreeSet<ContentId>]>;
+      /**
+       * Updates size-based pricing of new objects uploaded.
+       **/
+      updateDataSizeFee: AugmentedSubmittable<(newDataSizeFee: BalanceOf | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [BalanceOf]>;
+      /**
+       * Update number of storage buckets used in given dynamic bag creation policy.
+       **/
+      updateNumberOfStorageBucketsInDynamicBagCreationPolicy: AugmentedSubmittable<(dynamicBagType: DynamicBagType | 'Member' | 'Channel' | number | Uint8Array, numberOfStorageBuckets: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [DynamicBagType, u64]>;
+      /**
+       * Update whether new bags are being accepted for storage.
+       **/
+      updateStorageBucketStatus: AugmentedSubmittable<(workerId: WorkerId | AnyNumber | Uint8Array, storageBucketId: StorageBucketId | AnyNumber | Uint8Array, acceptingNewBags: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [WorkerId, StorageBucketId, bool]>;
+      /**
+       * Updates storage buckets for a bag..
+       **/
+      updateStorageBucketsForBag: AugmentedSubmittable<(bagId: BagId | { Static: any } | { Dynamic: any } | string | Uint8Array, addBuckets: BTreeSet<StorageBucketId>, removeBuckets: BTreeSet<StorageBucketId>) => SubmittableExtrinsic<ApiType>, [BagId, BTreeSet<StorageBucketId>, BTreeSet<StorageBucketId>]>;
+      /**
+       * Updates "Storage buckets per bag" number limit.
+       **/
+      updateStorageBucketsPerBagLimit: AugmentedSubmittable<(newLimit: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64]>;
+      /**
+       * Updates "Storage buckets voucher max limits".
+       **/
+      updateStorageBucketsVoucherMaxLimits: AugmentedSubmittable<(newObjectsSize: u64 | AnyNumber | Uint8Array, newObjectsNumber: u64 | AnyNumber | Uint8Array) => SubmittableExtrinsic<ApiType>, [u64, u64]>;
+      /**
+       * Update whether uploading is globally blocked.
+       **/
+      updateUploadingBlockedStatus: AugmentedSubmittable<(newStatus: bool | boolean | Uint8Array) => SubmittableExtrinsic<ApiType>, [bool]>;
     };
     storageWorkingGroup: {
       /**

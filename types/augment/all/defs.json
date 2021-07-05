@@ -552,7 +552,7 @@
         "identity": "IPNSIdentity",
         "expires_at": "u32"
     },
-    "ContentId": "[u8;32]",
+    "ContentId": "Text",
     "LiaisonJudgement": {
         "_enum": [
             "Pending",
@@ -571,7 +571,7 @@
     },
     "DataObjectStorageRelationshipId": "u64",
     "DataObjectStorageRelationship": {
-        "content_id": "ContentId",
+        "content_id": "Hash",
         "storage_provider": "StorageProviderId",
         "ready": "bool"
     },
@@ -580,7 +580,7 @@
         "description": "Text",
         "active": "bool"
     },
-    "DataObjectsMap": "BTreeMap<ContentId,DataObject>",
+    "DataObjectsMap": "BTreeMap<[u8;32],DataObject>",
     "ProposalId": "u32",
     "ProposalStatus": {
         "_enum": {
@@ -971,5 +971,99 @@
     "ClassPropertyValue": "Null",
     "Operation": "Null",
     "ReferenceConstraint": "Null",
-    "FailedAt": "u32"
+    "FailedAt": "u32",
+    "StorageBucketId": "u64",
+    "StorageBucketsPerBagValueConstraint": {
+        "min": "u64",
+        "max_min_diff": "u64"
+    },
+    "DataObjectId": "u64",
+    "DynamicBagId": {
+        "_enum": {
+            "Member": "MemberId",
+            "Channel": "u64"
+        }
+    },
+    "Voucher": {
+        "sizeLimit": "u64",
+        "objectsLimit": "u64",
+        "sizeUsed": "u64",
+        "objectsUsed": "u64"
+    },
+    "DynamicBagType": {
+        "_enum": [
+            "Member",
+            "Channel"
+        ]
+    },
+    "DynamicBagCreationPolicy": {
+        "numberOfStorageBuckets": "u64"
+    },
+    "DynamicBag": {
+        "objects": "BTreeMap<DataObjectId,{\"accepted\":\"bool\",\"deletion_prize\":\"u128\",\"size\":\"u64\"}>",
+        "stored_by": "StorageBucketIdSet",
+        "distributed_by": "Vec<u64>",
+        "deletion_prize": "u128"
+    },
+    "StaticBag": {
+        "objects": "BTreeMap<DataObjectId,{\"accepted\":\"bool\",\"deletion_prize\":\"u128\",\"size\":\"u64\"}>",
+        "stored_by": "StorageBucketIdSet",
+        "distributed_by": "Vec<u64>"
+    },
+    "StorageBucket": {
+        "operator_status": "StorageBucketOperatorStatus",
+        "accepting_new_bags": "bool",
+        "voucher": "Voucher",
+        "metadata": "Text"
+    },
+    "StaticBagId": {
+        "_enum": {
+            "Council": "Null",
+            "WorkingGroup": "WorkingGroup"
+        }
+    },
+    "Static": {
+        "_enum": {
+            "Council": "Null",
+            "WorkingGroup": "WorkingGroup"
+        }
+    },
+    "Dynamic": {
+        "_enum": {
+            "Member": "MemberId",
+            "Channel": "u64"
+        }
+    },
+    "BagId": {
+        "_enum": {
+            "Static": "Static",
+            "Dynamic": "Dynamic"
+        }
+    },
+    "DataObjectCreationParameters": {
+        "size": "u64",
+        "ipfsContentId": "Text"
+    },
+    "BagIdType": {
+        "_enum": {
+            "Static": "Static",
+            "Dynamic": "Dynamic"
+        }
+    },
+    "UploadParameters": {
+        "authenticationKey": "Text",
+        "bagId": "BagId",
+        "objectCreationList": "Vec<DataObjectCreationParameters>",
+        "deletionPrizeSourceAccountId": "GenericAccountId"
+    },
+    "StorageBucketIdSet": "BTreeSet<StorageBucketId>",
+    "DataObjectIdSet": "BTreeSet<DataObjectId>",
+    "ContentIdSet": "BTreeSet<ContentId>",
+    "StorageBucketOperatorStatus": {
+        "_enum": {
+            "Missing": "Null",
+            "InvitedStorageWorker": "u64",
+            "StorageWorker": "u64"
+        }
+    }
 }

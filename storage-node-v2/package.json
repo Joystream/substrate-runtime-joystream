@@ -1,0 +1,110 @@
+{
+  "name": "storage-node-v2",
+  "description": "Jostream storage subsystem.",
+  "version": "0.1.0",
+  "author": "Joystream contributors",
+  "bin": {
+    "storage-node": "./bin/run"
+  },
+  "bugs": "https://github.com/Joystream/joystream/issues",
+  "dependencies": {
+    "@joystream/types": "^0.17.0",
+    "@oclif/command": "^1",
+    "@oclif/config": "^1",
+    "@oclif/plugin-help": "^3",
+    "@polkadot/api": "4.2.1",
+    "@types/base64url": "^2.0.0",
+    "@types/express": "4.17.1",
+    "@types/file-type": "^10.9.1",
+    "@types/multer": "^1.4.5",
+    "@types/node-cache": "^4.2.5",
+    "@types/read-chunk": "^3.1.0",
+    "@types/send": "^0.17.0",
+    "@types/winston": "^2.4.4",
+    "await-lock": "^2.1.0",
+    "base64url": "^3.0.1",
+    "blake3": "^2.1.4",
+    "express": "4.17.1",
+    "express-openapi-validator": "^4.12.4",
+    "express-winston": "^4.1.0",
+    "file-type": "^16.5.0",
+    "multihashes": "^4.0.2",
+    "node-cache": "^5.1.2",
+    "openapi-editor": "^0.3.0",
+    "read-chunk": "^3.2.0",
+    "send": "^0.17.1",
+    "tslib": "^1",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@joystream/eslint-config": "^1.0.0",
+    "@oclif/dev-cli": "^1",
+    "@oclif/test": "^1",
+    "@types/chai": "^4",
+    "@types/mocha": "^5",
+    "@types/node": "^10",
+    "@types/swagger-ui-express": "^4.1.2",
+    "@typescript-eslint/eslint-plugin": "3.8.0",
+    "@typescript-eslint/parser": "3.8.0",
+    "chai": "^4",
+    "eslint": "^7.6.0",
+    "eslint-config-oclif": "^3.1",
+    "eslint-config-oclif-typescript": "^0.1",
+    "globby": "^10",
+    "mocha": "^5",
+    "nyc": "^14",
+    "prettier": "^2.3.0",
+    "sinon": "^11.1.1",
+    "swagger-ui-express": "^4.1.6",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.3"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/Joystream/joystream",
+  "keywords": [
+    "joystream",
+    "storage-node"
+  ],
+  "license": "GPL-3.0-only",
+  "main": "lib/index.js",
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "storage-node",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topics": {
+      "wg": {
+        "description": "Storage working group commands."
+      },
+      "wg:leader": {
+        "description": "Storage working group leader commands."
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Joystream/joystream",
+    "directory": "storage-node-v2"
+  },
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "yarn lint",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md",
+    "build": "tsc --build tsconfig.json",
+    "format": "prettier ./src --write",
+    "lint": "eslint ./src --ext .ts",
+    "api:edit": "openapi-editor --file ./src/api-spec/openapi.yaml --port 10021"
+  },
+  "types": "lib/index.d.ts"
+}

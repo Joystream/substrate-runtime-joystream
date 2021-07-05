@@ -2,12 +2,10 @@ use codec::Decode;
 use node_runtime::common::constraints::InputValidationLengthConstraint;
 use node_runtime::{
     content_wg::{Channel, ChannelId, Principal, PrincipalId},
-    data_directory::DataObject,
     primitives::{AccountId, BlockNumber, Credential},
     versioned_store::{Class, ClassId, Entity, EntityId},
     versioned_store_permissions::ClassPermissions,
-    ContentId, ContentWorkingGroupConfig, DataDirectoryConfig, Runtime, VersionedStoreConfig,
-    VersionedStorePermissionsConfig,
+    ContentWorkingGroupConfig, Runtime, VersionedStoreConfig, VersionedStorePermissionsConfig,
 };
 use serde::Deserialize;
 use std::{fs, path::Path};
@@ -29,19 +27,11 @@ struct EntityAndMaintainer {
 }
 
 #[derive(Decode)]
-struct DataObjectAndContentId {
-    content_id: ContentId,
-    data_object: DataObject<Runtime>,
-}
-
-#[derive(Decode)]
 struct ContentData {
     /// classes and their associted permissions
     classes: Vec<ClassAndPermissions>,
     /// entities and their associated maintainer
     entities: Vec<EntityAndMaintainer>,
-    /// DataObject(s) and ContentId
-    data_objects: Vec<DataObjectAndContentId>,
     /// Media Channels
     channels: Vec<ChannelAndId>,
 }
@@ -92,28 +82,6 @@ impl EncodedEntityAndMaintainer {
     }
 }
 
-#[derive(Deserialize)]
-struct EncodedDataObjectAndContentId {
-    /// hex encoded ContentId
-    content_id: String,
-    /// hex encoded DataObject<Runtime>
-    data_object: String,
-}
-
-impl EncodedDataObjectAndContentId {
-    fn decode(&self) -> DataObjectAndContentId {
-        // hex string must not include '0x' prefix!
-        let encoded_content_id = hex::decode(&self.content_id[2..].as_bytes())
-            .expect("failed to parse content_id hex string");
-        let encoded_data_object = hex::decode(&self.data_object[2..].as_bytes())
-            .expect("failed to parse data_object hex string");
-        DataObjectAndContentId {
-            content_id: Decode::decode(&mut encoded_content_id.as_slice()).unwrap(),
-            data_object: Decode::decode(&mut encoded_data_object.as_slice()).unwrap(),
-        }
-    }
-}
-
 #[derive(Decode)]
 struct ChannelAndId {
     id: ChannelId<Runtime>,
@@ -146,8 +114,6 @@ struct EncodedContentData {
     classes: Vec<EncodedClassAndPermissions>,
     /// entities and their associated maintainer
     entities: Vec<EncodedEntityAndMaintainer>,
-    /// DataObject(s) and ContentId
-    data_objects: Vec<EncodedDataObjectAndContentId>,
     /// Media Channels
     channels: Vec<EncodedChannelAndId>,
 }
@@ -169,11 +135,6 @@ impl EncodedContentData {
                 .entities
                 .iter()
                 .map(|entities_and_maintainer| entities_and_maintainer.decode())
-                .collect(),
-            data_objects: self
-                .data_objects
-                .iter()
-                .map(|data_objects| data_objects.decode())
                 .collect(),
             channels: self
                 .channels
@@ -273,34 +234,6 @@ pub fn versioned_store_permissions_config_from_json(
                     .maintainer
                     .map(|maintainer| (entity_and_maintainer.entity.id, maintainer))
             })
-            .collect(),
-    }
-}
-
-/// Generates a basic empty `DataDirectoryConfig` genesis config
-pub fn empty_data_directory_config() -> DataDirectoryConfig {
-    DataDirectoryConfig {
-        data_object_by_content_id: vec![],
-        known_content_ids: vec![],
-    }
-}
-
-/// Generates a `DataDirectoryConfig` genesis config
-/// pre-populated with data objects and known content ids parsed from
-/// a json file serialized as a `ContentData` struct
-pub fn data_directory_config_from_json(data_file: &Path) -> DataDirectoryConfig {
-    let content = parse_content_data(data_file).decode();
-
-    DataDirectoryConfig {
-        data_object_by_content_id: content
-            .data_objects
-            .iter()
-            .map(|object| (object.content_id, object.data_object.clone()))
-            .collect(),
-        known_content_ids: content
-            .data_objects
-            .into_iter()
-            .map(|object| object.content_id)
             .collect(),
     }
 }

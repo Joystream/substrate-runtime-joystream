@@ -16,6 +16,7 @@
     "tests/network-tests",
     "cli",
     "types",
+    "storage-node-v2",
     "storage-node",
     "storage-node/packages/*",
     "devops/eslint-config",
