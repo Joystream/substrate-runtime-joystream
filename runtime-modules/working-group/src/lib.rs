@@ -1166,13 +1166,11 @@ impl<T: Trait<I>, I: Instance> Module<T, I> {
     }
 
     fn ensure_opening_human_readable_text_is_valid(text: &[u8]) -> DispatchResult {
-        <OpeningHumanReadableText<I>>::get()
-            .ensure_valid(
-                text.len(),
-                Error::<T, I>::OpeningTextTooShort.into(),
-                Error::<T, I>::OpeningTextTooLong.into(),
-            )
-            .map_err(|e| DispatchError::Other(e))
+        <OpeningHumanReadableText<I>>::get().ensure_valid(
+            text.len(),
+            Error::<T, I>::OpeningTextTooShort.into(),
+            Error::<T, I>::OpeningTextTooLong.into(),
+        )
     }
 
     /// Ensures origin is signed by the leader.
@@ -1218,13 +1216,11 @@ impl<T: Trait<I>, I: Instance> Module<T, I> {
     }
 
     fn ensure_application_text_is_valid(text: &[u8]) -> DispatchResult {
-        <WorkerApplicationHumanReadableText<I>>::get()
-            .ensure_valid(
-                text.len(),
-                Error::<T, I>::WorkerApplicationTextTooShort.into(),
-                Error::<T, I>::WorkerApplicationTextTooLong.into(),
-            )
-            .map_err(|e| DispatchError::Other(e))
+        <WorkerApplicationHumanReadableText<I>>::get().ensure_valid(
+            text.len(),
+            Error::<T, I>::WorkerApplicationTextTooShort.into(),
+            Error::<T, I>::WorkerApplicationTextTooLong.into(),
+        )
     }
 
     // CRITICAL:
@@ -1326,13 +1322,11 @@ impl<T: Trait<I>, I: Instance> Module<T, I> {
     }
 
     fn ensure_worker_exit_rationale_text_is_valid(text: &[u8]) -> DispatchResult {
-        Self::worker_exit_rationale_text()
-            .ensure_valid(
-                text.len(),
-                Error::<T, I>::WorkerExitRationaleTextTooShort.into(),
-                Error::<T, I>::WorkerExitRationaleTextTooLong.into(),
-            )
-            .map_err(|e| DispatchError::Other(e))
+        Self::worker_exit_rationale_text().ensure_valid(
+            text.len(),
+            Error::<T, I>::WorkerExitRationaleTextTooShort.into(),
+            Error::<T, I>::WorkerExitRationaleTextTooLong.into(),
+        )
     }
 }
 

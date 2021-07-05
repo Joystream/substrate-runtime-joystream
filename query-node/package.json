@@ -1,45 +1,52 @@
 {
   "name": "query-node-root",
-  "version": "1.0.0",
-  "description": "GraphQL server and Substrate indexer. Generated with ♥ by Hydra-CLI",
+  "version": "0.1.0",
+  "description": "GraphQL server and mappings. Generated with \u2665 by Hydra-CLI",
   "scripts": {
     "build": "./build.sh",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "rebuild": "yarn db:drop && yarn clean:query-node && yarn codegen:query-node && yarn db:prepare && yarn db:migrate",
+    "lint": "echo \"Skippinng\"",
     "clean": "rm -rf ./generated",
-    "processor:start": "./processor-start.sh",
-    "indexer:start": "(cd ./generated/indexer && yarn && DEBUG=${DEBUG} yarn start:indexer --env ../../../.env)",
-    "server:start:dev": "(cd ./generated/graphql-server && yarn start:dev)",
-    "server:start:prod": "(cd ./generated/graphql-server && yarn start:prod)",
-    "configure": "(cd ./generated/graphql-server && yarn config:dev)",
-    "db:up": "(cd ../ && docker-compose up -d db)",
-    "db:drop": "(cd ./generated/graphql-server && yarn db:drop)",
-    "db:migrate": "./db-migrate.sh",
-    "db:schema:migrate": "(cd ./generated/graphql-server && yarn db:create && yarn db:sync && yarn db:migrate)",
-    "codegen": "hydra-cli codegen",
-    "codegen:noinstall": "hydra-cli codegen --no-install",
-    "integration-tests": "./run-tests.sh",
-    "typegen": "rm -rf ./mappings/generated/ && hydra-typegen typegen manifest.yml --debug",
-    "db:init": "(cd ./generated/graphql-server && TYPEORM_LOGGING=true ts-node ../../scripts/initializeDefaultSchemas.ts)"
+    "clean:query-node": "rm -rf ./generated/graphql-server",
+    "processor:start": "DEBUG=${DEBUG} hydra-processor run -e ../.env",
+    "query-node:build": "yarn workspace query-node build",
+    "query-node:start:dev": "yarn workspace query-node start:dev",
+    "query-node:start:prod": "yarn workspace query-node start:prod",
+    "query-node:configure": "yarn workspace query-node config:dev",
+    "db:up": "yarn docker:db:up",
+    "db:create": "yarn workspace query-node db:create",
+    "db:drop": "yarn workspace query-node db:drop",
+    "db:prepare": "yarn workspace query-node db:create && yarn workspace query-node db:sync",
+    "db:schema:migrate": "yarn workspace query-node db:migrate",
+    "db:processor:migrate": "hydra-processor migrate --env ../.env",
+    "db:migrate": "yarn db:schema:migrate && yarn db:processor:migrate",
+    "db:bootstrap": "yarn db:create && yarn db:prepare && yarn db:migrate",
+    "db:reset": "yarn db:drop && yarn db:prepare && yarn db:migrate",
+    "bootstrap": "yarn codegen && yarn db:drop && yarn db:bootstrap",
+    "codegen": "hydra-cli codegen --schema ../../schemas/",
+    "codegen:noinstall": "yarn codegen --no-install",
+    "typegen:configure": "NODE_URL=${NODE_URL:-ws://localhost:9000} envsub typegen.template.yml typegen.yml",
+    "typegen": "rm -rf ./mappings/generated && hydra-typegen typegen manifest.yml --debug",
+    "mappings:build": "yarn workspace query-node-mappings build",
+    "docker:build": "docker build . -f docker/Dockerfile.hydra -t hydra-kit:latest",
+    "docker:db:up": "(cd ../ && docker-compose up -d db)",
+    "docker:db:migrate": "docker run --env-file .env --env DB_HOST=db --env TYPEORM_HOST=db --network container:${PWD##*/}_db_1 hydra-kit:latest yarn db:migrate",
+    "docker:up": "docker-compose up -d"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@dzlzv/hydra-cli": "0.1.8-1",
-    "@dzlzv/hydra-processor": "2.1.0-beta.4",
-    "@dzlzv/hydra-typegen": "2.1.0-beta.4"
-  },
   "dependencies": {
-    "@dzlzv/hydra-db-utils": "^2.0.1-beta.0",
-    "@joystream/types": "^0.15.0",
+    "tslib": "^2.0.0",
     "@types/bn.js": "^4.11.6",
-    "@types/debug": "^4.1.5",
     "bn.js": "^5.1.2",
-    "debug": "^4.2.0",
-    "dotenvi": "^0.9.1",
-    "nanoid": "^3.1.20",
-    "tslib": "^2.0.0"
+    "@polkadot/metadata": "^4.1.1",
+    "@joystream/hydra-cli": "3.1.0-alpha.1",
+    "@joystream/hydra-processor": "3.1.0-alpha.1"
+  },
+  "devDependencies": {
+    "@joystream/hydra-typegen": "3.1.0-alpha.1"
   },
   "volta": {
-    "extends": "../package.json"
-  }
+		"extends": "../package.json"
+	}
 }

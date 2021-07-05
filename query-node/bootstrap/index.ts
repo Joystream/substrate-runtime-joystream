@@ -1,1 +1,0 @@
-export { bootMembers } from './members';

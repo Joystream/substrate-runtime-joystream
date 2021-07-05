@@ -69,7 +69,8 @@ export class DataObjectType extends JoyStructDecorated({
 export class DataObjectsMap extends BTreeMap.with(ContentId, DataObject) {}
 
 export const mediaTypes: RegistryTypes = {
-  ContentId,
+  // FIXME: Clash with storage v2 module!
+  // ContentId,
   LiaisonJudgement,
   DataObject,
   DataObjectStorageRelationshipId,

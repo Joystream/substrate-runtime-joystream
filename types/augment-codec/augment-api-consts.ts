@@ -2,6 +2,7 @@
 /* eslint-disable */
 
 import type { Vec, u32, u64 } from '@polkadot/types';
+import type { DynamicBagCreationPolicy, StorageBucketsPerBagValueConstraint } from './all';
 import type { Balance, BalanceOf, BlockNumber, Moment, Perbill, RuntimeDbWeight, Weight } from '@polkadot/types/interfaces/runtime';
 import type { SessionIndex } from '@polkadot/types/interfaces/session';
 import type { EraIndex } from '@polkadot/types/interfaces/staking';
@@ -36,12 +37,6 @@ declare module '@polkadot/api/types/consts' {
        * Exports const -  max simultaneous active worker number.
        **/
       maxWorkerNumberLimit: u32 & AugmentedConst<ApiType>;
-    };
-    dataDirectory: {
-      /**
-       * Maximum objects allowed per inject_data_objects() transaction
-       **/
-      maxObjectsPerInjection: u32 & AugmentedConst<ApiType>;
     };
     finalityTracker: {
       /**
@@ -147,6 +142,36 @@ declare module '@polkadot/api/types/consts' {
        * intervention.
        **/
       slashDeferDuration: EraIndex & AugmentedConst<ApiType>;
+    };
+    storage: {
+      /**
+       * Exports const - maximum size of the "hash blacklist" collection.
+       **/
+      blacklistSizeLimit: u64 & AugmentedConst<ApiType>;
+      /**
+       * Exports const - a prize for a data object deletion.
+       **/
+      dataObjectDeletionPrize: BalanceOf & AugmentedConst<ApiType>;
+      /**
+       * Exports const - the default dynamic bag creation policy for channels.
+       **/
+      defaultChannelDynamicBagCreationPolicy: DynamicBagCreationPolicy & AugmentedConst<ApiType>;
+      /**
+       * Exports const - the default dynamic bag creation policy for members.
+       **/
+      defaultMemberDynamicBagCreationPolicy: DynamicBagCreationPolicy & AugmentedConst<ApiType>;
+      /**
+       * Exports const - max number of data objects per bag.
+       **/
+      maxNumberOfDataObjectsPerBag: u64 & AugmentedConst<ApiType>;
+      /**
+       * Exports const - max allowed storage bucket number.
+       **/
+      maxStorageBucketNumber: u64 & AugmentedConst<ApiType>;
+      /**
+       * Exports const - "Storage buckets per bag" value constraint.
+       **/
+      storageBucketsPerBagValueConstraint: StorageBucketsPerBagValueConstraint & AugmentedConst<ApiType>;
     };
     storageWorkingGroup: {
       /**

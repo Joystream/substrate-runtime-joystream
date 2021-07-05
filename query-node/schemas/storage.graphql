@@ -1,0 +1,119 @@
+"Global storage system parameters"
+type StorageSystemParameters @entity {
+  "Blacklisted content hashes"
+  blacklist: [String!]
+
+  # TODO: Consider if parameters like:
+  # dataObjectFeePerMB,
+  # storageBucketBagsLimit,
+  # storageBucketsVoucherMaxLimits,
+  # etc.
+  # are needed here (they can be easily queried from the node)
+}
+
+type StorageBucketOperatorStatusMissing @variant {
+  _phantom: Int
+}
+
+type StorageBucketOperatorStatusInvited @variant {
+  workerId: Int!
+}
+
+type StorageBucketOperatorStatusActive @variant {
+  workerId: Int!
+}
+
+union StorageBucketOperatorStatus = StorageBucketOperatorStatusMissing | StorageBucketOperatorStatusInvited | StorageBucketOperatorStatusActive
+
+type StorageBucket @entity {
+  "Runtime bucket id"
+  id: ID!
+
+  "Current bucket operator status"
+  operatorStatus: StorageBucketOperatorStatus!
+
+  "Storage bucket operator metadata"
+  operatorMetadata: Bytes
+
+  "Whether the bucket is accepting any new storage bags"
+  acceptingNewBags: Boolean!
+
+  "Bags assigned to be stored by the bucket"
+  storedBags: [StorageBag!] @derivedFrom(field: "storedBy")
+
+  "Bucket's data object size limit in bytes"
+  dataObjectsSizeLimit: BigInt!
+
+  "Bucket's data object count limit"
+  dataObjectCountLimit: BigInt!
+
+  # TODO: Are those useful for storage node?
+  # "Currently stored (assigned) data objects size"
+  # storedObjectsSize: BigInt!
+
+  # "Currently stored (assigned) objects count"
+  # storedObjectsCount: BigInt!
+}
+
+type StorageBagOwnerCouncil @variant {
+  _phantom: Int
+}
+
+type StorageBagOwnerWorkingGroup @variant {
+  workingGroupId: String
+}
+
+type StorageBagOwnerMember @variant {
+  memberId: Int
+}
+
+type StorageBagOwnerChannel @variant {
+  channelId: Int
+}
+
+# Note: Not supported by runtime yet
+type StorageBagOwnerDAO @variant {
+  daoId: Int
+}
+
+union StorageBagOwner = StorageBagOwnerCouncil | StorageBagOwnerWorkingGroup | StorageBagOwnerMember | StorageBagOwnerChannel | StorageBagOwnerDAO
+
+type StorageBag @entity {
+  "Storage bag id"
+  id: ID!
+
+  "Data objects in the bag"
+  objects: [StorageDataObject!] @derivedFrom(field: "storageBag")
+
+  "Storage buckets assigned to store the bag"
+  storedBy: [StorageBucket!]
+
+  "Owner of the storage bag"
+  owner: StorageBagOwner!
+}
+
+type StorageDataObject @entity {
+  "Data object runtime id"
+  id: ID!
+
+  "Whether the data object was uploaded and accepted by the storage provider"
+  isAccepted: Boolean!
+
+  # TODO: Is this useful for storage node?
+  # "A reward for the data object deletion"
+  # deletionPrize: BigInt!
+
+  "Data object size in bytes"
+  size: BigInt!
+
+  "Storage bag the data object is part of"
+  storageBag: StorageBag!
+
+  # TODO: Use "Bytes" for better optimalization?
+  "IPFS content hash"
+  ipfsHash: String!
+
+  # TODO: Use "Bytes" for better optimalization?
+  "Public key used to authenticate the uploader by the storage provider"
+  authenticationKey: String
+}

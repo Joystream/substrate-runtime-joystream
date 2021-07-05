@@ -58,6 +58,7 @@ frame-benchmarking = { git = 'https://github.com/paritytech/substrate.git', rev 
 frame-system-benchmarking = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62', default-features = false, optional = true }
 pallet-offences-benchmarking = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62', default-features = false, optional = true }
 pallet-session-benchmarking = { git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62', default-features = false, optional = true }
+hex-literal = { optional = true, version = '0.3.1' }
 
 # Joystream
 common = { package = 'pallet-common', default-features = false, path = '../runtime-modules/common'}
@@ -73,12 +74,11 @@ working-group = { package = 'pallet-working-group', default-features = false, pa
 content-working-group = { package = 'pallet-content-working-group', default-features = false, path = '../runtime-modules/content-working-group'}
 versioned-store = { package = 'pallet-versioned-store', default-features = false, path = '../runtime-modules/versioned-store'}
 versioned-store-permissions = { package = 'pallet-versioned-store-permissions', default-features = false, path = '../runtime-modules/versioned-store-permissions'}
-storage = { package = 'pallet-storage', default-features = false, path = '../runtime-modules/storage'}
-service-discovery = { package = 'pallet-service-discovery', default-features = false, path = '../runtime-modules/service-discovery'}
 proposals-engine = { package = 'pallet-proposals-engine', default-features = false, path = '../runtime-modules/proposals/engine'}
 proposals-discussion = { package = 'pallet-proposals-discussion', default-features = false, path = '../runtime-modules/proposals/discussion'}
 proposals-codex = { package = 'pallet-proposals-codex', default-features = false, path = '../runtime-modules/proposals/codex'}
 content-directory = { package = 'pallet-content-directory', default-features = false, path = '../runtime-modules/content-directory' }
+storage = { package = 'pallet-storage', default-features = false, path = '../runtime-modules/storage'}
 
 [dev-dependencies]
 sp-io = { package = 'sp-io', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
@@ -150,27 +150,28 @@ std = [
     'content-working-group/std',
     'versioned-store/std',
     'versioned-store-permissions/std',
-    'storage/std',
-    'service-discovery/std',
     'proposals-engine/std',
     'proposals-discussion/std',
     'proposals-codex/std',
     'content-directory/std',
+    'storage/std',
 ]
 runtime-benchmarks = [
-    "frame-system/runtime-benchmarks",
-	"frame-support/runtime-benchmarks",
-	"sp-runtime/runtime-benchmarks",
-	"pallet-balances/runtime-benchmarks",
-	"pallet-collective/runtime-benchmarks",
-	"pallet-im-online/runtime-benchmarks",
-	"pallet-staking/runtime-benchmarks",
-	"pallet-timestamp/runtime-benchmarks",
-    "frame-benchmarking",
-    "frame-system-benchmarking",
-    "pallet-offences-benchmarking",
-	"pallet-session-benchmarking",
-    "substrate-utility/runtime-benchmarks",
+    'frame-system/runtime-benchmarks',
+	'frame-support/runtime-benchmarks',
+	'sp-runtime/runtime-benchmarks',
+	'pallet-balances/runtime-benchmarks',
+	'pallet-collective/runtime-benchmarks',
+	'pallet-im-online/runtime-benchmarks',
+	'pallet-staking/runtime-benchmarks',
+	'pallet-timestamp/runtime-benchmarks',
+    'frame-benchmarking',
+    'frame-system-benchmarking',
+    'pallet-offences-benchmarking',
+	'pallet-session-benchmarking',
+    'substrate-utility/runtime-benchmarks',
+    'storage/runtime-benchmarks',
+    "hex-literal",
 ]
 
 

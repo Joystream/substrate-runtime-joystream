@@ -1,8 +1,8 @@
 // Auto-generated via `yarn polkadot-types-from-chain`, do not edit
 /* eslint-disable */
 
-import type { Option, Vec, bool, u16, u32, u64 } from '@polkadot/types';
-import type { Actor, ApplicationId, ApplicationIdToWorkerIdMap, CategoryId, ChannelId, ClassId, ContentId, CuratorApplicationId, CuratorApplicationIdToCuratorIdMap, CuratorGroupId, CuratorId, CuratorOpeningId, DataObjectStorageRelationshipId, DataObjectTypeId, EntityController, EntityCreationVoucher, EntityId, FailedAt, IPNSIdentity, LeadId, MemberId, MintBalanceOf, MintId, Nonce, OpeningId, PostId, PropertyId, ProposalId, ProposalStatus, RationaleText, SchemaId, SideEffect, SideEffects, Status, StorageProviderId, ThreadId, VecMaxLength, VoteKind, WorkerId } from './all';
+import type { BTreeSet, Bytes, Option, Vec, bool, u16, u32, u64 } from '@polkadot/types';
+import type { Actor, ApplicationId, ApplicationIdToWorkerIdMap, BagId, CategoryId, ChannelId, ClassId, ContentId, CuratorApplicationId, CuratorApplicationIdToCuratorIdMap, CuratorGroupId, CuratorId, CuratorOpeningId, DataObjectId, DynamicBagId, DynamicBagType, EntityController, EntityCreationVoucher, EntityId, FailedAt, LeadId, MemberId, MintBalanceOf, MintId, Nonce, OpeningId, PostId, PropertyId, ProposalId, ProposalStatus, RationaleText, SchemaId, SideEffect, SideEffects, Status, StorageBucketId, ThreadId, UploadParameters, VecMaxLength, VoteKind, Voucher, WorkerId } from './all';
 import type { BalanceStatus } from '@polkadot/types/interfaces/balances';
 import type { AuthorityId } from '@polkadot/types/interfaces/consensus';
 import type { AuthorityList } from '@polkadot/types/interfaces/grandpa';
@@ -243,75 +243,6 @@ declare module '@polkadot/api/types/events' {
       VotingEnded: AugmentedEvent<ApiType, []>;
       VotingStarted: AugmentedEvent<ApiType, []>;
     };
-    dataDirectory: {
-      /**
-       * Emits when the storage provider accepts a content.
-       * Params:
-       * - Id of the relationship.
-       * - Id of the storage provider.
-       **/
-      ContentAccepted: AugmentedEvent<ApiType, [ContentId, StorageProviderId]>;
-      /**
-       * Emits on adding of the content.
-       * Params:
-       * - Id of the relationship.
-       * - Id of the member.
-       **/
-      ContentAdded: AugmentedEvent<ApiType, [ContentId, MemberId]>;
-      /**
-       * Emits when the storage provider rejects a content.
-       * Params:
-       * - Id of the relationship.
-       * - Id of the storage provider.
-       **/
-      ContentRejected: AugmentedEvent<ApiType, [ContentId, StorageProviderId]>;
-    };
-    dataObjectStorageRegistry: {
-      /**
-       * Emits on adding of the data object storage relationship.
-       * Params:
-       * - Id of the relationship.
-       * - Id of the content.
-       * - Id of the storage provider.
-       **/
-      DataObjectStorageRelationshipAdded: AugmentedEvent<ApiType, [DataObjectStorageRelationshipId, ContentId, StorageProviderId]>;
-      /**
-       * Emits on adding of the data object storage relationship.
-       * Params:
-       * - Id of the relationship.
-       * - Current state of the relationship (True=Active).
-       **/
-      DataObjectStorageRelationshipReadyUpdated: AugmentedEvent<ApiType, [DataObjectStorageRelationshipId, bool]>;
-    };
-    dataObjectTypeRegistry: {
-      /**
-       * Emits on the data object type registration.
-       * Params:
-       * - Id of the new data object type.
-       **/
-      DataObjectTypeRegistered: AugmentedEvent<ApiType, [DataObjectTypeId]>;
-      /**
-       * Emits on the data object type update.
-       * Params:
-       * - Id of the updated data object type.
-       **/
-      DataObjectTypeUpdated: AugmentedEvent<ApiType, [DataObjectTypeId]>;
-    };
-    discovery: {
-      /**
-       * Emits on removing of the account info.
-       * Params:
-       * - Id of the storage provider.
-       **/
-      AccountInfoRemoved: AugmentedEvent<ApiType, [StorageProviderId]>;
-      /**
-       * Emits on updating of the account info.
-       * Params:
-       * - Id of the storage provider.
-       * - Id of the IPNS.
-       **/
-      AccountInfoUpdated: AugmentedEvent<ApiType, [StorageProviderId, IPNSIdentity]>;
-    };
     forum: {
       /**
        * A category was introduced
@@ -487,6 +418,181 @@ declare module '@polkadot/api/types/events' {
        * from the unlocking queue. \[stash, amount\]
        **/
       Withdrawn: AugmentedEvent<ApiType, [AccountId, Balance]>;
+    };
+    storage: {
+      /**
+       * Emits on uploading data objects.
+       * Params
+       * - data objects IDs
+       * - initial uploading parameters
+       **/
+      DataObjectdUploaded: AugmentedEvent<ApiType, [Vec<DataObjectId>, UploadParameters]>;
+      /**
+       * Emits on changing the size-based pricing of new objects uploaded.
+       * Params
+       * - new data size fee
+       **/
+      DataObjectPerMegabyteFeeUpdated: AugmentedEvent<ApiType, [Balance]>;
+      /**
+       * Emits on data objects deletion from bags.
+       * Params
+       * - account ID for the deletion prize
+       * - bag ID
+       * - data object IDs
+       **/
+      DataObjectsDeleted: AugmentedEvent<ApiType, [AccountId, BagId, BTreeSet<DataObjectId>]>;
+      /**
+       * Emits on moving data objects between bags.
+       * Params
+       * - source bag ID
+       * - destination bag ID
+       * - data object IDs
+       **/
+      DataObjectsMoved: AugmentedEvent<ApiType, [BagId, BagId, BTreeSet<DataObjectId>]>;
+      /**
+       * Emits on changing the deletion prize for a dynamic bag.
+       * Params
+       * - dynamic bag ID
+       * - new deletion prize
+       **/
+      DeletionPrizeChanged: AugmentedEvent<ApiType, [DynamicBagId, Balance]>;
+      /**
+       * Emits on creating a dynamic bag.
+       * Params
+       * - dynamic bag ID
+       **/
+      DynamicBagCreated: AugmentedEvent<ApiType, [DynamicBagId]>;
+      /**
+       * Emits on deleting a dynamic bag.
+       * Params
+       * - account ID for the deletion prize
+       * - dynamic bag ID
+       **/
+      DynamicBagDeleted: AugmentedEvent<ApiType, [AccountId, DynamicBagId]>;
+      /**
+       * Emits on updating the number of storage buckets in dynamic bag creation policy.
+       * Params
+       * - dynamic bag type
+       * - new number of storage buckets
+       **/
+      NumberOfStorageBucketsInDynamicBagCreationPolicyUpdated: AugmentedEvent<ApiType, [DynamicBagType, u64]>;
+      /**
+       * Emits on accepting pending data objects.
+       * Params
+       * - storage bucket ID
+       * - worker ID (storage provider ID)
+       * - bag ID
+       * - pending data objects
+       **/
+      PendingDataObjectsAccepted: AugmentedEvent<ApiType, [StorageBucketId, WorkerId, BagId, BTreeSet<DataObjectId>]>;
+      /**
+       * Emits on creating the storage bucket.
+       * Params
+       * - storage bucket ID
+       * - invited worker
+       * - flag "accepting_new_bags"
+       * - size limit for voucher,
+       * - objects limit for voucher,
+       **/
+      StorageBucketCreated: AugmentedEvent<ApiType, [StorageBucketId, Option<WorkerId>, bool, u64, u64]>;
+      /**
+       * Emits on storage bucket deleting.
+       * Params
+       * - storage bucket ID
+       **/
+      StorageBucketDeleted: AugmentedEvent<ApiType, [StorageBucketId]>;
+      /**
+       * Emits on accepting the storage bucket invitation.
+       * Params
+       * - storage bucket ID
+       * - invited worker ID
+       **/
+      StorageBucketInvitationAccepted: AugmentedEvent<ApiType, [StorageBucketId, WorkerId]>;
+      /**
+       * Emits on cancelling the storage bucket invitation.
+       * Params
+       * - storage bucket ID
+       **/
+      StorageBucketInvitationCancelled: AugmentedEvent<ApiType, [StorageBucketId]>;
+      /**
+       * Emits on the storage bucket operator invitation.
+       * Params
+       * - storage bucket ID
+       * - operator worker ID (storage provider ID)
+       **/
+      StorageBucketOperatorInvited: AugmentedEvent<ApiType, [StorageBucketId, WorkerId]>;
+      /**
+       * Emits on the storage bucket operator removal.
+       * Params
+       * - storage bucket ID
+       **/
+      StorageBucketOperatorRemoved: AugmentedEvent<ApiType, [StorageBucketId]>;
+      /**
+       * Emits on changing the "Storage buckets per bag" number limit.
+       * Params
+       * - new limit
+       **/
+      StorageBucketsPerBagLimitUpdated: AugmentedEvent<ApiType, [u64]>;
+      /**
+       * Emits on storage bucket status update.
+       * Params
+       * - storage bucket ID
+       * - worker ID (storage provider ID)
+       * - new status
+       **/
+      StorageBucketStatusUpdated: AugmentedEvent<ApiType, [StorageBucketId, WorkerId, bool]>;
+      /**
+       * Emits on updating storage buckets for bag.
+       * Params
+       * - bag ID
+       * - storage buckets to add ID collection
+       * - storage buckets to remove ID collection
+       **/
+      StorageBucketsUpdatedForBag: AugmentedEvent<ApiType, [BagId, BTreeSet<StorageBucketId>, BTreeSet<StorageBucketId>]>;
+      /**
+       * Emits on changing the "Storage buckets voucher max limits".
+       * Params
+       * - new objects size limit
+       * - new objects number limit
+       **/
+      StorageBucketsVoucherMaxLimitsUpdated: AugmentedEvent<ApiType, [u64, u64]>;
+      /**
+       * Emits on setting the storage bucket voucher limits.
+       * Params
+       * - storage bucket ID
+       * - invited worker ID
+       * - new total objects size limit
+       * - new total objects number limit
+       **/
+      StorageBucketVoucherLimitsSet: AugmentedEvent<ApiType, [StorageBucketId, WorkerId, u64, u64]>;
+      /**
+       * Emits on setting the storage operator metadata.
+       * Params
+       * - storage bucket ID
+       * - invited worker ID
+       * - metadata
+       **/
+      StorageOperatorMetadataSet: AugmentedEvent<ApiType, [StorageBucketId, WorkerId, Bytes]>;
+      /**
+       * Emits on updating the blacklist with data hashes.
+       * Params
+       * - hashes to remove from the blacklist
+       * - hashes to add to the blacklist
+       **/
+      UpdateBlacklist: AugmentedEvent<ApiType, [BTreeSet<ContentId>, BTreeSet<ContentId>]>;
+      /**
+       * Emits on changing the size-based pricing of new objects uploaded.
+       * Params
+       * - new status
+       **/
+      UploadingBlockStatusUpdated: AugmentedEvent<ApiType, [bool]>;
+      /**
+       * Emits on changing the voucher for a storage bucket.
+       * Params
+       * - storage bucket ID
+       * - new voucher
+       **/
+      VoucherChanged: AugmentedEvent<ApiType, [StorageBucketId, Voucher]>;
     };
     storageWorkingGroup: {
       /**

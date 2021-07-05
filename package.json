@@ -16,6 +16,7 @@
     "tests/network-tests",
     "cli",
     "types",
+    "storage-node-v2",
     "storage-node",
     "storage-node/packages/*",
     "devops/eslint-config",
@@ -25,6 +26,7 @@
     "utils/api-scripts",
     "content-directory-schemas",
     "query-node",
+    "query-node/mappings",
     "query-node/generated/*"
   ],
   "resolutions": {
@@ -53,11 +55,11 @@
     }
   },
   "engines": {
-    "node": ">=12.18.0",
+    "node": ">=14.16.1",
     "yarn": "^1.22.0"
   },
   "volta": {
-    "node": "12.18.2",
+    "node": "14.16.1",
     "yarn": "1.22.4"
   }
 }
