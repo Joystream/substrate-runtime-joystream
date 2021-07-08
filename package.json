@@ -37,6 +37,7 @@
     "@polkadot/util": "^6.0.5",
     "@polkadot/util-crypto": "^6.0.5",
     "@polkadot/wasm-crypto": "^4.0.2",
+    "warthog": "https://github.com/ondratra/warthog/releases/download/v2.23.1/warthog-v2.23.1.tgz",
     "babel-core": "^7.0.0-bridge.0",
     "typescript": "^3.9.7",
     "bn.js": "^5.1.2",

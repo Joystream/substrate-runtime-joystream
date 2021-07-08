@@ -8,6 +8,7 @@ import { Logger } from '../src/logger';
 
 import { buildServerSchema, getServer } from './server';
 import { startPgSubsribers } from './pubsub';
+import { queryTemplates } from './queryTemplates'
 
 
 class CustomNamingStrategy extends SnakeNamingStrategy {
@@ -22,7 +23,7 @@ class CustomNamingStrategy extends SnakeNamingStrategy {
 async function bootstrap() {
   await loadConfig();
 
-  const server = getServer({}, { namingStrategy: new CustomNamingStrategy() });
+  const server = getServer({ queryTemplates }, { namingStrategy: new CustomNamingStrategy() });
 
   // Create database tables. Warthog migrate command does not support CustomNamingStrategy thats why
   // we have this code
