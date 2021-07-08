@@ -586,82 +586,6 @@ interface DeleteResponse {
   id: ID!
 }
 
-type FeaturedVideo implements BaseGraphQLObject {
-  id: ID!
-  createdAt: DateTime!
-  createdById: String!
-  updatedAt: DateTime
-  updatedById: String
-  deletedAt: DateTime
-  deletedById: String
-  version: Int!
-  video: Video!
-  videoId: String!
-}
-
-type FeaturedVideoConnection {
-  totalCount: Int!
-  edges: [FeaturedVideoEdge!]!
-  pageInfo: PageInfo!
-}
-
-input FeaturedVideoCreateInput {
-  videoId: ID!
-}
-
-type FeaturedVideoEdge {
-  node: FeaturedVideo!
-  cursor: String!
-}
-
-enum FeaturedVideoOrderByInput {
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  videoId_ASC
-  videoId_DESC
-}
-
-input FeaturedVideoUpdateInput {
-  videoId: ID
-}
-
-input FeaturedVideoWhereInput {
-  id_eq: ID
-  id_in: [ID!]
-  createdAt_eq: DateTime
-  createdAt_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_gt: DateTime
-  createdAt_gte: DateTime
-  createdById_eq: ID
-  createdById_in: [ID!]
-  updatedAt_eq: DateTime
-  updatedAt_lt: DateTime
-  updatedAt_lte: DateTime
-  updatedAt_gt: DateTime
-  updatedAt_gte: DateTime
-  updatedById_eq: ID
-  updatedById_in: [ID!]
-  deletedAt_all: Boolean
-  deletedAt_eq: DateTime
-  deletedAt_lt: DateTime
-  deletedAt_lte: DateTime
-  deletedAt_gt: DateTime
-  deletedAt_gte: DateTime
-  deletedById_eq: ID
-  deletedById_in: [ID!]
-  videoId_eq: ID
-  videoId_in: [ID!]
-}
-
-input FeaturedVideoWhereUniqueInput {
-  id: ID!
-}
-
 type Channel implements BaseGraphQLObject {
   id: ID!
   createdAt: DateTime!
@@ -1364,6 +1288,87 @@ input MembershipWhereUniqueInput {
   handle: String
 }
 
+type NextEntityId implements BaseGraphQLObject {
+  id: ID!
+  createdAt: DateTime!
+  createdById: String!
+  updatedAt: DateTime
+  updatedById: String
+  deletedAt: DateTime
+  deletedById: String
+  version: Int!
+
+  """Next deterministic id for entities without custom id"""
+  nextId: Float!
+}
+
+type NextEntityIdConnection {
+  totalCount: Int!
+  edges: [NextEntityIdEdge!]!
+  pageInfo: PageInfo!
+}
+
+input NextEntityIdCreateInput {
+  nextId: Float!
+}
+
+type NextEntityIdEdge {
+  node: NextEntityId!
+  cursor: String!
+}
+
+enum NextEntityIdOrderByInput {
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  nextId_ASC
+  nextId_DESC
+}
+
+input NextEntityIdUpdateInput {
+  nextId: Float
+}
+
+input NextEntityIdWhereInput {
+  id_eq: ID
+  id_in: [ID!]
+  createdAt_eq: DateTime
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  createdById_eq: ID
+  createdById_in: [ID!]
+  updatedAt_eq: DateTime
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  updatedById_eq: ID
+  updatedById_in: [ID!]
+  deletedAt_all: Boolean
+  deletedAt_eq: DateTime
+  deletedAt_lt: DateTime
+  deletedAt_lte: DateTime
+  deletedAt_gt: DateTime
+  deletedAt_gte: DateTime
+  deletedById_eq: ID
+  deletedById_in: [ID!]
+  nextId_eq: Float
+  nextId_gt: Float
+  nextId_gte: Float
+  nextId_lt: Float
+  nextId_lte: Float
+  nextId_in: [Float!]
+}
+
+input NextEntityIdWhereUniqueInput {
+  id: ID!
+}
+
 type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -1385,9 +1390,6 @@ type Query {
   dataObjects(offset: Int, limit: Int = 50, where: DataObjectWhereInput, orderBy: DataObjectOrderByInput): [DataObject!]!
   dataObjectByUniqueInput(where: DataObjectWhereUniqueInput!): DataObject
   dataObjectsConnection(first: Int, after: String, last: Int, before: String, where: DataObjectWhereInput, orderBy: DataObjectOrderByInput): DataObjectConnection!
-  featuredVideos(offset: Int, limit: Int = 50, where: FeaturedVideoWhereInput, orderBy: FeaturedVideoOrderByInput): [FeaturedVideo!]!
-  featuredVideoByUniqueInput(where: FeaturedVideoWhereUniqueInput!): FeaturedVideo
-  featuredVideosConnection(first: Int, after: String, last: Int, before: String, where: FeaturedVideoWhereInput, orderBy: FeaturedVideoOrderByInput): FeaturedVideoConnection!
   channelCategories(offset: Int, limit: Int = 50, where: ChannelCategoryWhereInput, orderBy: ChannelCategoryOrderByInput): [ChannelCategory!]!
   channelCategoryByUniqueInput(where: ChannelCategoryWhereUniqueInput!): ChannelCategory
   channelCategoriesConnection(first: Int, after: String, last: Int, before: String, where: ChannelCategoryWhereInput, orderBy: ChannelCategoryOrderByInput): ChannelCategoryConnection!
@@ -1403,6 +1405,9 @@ type Query {
   memberships(offset: Int, limit: Int = 50, where: MembershipWhereInput, orderBy: MembershipOrderByInput): [Membership!]!
   membershipByUniqueInput(where: MembershipWhereUniqueInput!): Membership
   membershipsConnection(first: Int, after: String, last: Int, before: String, where: MembershipWhereInput, orderBy: MembershipOrderByInput): MembershipConnection!
+  nextEntityIds(offset: Int, limit: Int = 50, where: NextEntityIdWhereInput, orderBy: NextEntityIdOrderByInput): [NextEntityId!]!
+  nextEntityIdByUniqueInput(where: NextEntityIdWhereUniqueInput!): NextEntityId
+  nextEntityIdsConnection(first: Int, after: String, last: Int, before: String, where: NextEntityIdWhereInput, orderBy: NextEntityIdOrderByInput): NextEntityIdConnection!
   channelCategoriesByName(whereChannelCategory: ChannelCategoryWhereInput, skip: Int = 0, limit: Int = 5, text: String!): [ChannelCategoriesByNameFTSOutput!]!
   membersByHandle(whereMembership: MembershipWhereInput, skip: Int = 0, limit: Int = 5, text: String!): [MembersByHandleFTSOutput!]!
   search(whereVideo: VideoWhereInput, whereChannel: ChannelWhereInput, skip: Int = 0, limit: Int = 5, text: String!): [SearchFTSOutput!]!
@@ -1506,7 +1511,6 @@ type Video implements BaseGraphQLObject {
 
   """Is video featured or not"""
   isFeatured: Boolean!
-  featured: FeaturedVideo
 }
 
 type VideoCategoriesByNameFTSOutput {

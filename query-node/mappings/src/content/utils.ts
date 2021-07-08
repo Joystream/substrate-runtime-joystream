@@ -34,6 +34,7 @@ import {
   inconsistentState,
   logger,
   prepareDataObject,
+  createPredictableId,
 } from '../common'
 
 
@@ -92,7 +93,7 @@ function isAssetInStorage(dataObject: AssetStorageOrUrls): dataObject is DataObj
 export interface IReadProtobufArguments {
   metadata: Bytes
   db: DatabaseManager
-  blockNumber: number
+  event: SubstrateEvent
 }
 
 export interface IReadProtobufArgumentsWithAssets extends IReadProtobufArguments {
@@ -245,11 +246,10 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
     // prepare cover photo asset if needed
     if ('coverPhoto' in metaAsObject) {
       const asset = await extractAsset({
-        //assetIndex: metaAsObject.coverPhoto,
         assetIndex: metaAsObject.coverPhoto,
         assets: parameters.assets,
         db: parameters.db,
-        blockNumber: parameters.blockNumber,
+        event: parameters.event,
         contentOwner: parameters.contentOwner,
       })
       integrateAsset('coverPhoto', result, asset) // changes `result` inline!
@@ -262,7 +262,7 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
         assetIndex: metaAsObject.avatarPhoto,
         assets: parameters.assets,
         db: parameters.db,
-        blockNumber: parameters.blockNumber,
+        event: parameters.event,
         contentOwner: parameters.contentOwner,
       })
       integrateAsset('avatarPhoto', result, asset) // changes `result` inline!
@@ -271,7 +271,7 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
 
     // prepare language if needed
     if ('language' in metaAsObject) {
-      const language = await prepareLanguage(metaAsObject.language, parameters.db, parameters.blockNumber)
+      const language = await prepareLanguage(metaAsObject.language, parameters.db, parameters.event)
       delete metaAsObject.language // make sure temporary value will not interfere
       language.integrateInto(result, 'language')
     }
@@ -299,7 +299,11 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
 
       // NOTE: type hack - `RawVideoMetadata` is inserted instead of VideoMediaMetadata - it should be edited in `video.ts`
       //       see `integrateVideoMetadata()` in `video.ts` for more info
-      result.mediaMetadata = prepareVideoMetadata(metaAsObject, videoSize, parameters.blockNumber) as unknown as VideoMediaMetadata
+      result.mediaMetadata = prepareVideoMetadata(
+        metaAsObject,
+        videoSize,
+        parameters.event.blockNumber,
+      ) as unknown as VideoMediaMetadata
 
       // remove extra values
       delete metaAsObject.mediaType
@@ -309,7 +313,7 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
 
     // prepare license if needed
     if ('license' in metaAsObject) {
-      result.license = await prepareLicense(metaAsObject.license)
+      result.license = await prepareLicense(parameters.db, metaAsObject.license, parameters.event)
     }
 
     // prepare thumbnail photo asset if needed
@@ -318,7 +322,7 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
         assetIndex: metaAsObject.thumbnailPhoto,
         assets: parameters.assets,
         db: parameters.db,
-        blockNumber: parameters.blockNumber,
+        event: parameters.event,
         contentOwner: parameters.contentOwner,
       })
       integrateAsset('thumbnailPhoto', result, asset) // changes `result` inline!
@@ -331,7 +335,7 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
         assetIndex: metaAsObject.video,
         assets: parameters.assets,
         db: parameters.db,
-        blockNumber: parameters.blockNumber,
+        event: parameters.event,
         contentOwner: parameters.contentOwner,
       })
       integrateAsset('media', result, asset) // changes `result` inline!
@@ -340,7 +344,11 @@ export async function readProtobufWithAssets<T extends Channel | Video>(
 
     // prepare language if needed
     if ('language' in metaAsObject) {
-      const language = await prepareLanguage(metaAsObject.language, parameters.db, parameters.blockNumber)
+      const language = await prepareLanguage(
+        metaAsObject.language,
+        parameters.db,
+        parameters.event,
+      )
       delete metaAsObject.language // make sure temporary value will not interfere
       language.integrateInto(result, 'language')
     }
@@ -451,7 +459,7 @@ function handlePublishedBeforeJoystream(video: Partial<Video>, metadata: Publish
 interface IConvertAssetParameters {
   rawAsset: NewAsset
   db: DatabaseManager
-  blockNumber: number
+  event: SubstrateEvent
   contentOwner: typeof DataObjectOwner
 }
 
@@ -470,7 +478,12 @@ async function convertAsset(parameters: IConvertAssetParameters): Promise<AssetS
 
   // prepare data object
   const contentParameters: ContentParameters = parameters.rawAsset.asUpload
-  const dataObject = await prepareDataObject(contentParameters, parameters.blockNumber, parameters.contentOwner)
+  const dataObject = await prepareDataObject(
+    parameters.db,
+    contentParameters,
+    parameters.event,
+    parameters.contentOwner,
+  )
 
   return dataObject
 }
@@ -479,7 +492,7 @@ interface IExtractAssetParameters {
   assetIndex: number | undefined
   assets: NewAsset[]
   db: DatabaseManager
-  blockNumber: number
+  event: SubstrateEvent
   contentOwner: typeof DataObjectOwner
 }
 
@@ -505,7 +518,7 @@ async function extractAsset(parameters: IExtractAssetParameters): Promise<Proper
   const asset = await convertAsset({
     rawAsset: parameters.assets[parameters.assetIndex],
     db: parameters.db,
-    blockNumber: parameters.blockNumber,
+    event: parameters.event,
     contentOwner: parameters.contentOwner,
   })
 
@@ -591,7 +604,11 @@ function extractVideoSize(assets: NewAsset[], assetIndex: number | undefined): n
   return videoSize
 }
 
-async function prepareLanguage(languageIso: string | undefined, db: DatabaseManager, blockNumber: number): Promise<PropertyChange<Language>> {
+async function prepareLanguage(
+  languageIso: string | undefined,
+  db: DatabaseManager,
+  event: SubstrateEvent,
+): Promise<PropertyChange<Language>> {
   // is language being unset?
   if (languageIso === undefined) {
     return PropertyChange.newUnset()
@@ -617,8 +634,9 @@ async function prepareLanguage(languageIso: string | undefined, db: DatabaseMana
 
   // create new language
   const newLanguage = new Language({
+    id: await createPredictableId(db),
     iso: languageIso,
-    createdInBlock: blockNumber,
+    createdInBlock: event.blockNumber,
 
     // TODO: remove these lines after Hydra auto-fills the values when cascading save (remove them on all places)
     createdById: '1',
@@ -630,7 +648,11 @@ async function prepareLanguage(languageIso: string | undefined, db: DatabaseMana
   return PropertyChange.newChange(newLanguage)
 }
 
-async function prepareLicense(licenseProtobuf: LicenseMetadata.AsObject | undefined): Promise<License | undefined> {
+async function prepareLicense(
+  db: DatabaseManager,
+  licenseProtobuf: LicenseMetadata.AsObject | undefined,
+  event: SubstrateEvent,
+): Promise<License | undefined> {
   // NOTE: Deletion of any previous license should take place in appropriate event handling function
   //       and not here even it might appear so.
 
@@ -647,6 +669,7 @@ async function prepareLicense(licenseProtobuf: LicenseMetadata.AsObject | undefi
   // crete new license
   const license = new License({
     ...licenseProtobuf,
+    id: await createPredictableId(db),
 
     createdById: '1',
     updatedById: '1',

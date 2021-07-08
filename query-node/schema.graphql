@@ -400,3 +400,11 @@ type Worker @entity {
 
   dataObjects: [DataObject!]! @derivedFrom(field: "liaison")
 }
+
+type NextEntityId @entity {
+  "Unique identifier"
+  id: ID!
+
+  "Next deterministic id for entities without custom id"
+  nextId: Int!
+}
