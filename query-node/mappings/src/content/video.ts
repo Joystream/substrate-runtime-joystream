@@ -11,6 +11,7 @@ import {
 import {
   inconsistentState,
   logger,
+  createPredictableId,
 } from '../common'
 
 import {
@@ -56,7 +57,7 @@ export async function content_VideoCategoryCreated(
     {
       metadata: videoCategoryCreationParameters.meta,
       db,
-      blockNumber: event.blockNumber,
+      event,
     }
   )
 
@@ -108,7 +109,7 @@ export async function content_VideoCategoryUpdated(
     {
       metadata: videoCategoryUpdateParameters.new_meta,
       db,
-      blockNumber: event.blockNumber,
+      event,
     }
   )
 
@@ -171,7 +172,7 @@ export async function content_VideoCreated(
     {
       metadata: videoCreationParameters.meta,
       db,
-      blockNumber: event.blockNumber,
+      event,
       assets: videoCreationParameters.assets,
       contentOwner: convertContentActorToDataObjectOwner(contentActor, channelId.toNumber()),
     }
@@ -186,7 +187,7 @@ export async function content_VideoCreated(
   }
 
   // prepare video media metadata (if any)
-  const fixedProtobuf = integrateVideoMediaMetadata(null, protobufContent, event.blockNumber)
+  const fixedProtobuf = await integrateVideoMediaMetadata(db, null, protobufContent, event)
 
   const licenseIsEmpty = fixedProtobuf.license && !Object.keys(fixedProtobuf.license).length
   if (licenseIsEmpty) { // license deletion was requested - ignore it and consider it empty
@@ -257,14 +258,14 @@ export async function content_VideoUpdated(
       {
         metadata: newMetadata,
         db,
-        blockNumber: event.blockNumber,
+        event,
         assets: videoUpdateParameters.assets.unwrapOr([]),
         contentOwner: convertContentActorToDataObjectOwner(contentActor, (new BN(video.channel.id)).toNumber()),
       }
     )
 
     // prepare video media metadata (if any)
-    const fixedProtobuf = integrateVideoMediaMetadata(video, protobufContent, event.blockNumber)
+    const fixedProtobuf = await integrateVideoMediaMetadata(db, video, protobufContent, event)
 
     // remember original license
     const originalLicense = video.license
@@ -425,14 +426,17 @@ export async function content_FeaturedVideosSet(
   NOTE: type hack - `RawVideoMetadata` is accepted for `metadata` instead of `Partial<Video>`
         see `prepareVideoMetadata()` in `utils.ts` for more info
 */
-function integrateVideoMediaMetadata(
+async function integrateVideoMediaMetadata(
+  db: DatabaseManager,
   existingRecord: Video | null,
   metadata: Partial<Video>,
-  blockNumber: number,
-): Partial<Video> {
+  event: SubstrateEvent,
+): Promise<Partial<Video>> {
   if (!metadata.mediaMetadata) {
     return metadata
   }
+
+  const now = new Date(fixBlockTimestamp(event.blockTimestamp).toNumber())
 
   // fix TS type
   const rawMediaMetadata = metadata.mediaMetadata as unknown as RawVideoMetadata
@@ -440,6 +444,9 @@ function integrateVideoMediaMetadata(
   // ensure encoding object
   const encoding = (existingRecord && existingRecord.mediaMetadata && existingRecord.mediaMetadata.encoding)
     || new VideoMediaEncoding({
+        createdAt: now,
+        updatedAt: now,
+
         createdById: '1',
         updatedById: '1',
       })
@@ -451,7 +458,10 @@ function integrateVideoMediaMetadata(
 
   // ensure media metadata object
   const mediaMetadata = (existingRecord && existingRecord.mediaMetadata) || new VideoMediaMetadata({
-    createdInBlock: blockNumber,
+    createdInBlock: event.blockNumber,
+
+    createdAt: now,
+    updatedAt: now,
 
     createdById: '1',
     updatedById: '1',
@@ -464,6 +474,34 @@ function integrateVideoMediaMetadata(
 
   // connect encoding to media metadata object
   mediaMetadata.encoding = encoding
+
+  // ensure predictable ids
+  if (!mediaMetadata.encoding.id) {
+    mediaMetadata.encoding.id = await createPredictableId(db)
+  }
+  if (!mediaMetadata.id) {
+    mediaMetadata.id = await createPredictableId(db)
+  }
+
+  /////////////////// update updatedAt if needed ///////////////////////////////
+
+  const encodingNoChange = true
+    && rawMediaMetadata.encoding.codecName.isNoChange()
+    && rawMediaMetadata.encoding.container.isNoChange()
+    && rawMediaMetadata.encoding.mimeMediaType.isNoChange()
+  const mediaMetadataNoChange = encodingNoChange
+    && rawMediaMetadata.encoding.codecName.isNoChange()
+    && rawMediaMetadata.encoding.container.isNoChange()
+    && rawMediaMetadata.encoding.mimeMediaType.isNoChange()
+
+  if (!encodingNoChange) { // encoding changed?
+    mediaMetadata.encoding.updatedAt = now
+  }
+  if (!mediaMetadataNoChange) { // metadata changed?
+    mediaMetadata.updatedAt = now
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
 
   return {
     ...metadata,

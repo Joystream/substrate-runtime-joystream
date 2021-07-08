@@ -210,12 +210,10 @@ function convertBytesToString(b: Bytes | null): string {
     return ''
   }
 
-  const result = Buffer.from(b.toU8a(true)).toString()
-
-  // prevent utf-8 null character
-  if (result.match(/^\0$/)) {
-    return ''
-  }
+  const result = Buffer.from(b.toU8a(true))
+      .toString()
+      // eslint-disable-next-line no-control-regex
+      .replace(/\u0000/g, '')
 
   return result
 }

@@ -1,6 +1,7 @@
 import { SubstrateEvent } from '@dzlzv/hydra-common'
 import { DatabaseManager } from '@dzlzv/hydra-db-utils'
-import { u64 } from '@polkadot/types/primitive';
+import { u64 } from '@polkadot/types/primitive'
+import { fixBlockTimestamp } from './eventFix'
 import { SubstrateExtrinsic, ExtrinsicArg } from '@dzlzv/hydra-common'
 
 // Asset
@@ -9,6 +10,7 @@ import {
   DataObject,
   LiaisonJudgement,
   Network,
+  NextEntityId,
 } from 'query-node'
 import {
   ContentParameters,
@@ -42,24 +44,48 @@ export function invalidMetadata(extraInfo: string, data?: unknown): void {
 }
 
 /*
+  Creates a predictable and unique ID for the given content.
+*/
+export async function createPredictableId(db: DatabaseManager): Promise<string> {
+  // load or create record
+  const existingRecord = await db.get(NextEntityId, {}) || new NextEntityId({id: '0', nextId: 0})
+
+  // remember id
+  const entityId = existingRecord.nextId
+
+  // increment id
+  existingRecord.nextId = existingRecord.nextId + 1
+
+  // save record
+  await db.save<NextEntityId>(existingRecord)
+
+  return entityId.toString()
+}
+
+/*
   Prepares data object from content parameters.
 */
 export async function prepareDataObject(
+  db: DatabaseManager,
   contentParameters: ContentParameters,
-  blockNumber: number,
+  event: SubstrateEvent,
   owner: typeof DataObjectOwner,
 ): Promise<DataObject> {
   // convert generic content parameters coming from processor to custom Joystream data type
   const customContentParameters = new Custom_ContentParameters(registry, contentParameters.toJSON() as any)
 
   const dataObject = new DataObject({
+    id: await createPredictableId(db),
     owner,
-    createdInBlock: blockNumber,
+    createdInBlock: event.blockNumber,
     typeId: contentParameters.type_id.toNumber(),
     size: customContentParameters.size_in_bytes.toNumber(),
     liaisonJudgement: LiaisonJudgement.PENDING, // judgement is pending at start; liaison id is set when content is accepted/rejected
     ipfsContentId: contentParameters.ipfs_content_id.toUtf8(),
     joystreamContentId: customContentParameters.content_id.encode(),
+
+    createdAt: new Date(fixBlockTimestamp(event.blockTimestamp).toNumber()),
+    updatedAt: new Date(fixBlockTimestamp(event.blockTimestamp).toNumber()),
 
     createdById: '1',
     updatedById: '1',

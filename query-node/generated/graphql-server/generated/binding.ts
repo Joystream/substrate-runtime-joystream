@@ -12,9 +12,6 @@ export interface Query {
     dataObjects: <T = Array<DataObject>>(args: { offset?: Int | null, limit?: Int | null, where?: DataObjectWhereInput | null, orderBy?: DataObjectOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     dataObjectByUniqueInput: <T = DataObject | null>(args: { where: DataObjectWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     dataObjectsConnection: <T = DataObjectConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: DataObjectWhereInput | null, orderBy?: DataObjectOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
-    featuredVideos: <T = Array<FeaturedVideo>>(args: { offset?: Int | null, limit?: Int | null, where?: FeaturedVideoWhereInput | null, orderBy?: FeaturedVideoOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
-    featuredVideoByUniqueInput: <T = FeaturedVideo | null>(args: { where: FeaturedVideoWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
-    featuredVideosConnection: <T = FeaturedVideoConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: FeaturedVideoWhereInput | null, orderBy?: FeaturedVideoOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     channelCategories: <T = Array<ChannelCategory>>(args: { offset?: Int | null, limit?: Int | null, where?: ChannelCategoryWhereInput | null, orderBy?: ChannelCategoryOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     channelCategoryByUniqueInput: <T = ChannelCategory | null>(args: { where: ChannelCategoryWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     channelCategoriesConnection: <T = ChannelCategoryConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: ChannelCategoryWhereInput | null, orderBy?: ChannelCategoryOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
@@ -30,6 +27,9 @@ export interface Query {
     memberships: <T = Array<Membership>>(args: { offset?: Int | null, limit?: Int | null, where?: MembershipWhereInput | null, orderBy?: MembershipOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     membershipByUniqueInput: <T = Membership | null>(args: { where: MembershipWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
     membershipsConnection: <T = MembershipConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: MembershipWhereInput | null, orderBy?: MembershipOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
+    nextEntityIds: <T = Array<NextEntityId>>(args: { offset?: Int | null, limit?: Int | null, where?: NextEntityIdWhereInput | null, orderBy?: NextEntityIdOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
+    nextEntityIdByUniqueInput: <T = NextEntityId | null>(args: { where: NextEntityIdWhereUniqueInput }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T | null> ,
+    nextEntityIdsConnection: <T = NextEntityIdConnection>(args: { first?: Int | null, after?: String | null, last?: Int | null, before?: String | null, where?: NextEntityIdWhereInput | null, orderBy?: NextEntityIdOrderByInput | null }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     channelCategoriesByName: <T = Array<ChannelCategoriesByNameFTSOutput>>(args: { whereChannelCategory?: ChannelCategoryWhereInput | null, skip?: Int | null, limit?: Int | null, text: String }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     membersByHandle: <T = Array<MembersByHandleFTSOutput>>(args: { whereMembership?: MembershipWhereInput | null, skip?: Int | null, limit?: Int | null, text: String }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
     search: <T = Array<SearchFTSOutput>>(args: { whereVideo?: VideoWhereInput | null, whereChannel?: ChannelWhereInput | null, skip?: Int | null, limit?: Int | null, text: String }, info?: GraphQLResolveInfo | string, options?: Options) => Promise<T> ,
@@ -114,15 +114,6 @@ export type DataObjectOrderByInput =   'createdAt_ASC' |
   'ipfsContentId_DESC' |
   'joystreamContentId_ASC' |
   'joystreamContentId_DESC'
-
-export type FeaturedVideoOrderByInput =   'createdAt_ASC' |
-  'createdAt_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'deletedAt_ASC' |
-  'deletedAt_DESC' |
-  'videoId_ASC' |
-  'videoId_DESC'
 
 export type ChannelCategoryOrderByInput =   'createdAt_ASC' |
   'createdAt_DESC' |
@@ -223,6 +214,15 @@ export type MembershipOrderByInput =   'createdAt_ASC' |
   'entry_DESC' |
   'subscription_ASC' |
   'subscription_DESC'
+
+export type NextEntityIdOrderByInput =   'createdAt_ASC' |
+  'createdAt_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'deletedAt_ASC' |
+  'deletedAt_DESC' |
+  'nextId_ASC' |
+  'nextId_DESC'
 
 export type VideoCategoryOrderByInput =   'createdAt_ASC' |
   'createdAt_DESC' |
@@ -722,47 +722,6 @@ export interface DataObjectWhereUniqueInput {
   id: ID_Output
 }
 
-export interface FeaturedVideoCreateInput {
-  videoId: ID_Output
-}
-
-export interface FeaturedVideoUpdateInput {
-  videoId?: ID_Input | null
-}
-
-export interface FeaturedVideoWhereInput {
-  id_eq?: ID_Input | null
-  id_in?: ID_Output[] | ID_Output | null
-  createdAt_eq?: DateTime | null
-  createdAt_lt?: DateTime | null
-  createdAt_lte?: DateTime | null
-  createdAt_gt?: DateTime | null
-  createdAt_gte?: DateTime | null
-  createdById_eq?: ID_Input | null
-  createdById_in?: ID_Output[] | ID_Output | null
-  updatedAt_eq?: DateTime | null
-  updatedAt_lt?: DateTime | null
-  updatedAt_lte?: DateTime | null
-  updatedAt_gt?: DateTime | null
-  updatedAt_gte?: DateTime | null
-  updatedById_eq?: ID_Input | null
-  updatedById_in?: ID_Output[] | ID_Output | null
-  deletedAt_all?: Boolean | null
-  deletedAt_eq?: DateTime | null
-  deletedAt_lt?: DateTime | null
-  deletedAt_lte?: DateTime | null
-  deletedAt_gt?: DateTime | null
-  deletedAt_gte?: DateTime | null
-  deletedById_eq?: ID_Input | null
-  deletedById_in?: ID_Output[] | ID_Output | null
-  videoId_eq?: ID_Input | null
-  videoId_in?: ID_Output[] | ID_Output | null
-}
-
-export interface FeaturedVideoWhereUniqueInput {
-  id: ID_Output
-}
-
 export interface ChannelCategoryCreateInput {
   name?: String | null
   createdInBlock: Float
@@ -1127,6 +1086,51 @@ export interface MembershipWhereInput {
 export interface MembershipWhereUniqueInput {
   id?: ID_Input | null
   handle?: String | null
+}
+
+export interface NextEntityIdCreateInput {
+  nextId: Float
+}
+
+export interface NextEntityIdUpdateInput {
+  nextId?: Float | null
+}
+
+export interface NextEntityIdWhereInput {
+  id_eq?: ID_Input | null
+  id_in?: ID_Output[] | ID_Output | null
+  createdAt_eq?: DateTime | null
+  createdAt_lt?: DateTime | null
+  createdAt_lte?: DateTime | null
+  createdAt_gt?: DateTime | null
+  createdAt_gte?: DateTime | null
+  createdById_eq?: ID_Input | null
+  createdById_in?: ID_Output[] | ID_Output | null
+  updatedAt_eq?: DateTime | null
+  updatedAt_lt?: DateTime | null
+  updatedAt_lte?: DateTime | null
+  updatedAt_gt?: DateTime | null
+  updatedAt_gte?: DateTime | null
+  updatedById_eq?: ID_Input | null
+  updatedById_in?: ID_Output[] | ID_Output | null
+  deletedAt_all?: Boolean | null
+  deletedAt_eq?: DateTime | null
+  deletedAt_lt?: DateTime | null
+  deletedAt_lte?: DateTime | null
+  deletedAt_gt?: DateTime | null
+  deletedAt_gte?: DateTime | null
+  deletedById_eq?: ID_Input | null
+  deletedById_in?: ID_Output[] | ID_Output | null
+  nextId_eq?: Float | null
+  nextId_gt?: Float | null
+  nextId_gte?: Float | null
+  nextId_lt?: Float | null
+  nextId_lte?: Float | null
+  nextId_in?: Float[] | Float | null
+}
+
+export interface NextEntityIdWhereUniqueInput {
+  id: ID_Output
 }
 
 export interface VideoCategoryCreateInput {
@@ -1628,30 +1632,6 @@ export interface DataObjectOwnerWorkingGroup {
   workingGroup: Int
 }
 
-export interface FeaturedVideo extends BaseGraphQLObject {
-  id: ID_Output
-  createdAt: DateTime
-  createdById: String
-  updatedAt?: DateTime | null
-  updatedById?: String | null
-  deletedAt?: DateTime | null
-  deletedById?: String | null
-  version: Int
-  video: Video
-  videoId: String
-}
-
-export interface FeaturedVideoConnection {
-  totalCount: Int
-  edges: Array<FeaturedVideoEdge>
-  pageInfo: PageInfo
-}
-
-export interface FeaturedVideoEdge {
-  node: FeaturedVideo
-  cursor: String
-}
-
 export interface Channel extends BaseGraphQLObject {
   id: ID_Output
   createdAt: DateTime
@@ -1827,6 +1807,29 @@ export interface MembershipEdge {
   cursor: String
 }
 
+export interface NextEntityId extends BaseGraphQLObject {
+  id: ID_Output
+  createdAt: DateTime
+  createdById: String
+  updatedAt?: DateTime | null
+  updatedById?: String | null
+  deletedAt?: DateTime | null
+  deletedById?: String | null
+  version: Int
+  nextId: Float
+}
+
+export interface NextEntityIdConnection {
+  totalCount: Int
+  edges: Array<NextEntityIdEdge>
+  pageInfo: PageInfo
+}
+
+export interface NextEntityIdEdge {
+  node: NextEntityId
+  cursor: String
+}
+
 export interface PageInfo {
   hasNextPage: Boolean
   hasPreviousPage: Boolean
@@ -1889,7 +1892,6 @@ export interface Video extends BaseGraphQLObject {
   mediaMetadataId?: String | null
   createdInBlock: Int
   isFeatured: Boolean
-  featured?: FeaturedVideo | null
 }
 
 export interface VideoCategoriesByNameFTSOutput {
