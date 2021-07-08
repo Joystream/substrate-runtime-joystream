@@ -12,6 +12,8 @@ import { License } from '../src/modules/license/license.model';
 export { License };
 import { Membership } from '../src/modules/membership/membership.model';
 export { Membership };
+import { NextEntityId } from '../src/modules/next-entity-id/next-entity-id.model';
+export { NextEntityId };
 import { Video } from '../src/modules/video/video.model';
 export { Video };
 import { VideoCategory } from '../src/modules/video-category/video-category.model';

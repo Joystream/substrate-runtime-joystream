@@ -1,0 +1,43 @@
+name: query-node
+on: [pull_request, push]
+
+jobs:
+  query_node_build_ubuntu:
+    name: Ubuntu Checks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: checks
+      run: |
+        yarn install --frozen-lockfile
+        yarn workspace @joystream/types build
+        yarn workspace @joystream/content-metadata-protobuf build:ts
+        ./query-node/build.sh
+        yarn workspace query-node-mappings checks --quiet
+
+  query_node_build_osx:
+    name: MacOS Checks
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: checks
+      run: |
+        yarn install --frozen-lockfile --network-timeout 120000
+        yarn workspace @joystream/types build
+        yarn workspace @joystream/content-metadata-protobuf build:ts
+        ./query-node/build.sh
+        yarn workspace query-node-mappings checks --quiet

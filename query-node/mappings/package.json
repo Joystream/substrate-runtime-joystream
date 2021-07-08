@@ -7,8 +7,10 @@
   "scripts": {
     "build": "rm -rf lib && tsc --build tsconfig.json && yarn copy-types",
     "copy-types": "cp ../../types/augment/all/defs.json lib/generated/types/typedefs.json",
-    "lint": "echo \"Skippinng\"",
-    "clean": "rm -rf lib"
+    "clean": "rm -rf lib",
+    "lint": "eslint . --quiet --ext .ts",
+    "checks": "tsc --noEmit --pretty && prettier ./ --check && yarn lint",
+    "format": "prettier ./ --write "
   },
   "dependencies": {
     "@polkadot/types": "4.2.1",
@@ -21,6 +23,7 @@
     "warthog": "https://github.com/metmirr/warthog/releases/download/v2.23.0/warthog-v2.23.0.tgz"
   },
   "devDependencies": {
+    "prettier": "^2.2.1",
     "ts-node": "^9.0.0",
     "typescript": "^3.8"
   }

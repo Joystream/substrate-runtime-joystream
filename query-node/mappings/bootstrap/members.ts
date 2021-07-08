@@ -1,21 +1,19 @@
-//import { Connection } from 'typeorm'
+// import { Connection } from 'typeorm'
 import { DatabaseManager } from '@dzlzv/hydra-db-utils'
-import {
-  logger,
-} from '../src/common'
+import { logger } from '../src/common'
 import { MembershipEntryMethod, Membership } from 'query-node'
 
 export interface IBootstrapMember {
   member_id: number
-  root_account: string,
-  controller_account: string,
-  handle: string,
-  avatar_uri: string,
-  about: string,
+  root_account: string
+  controller_account: string
+  handle: string
+  avatar_uri: string
+  about: string
   registered_at_time: number
 }
 
-//export async function bootMembers(members: IBootstrapMember[], db: Connection): Promise<void> {
+// export async function bootMembers(members: IBootstrapMember[], db: Connection): Promise<void> {
 export async function bootMembers(db: DatabaseManager, members: IBootstrapMember[]): Promise<void> {
   for (const rawMember of members) {
     // create new membership
@@ -39,6 +37,6 @@ export async function bootMembers(db: DatabaseManager, members: IBootstrapMember
     await db.save<Membership>(member)
 
     // emit log event
-    logger.info('Member has been bootstrapped', {id: rawMember.member_id})
+    logger.info('Member has been bootstrapped', { id: rawMember.member_id })
   }
 }

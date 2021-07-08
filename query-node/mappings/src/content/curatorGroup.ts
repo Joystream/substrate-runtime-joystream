@@ -6,17 +6,11 @@ import { FindConditions } from 'typeorm'
 import { CuratorGroup } from 'query-node'
 import { Content } from '../../../generated/types'
 
-import {
-  inconsistentState,
-  logger,
-} from '../common'
+import { inconsistentState, logger } from '../common'
 
-export async function content_CuratorGroupCreated(
-  db: DatabaseManager,
-  event: SubstrateEvent
-) {
+export async function content_CuratorGroupCreated(db: DatabaseManager, event: SubstrateEvent) {
   // read event data
-  const {curatorGroupId} = new Content.CuratorGroupCreatedEvent(event).data
+  const { curatorGroupId } = new Content.CuratorGroupCreatedEvent(event).data
 
   // create new curator group
   const curatorGroup = new CuratorGroup({
@@ -34,18 +28,17 @@ export async function content_CuratorGroupCreated(
   await db.save<CuratorGroup>(curatorGroup)
 
   // emit log event
-  logger.info('Curator group has been created', {id: curatorGroupId})
+  logger.info('Curator group has been created', { id: curatorGroupId })
 }
 
-export async function content_CuratorGroupStatusSet(
-  db: DatabaseManager,
-  event: SubstrateEvent
-) {
+export async function content_CuratorGroupStatusSet(db: DatabaseManager, event: SubstrateEvent) {
   // read event data
-  const {curatorGroupId, bool: isActive} = new Content.CuratorGroupStatusSetEvent(event).data
+  const { curatorGroupId, bool: isActive } = new Content.CuratorGroupStatusSetEvent(event).data
 
   // load curator group
-  const curatorGroup = await db.get(CuratorGroup, { where: { id: curatorGroupId.toString() } as FindConditions<CuratorGroup>})
+  const curatorGroup = await db.get(CuratorGroup, {
+    where: { id: curatorGroupId.toString() } as FindConditions<CuratorGroup>,
+  })
 
   // ensure curator group exists
   if (!curatorGroup) {
@@ -62,18 +55,17 @@ export async function content_CuratorGroupStatusSet(
   await db.save<CuratorGroup>(curatorGroup)
 
   // emit log event
-  logger.info('Curator group status has been set', {id: curatorGroupId, isActive})
+  logger.info('Curator group status has been set', { id: curatorGroupId, isActive })
 }
 
-export async function content_CuratorAdded(
-  db: DatabaseManager,
-  event: SubstrateEvent
-) {
+export async function content_CuratorAdded(db: DatabaseManager, event: SubstrateEvent) {
   // read event data
-  const {curatorGroupId, curatorId} = new Content.CuratorAddedEvent(event).data
+  const { curatorGroupId, curatorId } = new Content.CuratorAddedEvent(event).data
 
   // load curator group
-  const curatorGroup = await db.get(CuratorGroup, { where: { id: curatorGroupId.toString() } as FindConditions<CuratorGroup>})
+  const curatorGroup = await db.get(CuratorGroup, {
+    where: { id: curatorGroupId.toString() } as FindConditions<CuratorGroup>,
+  })
 
   // ensure curator group exists
   if (!curatorGroup) {
@@ -90,18 +82,17 @@ export async function content_CuratorAdded(
   await db.save<CuratorGroup>(curatorGroup)
 
   // emit log event
-  logger.info('Curator has been added to curator group', {id: curatorGroupId, curatorId})
+  logger.info('Curator has been added to curator group', { id: curatorGroupId, curatorId })
 }
 
-export async function content_CuratorRemoved(
-  db: DatabaseManager,
-  event: SubstrateEvent
-) {
+export async function content_CuratorRemoved(db: DatabaseManager, event: SubstrateEvent) {
   // read event data
-  const {curatorGroupId, curatorId} = new Content.CuratorAddedEvent(event).data
+  const { curatorGroupId, curatorId } = new Content.CuratorAddedEvent(event).data
 
   // load curator group
-  const curatorGroup = await db.get(CuratorGroup, { where: { id: curatorGroupId.toString() } as FindConditions<CuratorGroup>})
+  const curatorGroup = await db.get(CuratorGroup, {
+    where: { id: curatorGroupId.toString() } as FindConditions<CuratorGroup>,
+  })
 
   // ensure curator group exists
   if (!curatorGroup) {
@@ -122,5 +113,5 @@ export async function content_CuratorRemoved(
   await db.save<CuratorGroup>(curatorGroup)
 
   // emit log event
-  logger.info('Curator has been removed from curator group', {id: curatorGroupId, curatorId})
+  logger.info('Curator has been removed from curator group', { id: curatorGroupId, curatorId })
 }
