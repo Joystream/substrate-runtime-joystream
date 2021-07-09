@@ -75,6 +75,7 @@ proposals-engine = { package = 'pallet-proposals-engine', default-features = fal
 proposals-discussion = { package = 'pallet-proposals-discussion', default-features = false, path = '../runtime-modules/proposals/discussion'}
 proposals-codex = { package = 'pallet-proposals-codex', default-features = false, path = '../runtime-modules/proposals/codex'}
 content = { package = 'pallet-content', default-features = false, path = '../runtime-modules/content' }
+vnft-auction = { package = 'pallet-vnft-auction', default-features = false, path = '../runtime-modules/vnft-auction' }
 
 [dev-dependencies]
 sp-io = { package = 'sp-io', default-features = false, git = 'https://github.com/paritytech/substrate.git', rev = '2cd20966cc09b059817c3ebe12fc130cdd850d62'}
@@ -148,6 +149,7 @@ std = [
     'proposals-discussion/std',
     'proposals-codex/std',
     'content/std',
+    'vnft-auction/std',
 ]
 runtime-benchmarks = [
     "frame-system/runtime-benchmarks",
