@@ -367,13 +367,13 @@ export async function content_FeaturedVideosSet(
   // calculate diff sets
   const toRemove = existingFeaturedVideos.filter(existingFV =>
     !videoIds
-      .map(item => item.toHex())
+      .map(item => item.toString())
       .some(isSame(existingFV.id))
   )
   const toAdd = videoIds.filter(video =>
     !existingFeaturedVideos
       .map(item => item.id)
-      .some(isSame(video.toHex()))
+      .some(isSame(video.toString()))
   )
 
   // mark previously featured videos as not-featured
