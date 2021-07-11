@@ -23,3 +23,8 @@ members = [
 [profile.release]
 # Substrate runtime requires unwinding.
 panic = "unwind"
+
+[patch.crates-io]
+# Update to build on Apple Silicon M1 / arm64
+# https://github.com/rust-rocksdb/rust-rocksdb/issues/482
+librocksdb-sys = { git = "https://github.com/rust-rocksdb/rust-rocksdb", rev = "476cab4f4ed378db5c61ce109be27325d70a29ce" }
