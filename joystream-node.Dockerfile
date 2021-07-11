@@ -23,8 +23,8 @@ FROM ubuntu:21.04
 LABEL description="Joystream node"
 WORKDIR /joystream
 COPY --from=builder /joystream/target/release/joystream-node /joystream/node
-COPY --from=builder /joystream/target/release/wbuild/joystream-node-runtime/joystream_node_runtime.compact.wasm /joystream/runtime.compact.wasm
 COPY --from=builder /joystream/target/release/chain-spec-builder /joystream/chain-spec-builder
+COPY --from=builder /joystream/target/release/wbuild/joystream-node-runtime/joystream_node_runtime.compact.wasm /joystream/runtime.compact.wasm
 
 # confirm it works
 RUN /joystream/node --version
