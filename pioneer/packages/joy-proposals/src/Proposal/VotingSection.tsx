@@ -99,7 +99,7 @@ export default function VotingSection ({
 
   return (
     <>
-      <Header as='h3'>Sumbit your vote</Header>
+      <Header as='h3'>Submit your vote</Header>
       <Divider />
       <VoteButtons>
         { VoteKinds.map((voteKind) =>
