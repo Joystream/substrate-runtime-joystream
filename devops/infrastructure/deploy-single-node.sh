@@ -6,7 +6,7 @@ source common.sh
 
 if [ -z "$1" ]; then
   echo "ERROR: Configuration file not passed"
-  echo "Please use ./deploy-infra.sh PATH/TO/CONFIG to run this script"
+  echo "Please use ./deploy-single-node.sh PATH/TO/CONFIG to run this script"
   exit 1
 else
   echo "Using $1 file for config"
@@ -24,7 +24,7 @@ if [ ! -f "$KEY_PATH" ]; then
 fi
 
 # # Deploy the CloudFormation template
-echo -e "\n\n=========== Deploying single instance ==========="
+echo -e "\n\n=========== Deploying single node ==========="
 aws cloudformation deploy \
   --region $REGION \
   --profile $CLI_PROFILE \
@@ -45,7 +45,7 @@ if [ $? -eq 0 ]; then
 
   echo -e "New Node Public IP: $SERVER_IP"
 
-  echo -e "\n\n=========== Configuring the chain spec file and Pioneer app ==========="
-  ansible-playbook -i $SERVER_IP, --private-key $KEY_PATH new-node-playbook.yml \
+  echo -e "\n\n=========== Configuring node ==========="
+  ansible-playbook -i $SERVER_IP, --private-key $KEY_PATH single-node-playbook.yml \
     --extra-vars "binary_file=$BINARY_FILE chain_spec_file=$CHAIN_SPEC_FILE"
 fi

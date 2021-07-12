@@ -16,6 +16,11 @@
           name: common
           tasks_from: run-setup-build
 
+      - name: Install subkey
+        include_role:
+          name: admin
+          tasks_from: main
+
       - name: Basic AMI Creation
         amazon.aws.ec2_ami:
           instance_id: "{{ instance_id }}"

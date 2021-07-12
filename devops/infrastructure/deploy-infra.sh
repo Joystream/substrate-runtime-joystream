@@ -73,16 +73,15 @@ if [ $? -eq 0 ]; then
 
   if [ -z "$EC2_AMI_ID" ]
   then
-    echo -e "\n\n=========== Configuring the node servers ==========="
+    echo -e "\n\n=========== Compile joystream-node on build server ==========="
     ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH build-code.yml \
       --extra-vars "branch_name=$BRANCH_NAME git_repo=$GIT_REPO build_local_code=$BUILD_LOCAL_CODE data_path=data-$NEW_STACK_NAME"
+
+    echo -e "\n\n=========== Install additional utils on build server ==========="
+    ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH setup-admin.yml
   fi
 
-  echo -e "\n\n=========== Configuring the Build server ==========="
-  ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH setup-admin.yml \
-    --extra-vars "local_dir=$LOCAL_CODE_PATH build_local_code=$BUILD_LOCAL_CODE"
-
-  echo -e "\n\n=========== Configuring the chain spec file and Pioneer app ==========="
+  echo -e "\n\n=========== Configure and start new validators, rpc node and pioneer ==========="
   ansible-playbook -i $INVENTORY_PATH --private-key $KEY_PATH chain-spec-pioneer.yml \
     --extra-vars "local_dir=$LOCAL_CODE_PATH network_suffix=$NETWORK_SUFFIX
                   data_path=data-$NEW_STACK_NAME bucket_name=$BUCKET_NAME number_of_validators=$NUMBER_OF_VALIDATORS"

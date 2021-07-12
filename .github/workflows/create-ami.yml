@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - olympia
-      - test_branch
+      - create-joystream-node-ami
 
 jobs:
   build:
