@@ -1,0 +1,12 @@
+name: query-node
+runtime: nodejs
+description: Kubernetes IaC for Query Node
+template:
+  config:
+    aws:profile:
+      default: joystream-user
+    aws:region:
+      default: us-east-1
+    isMinikube:
+      description: Whether you are deploying to minikube
+      default: false

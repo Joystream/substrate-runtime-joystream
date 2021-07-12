@@ -1,0 +1,4 @@
+encryptionsalt: v1:6JCZJ+FPZ/o=:v1:axvmG3ZflvqylUwZ:8J9F+CmjCVz8Z8lY9LhB0PlMHSIk8w==
+config:
+  aws:profile: joystream-user
+  aws:region: us-east-1
